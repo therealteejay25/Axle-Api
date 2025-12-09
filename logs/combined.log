@@ -9012,3 +9012,523 @@ Body: {"error":{"message":"This request requires more credits, or fewer max_toke
 2025-12-09T00:15:30.657Z [32minfo[39m MongoDB connection established
 2025-12-09T00:15:30.873Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
 2025-12-09T00:15:32.447Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-09T00:25:28.082Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-09T00:25:28.094Z [32minfo[39m API vv1: /api/v1/
+2025-12-09T00:25:28.095Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-09T00:25:28.512Z [32minfo[39m Redis connecting
+2025-12-09T00:25:29.084Z [32minfo[39m Redis ready
+2025-12-09T00:25:30.711Z [32minfo[39m MongoDB connection established
+2025-12-09T00:25:30.941Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-09T00:25:32.161Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-09T00:26:22.935Z [32minfo[39m [774b2983-72fa-4083-ac20-640b9114238e] OPTIONS /api/v1/auth - 204 (5ms)
+2025-12-09T00:26:24.952Z [32minfo[39m [6ba7f075-0431-41f5-a150-304edea51b90] Magic link sent to therealteejay25@gmail.com
+2025-12-09T00:26:24.956Z [32minfo[39m [6ba7f075-0431-41f5-a150-304edea51b90] POST / - 200 (2015ms)
+2025-12-09T00:26:48.281Z [32minfo[39m [d60cad07-337f-46c8-aa5a-56fd5b83fb25] OPTIONS /api/v1/auth/verify - 204 (2ms)
+2025-12-09T00:26:48.287Z [32minfo[39m ef2610351f19153b4cd0fce7af58abb84caf35e5128bccee01ff978a5282dbf0b6880a059933b632bb76df9bf27cbe918a90365c8d7ed3c1ea45404251462898
+2025-12-09T00:26:48.873Z [32minfo[39m [92308fda-bb8b-43db-a6e0-89a394278831] User authenticated: 692ad22d8b93c44e2ceadf4e
+2025-12-09T00:26:48.876Z [32minfo[39m [92308fda-bb8b-43db-a6e0-89a394278831] POST /verify - 200 (592ms)
+2025-12-09T00:26:51.430Z [32minfo[39m [165445a7-87ed-4bad-8fa6-439e9d23328c] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:26:51.632Z [32minfo[39m [19182402-3ae4-4f6f-80ee-1f7ea343c322] GET / - 200 (185ms)
+2025-12-09T00:26:51.849Z [32minfo[39m [d929f9db-9b5b-402c-8f9a-fd7d9a871424] GET / - 304 (214ms)
+2025-12-09T00:31:55.553Z [32minfo[39m [19b78af2-1f2e-4d85-ae36-fa69b6ba36b3] OPTIONS /api/v1/auth/me - 204 (240ms)
+2025-12-09T00:31:55.802Z [32minfo[39m [31083e45-bd40-44d8-b11e-14a16f64095a] GET /me - 200 (178ms)
+2025-12-09T00:32:03.661Z [32minfo[39m [6194f8d7-405f-4b5b-be28-3aa207d597ac] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-09T00:32:03.769Z [32minfo[39m [be60de72-0900-4d3c-9ff8-9c4e0c89f619] GET /me - 304 (12ms)
+2025-12-09T00:33:03.685Z [32minfo[39m [df4ca682-7e13-4554-99dd-922166a92415] OPTIONS /api/v1/auth/me - 204 (2ms)
+2025-12-09T00:33:04.079Z [32minfo[39m [31cf5e3b-3f52-431e-9aac-0de50d2c816b] GET /me - 304 (3ms)
+2025-12-09T00:33:08.891Z [32minfo[39m [90df0605-cd38-40a8-9fd8-96ed3f30706b] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T00:33:09.144Z [32minfo[39m [78e2b923-fb78-40f2-a1bd-0949a5babc87] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T00:33:09.440Z [32minfo[39m [f94bd2cb-10ba-4101-a0d2-dbe05a9a5210] GET / - 304 (249ms)
+2025-12-09T00:33:09.742Z [32minfo[39m [4daf3be5-358e-4b44-866f-a31c16967583] GET / - 304 (265ms)
+2025-12-09T00:33:28.605Z [31merror[39m Redis error read ECONNRESET
+2025-12-09T00:33:29.122Z [33mwarn[39m Redis connection closed
+2025-12-09T00:33:29.974Z [32minfo[39m Redis connecting
+2025-12-09T00:33:30.759Z [32minfo[39m Redis ready
+2025-12-09T00:33:35.142Z [32minfo[39m [0db06820-4aba-4370-bf5a-351cf7ad5bad] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:33:38.657Z [32minfo[39m [f800f287-3a89-4c1e-b7e4-d7813cdd7ef3] Agent created: 69376e6033f367d00c5a32b6
+2025-12-09T00:33:38.692Z [32minfo[39m [f800f287-3a89-4c1e-b7e4-d7813cdd7ef3] POST / - 201 (3498ms)
+2025-12-09T00:33:39.344Z [32minfo[39m [d2b924de-d8f5-4084-a421-e1a012e06261] GET / - 200 (383ms)
+2025-12-09T00:34:11.264Z [32minfo[39m [26334629-b538-4835-a005-ba682231b079] OPTIONS /api/v1/agents/69376e6033f367d00c5a32b6 - 204 (1ms)
+2025-12-09T00:34:11.271Z [32minfo[39m [8f908d23-e0b8-4ebf-a8d6-0eeca23fff35] OPTIONS /api/v1/agents/69376e6033f367d00c5a32b6 - 204 (1ms)
+2025-12-09T00:34:11.547Z [32minfo[39m [8c3ec121-cb8f-4b5d-9559-ba57c7669936] GET /69376e6033f367d00c5a32b6 - 200 (267ms)
+2025-12-09T00:34:11.985Z [32minfo[39m [1f9e802d-df55-41a3-aaf0-d1fa8222ed97] GET /69376e6033f367d00c5a32b6 - 304 (209ms)
+2025-12-09T00:34:16.991Z [32minfo[39m [c9e82927-da23-424f-acb5-1773024f8669] OPTIONS /api/v1/agents/69376e6033f367d00c5a32b6/run - 204 (1ms)
+2025-12-09T00:34:17.805Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 starting execution with 0 tools available
+2025-12-09T00:34:20.620Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: search_github
+2025-12-09T00:34:23.355Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:34:26.809Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_email
+2025-12-09T00:34:30.604Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T00:34:34.079Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_email
+2025-12-09T00:34:35.915Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T00:34:37.105Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: add_domain_verification
+2025-12-09T00:34:37.115Z [32minfo[39m [runIndependentAgent] Tool add_domain_verification execution result: failed
+2025-12-09T00:34:40.304Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_gmail
+2025-12-09T00:34:41.758Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T00:34:43.061Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: mark_notification_read
+2025-12-09T00:34:43.375Z [32minfo[39m [runIndependentAgent] Tool mark_notification_read execution result: failed
+2025-12-09T00:34:45.172Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_notification
+2025-12-09T00:34:45.375Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T00:34:46.855Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_slack_message
+2025-12-09T00:34:47.056Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T00:34:47.057Z [32minfo[39m Agent 69376e6033f367d00c5a32b6 completed successfully in 29681ms
+2025-12-09T00:34:47.298Z [32minfo[39m [d17495c4-0c8f-40c5-a274-cce00e8a3e8a] Agent run completed: 69376e6033f367d00c5a32b6
+2025-12-09T00:34:47.303Z [32minfo[39m [d17495c4-0c8f-40c5-a274-cce00e8a3e8a] POST /69376e6033f367d00c5a32b6/run - 200 (30310ms)
+2025-12-09T00:34:49.335Z [32minfo[39m [45f83ee9-fba6-488a-b9a9-c79f38b39a37] OPTIONS /api/v1/agents/69376e6033f367d00c5a32b6 - 204 (9ms)
+2025-12-09T00:34:49.536Z [32minfo[39m [8499b4c0-0cc7-41b7-8daa-49eee93250da] GET /69376e6033f367d00c5a32b6 - 200 (197ms)
+2025-12-09T00:35:06.784Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 starting execution with 0 tools available
+2025-12-09T00:35:09.066Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: search_github
+2025-12-09T00:35:10.601Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-09T00:35:11.842Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: search_github
+2025-12-09T00:35:12.982Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:35:14.914Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_email
+2025-12-09T00:35:17.852Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T00:35:19.851Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: create_text_file
+2025-12-09T00:35:19.853Z [32minfo[39m [runIndependentAgent] Tool create_text_file execution result: failed
+2025-12-09T00:35:21.984Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_gmail
+2025-12-09T00:35:23.805Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T00:35:25.313Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: mark_notification_read
+2025-12-09T00:35:25.523Z [32minfo[39m [runIndependentAgent] Tool mark_notification_read execution result: failed
+2025-12-09T00:35:27.130Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_notification
+2025-12-09T00:35:27.338Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T00:35:28.870Z [32minfo[39m [runIndependentAgent] Agent 69376e6033f367d00c5a32b6 calling tool: send_slack_message
+2025-12-09T00:35:29.625Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T00:35:29.628Z [32minfo[39m Agent 69376e6033f367d00c5a32b6 completed successfully in 23345ms
+2025-12-09T00:36:37.448Z [32minfo[39m [2247182a-b777-4eb0-a4a8-f4fb904717e2] OPTIONS /api/v1/agents - 204 (2ms)
+2025-12-09T00:36:37.472Z [32minfo[39m [dd702960-1461-46a2-946c-3e72c2c23e56] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T00:36:37.675Z [32minfo[39m [5fbe7762-cdc0-4230-9dcd-a887d8677390] GET / - 200 (201ms)
+2025-12-09T00:36:37.883Z [32minfo[39m [e01ebbcd-ed0d-49a9-b4f2-5ba397d0404d] GET / - 304 (197ms)
+2025-12-09T00:39:21.446Z [32minfo[39m [e28aaa0c-d09a-41f7-8aa3-8e743def8158] OPTIONS /api/v1/agents/69376e6033f367d00c5a32b6 - 204 (16ms)
+2025-12-09T00:39:21.468Z [32minfo[39m [baacb34f-407b-4dac-8420-d70ede741073] OPTIONS /api/v1/agents/69376e6033f367d00c5a32b6 - 204 (1ms)
+2025-12-09T00:39:21.916Z [32minfo[39m [174028ec-5d87-4dd0-9a1c-1ae4802eb804] GET /69376e6033f367d00c5a32b6 - 200 (414ms)
+2025-12-09T00:39:22.291Z [32minfo[39m [1fafad11-22f2-49e1-93ca-ac351b581963] GET /69376e6033f367d00c5a32b6 - 304 (211ms)
+2025-12-09T00:39:27.863Z [32minfo[39m [b1d4be4c-f4e8-4c8d-9f68-8d8437f666bb] OPTIONS /api/v1/agents/69376e6033f367d00c5a32b6 - 204 (1ms)
+2025-12-09T00:39:28.479Z [32minfo[39m [b9538fdf-9624-4bfa-ae65-652052fdbe60] Removed repeatable job for agent 69376e6033f367d00c5a32b6: agent-69376e6033f367d00c5a32b6::::300000
+2025-12-09T00:39:28.786Z [32minfo[39m [b9538fdf-9624-4bfa-ae65-652052fdbe60] Agent deleted: 69376e6033f367d00c5a32b6
+2025-12-09T00:39:28.788Z [32minfo[39m [b9538fdf-9624-4bfa-ae65-652052fdbe60] DELETE /69376e6033f367d00c5a32b6 - 200 (893ms)
+2025-12-09T00:39:29.039Z [32minfo[39m [62fd2a29-8249-4b5e-b9ec-da3d069e0cdb] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:39:29.075Z [32minfo[39m [4c178c36-8bf8-4245-b379-1583cc48b89a] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:39:29.581Z [32minfo[39m [aaae0f4a-c0d4-4696-9bbc-e7ff080b5ad1] GET / - 200 (517ms)
+2025-12-09T00:39:29.803Z [32minfo[39m [e57c06a7-5853-45a1-885f-fdd787cbf6df] GET / - 304 (220ms)
+2025-12-09T00:51:23.551Z [32minfo[39m [60885299-ca9f-4fe4-8e61-3637fce4dce9] OPTIONS /api/v1/agents - 204 (9ms)
+2025-12-09T00:51:23.563Z [32minfo[39m [c1a4c326-ec93-4fcf-8001-17f7b3dfe750] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:51:23.872Z [32minfo[39m [dfabba1e-2ce6-496d-89e2-110e95735d94] GET / - 304 (290ms)
+2025-12-09T00:51:24.078Z [32minfo[39m [720ca8e6-9c72-47da-a18e-bf2e26ef01b9] GET / - 304 (199ms)
+2025-12-09T00:51:26.016Z [32minfo[39m [68df5b48-22bf-4f58-806e-2376b60ab339] GET / - 304 (195ms)
+2025-12-09T00:51:26.239Z [32minfo[39m [083d1106-ce58-42da-bf1f-8b608a617ccc] GET / - 304 (212ms)
+2025-12-09T00:51:27.653Z [32minfo[39m [d946052e-5c4b-4d79-b871-c3e34cf77844] GET / - 304 (196ms)
+2025-12-09T00:51:27.838Z [32minfo[39m [7b498c9c-2866-4a27-aeae-5ece2db71ad0] GET / - 304 (183ms)
+2025-12-09T00:51:29.484Z [32minfo[39m [967aa902-932e-4acb-bd83-1ca20d3606a9] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:51:29.487Z [32minfo[39m [a120e65a-5d92-4a13-879f-9032501f0d2b] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T00:51:29.734Z [32minfo[39m [fdd0f502-1365-48d0-9ea1-ea492760eb81] GET / - 304 (196ms)
+2025-12-09T00:51:29.915Z [32minfo[39m [6518c4d2-795f-4aa6-9246-a383a4b5b4e6] GET / - 304 (180ms)
+2025-12-09T00:51:31.016Z [32minfo[39m [f0ff355d-9dd6-46c5-aabb-14caf96c7fb9] GET / - 304 (196ms)
+2025-12-09T00:51:31.224Z [32minfo[39m [e6ca66c2-8d61-4486-9665-1370ab101d13] GET / - 304 (206ms)
+2025-12-09T00:51:33.123Z [32minfo[39m [77652ea1-14bb-493c-a21a-03905325fc74] GET / - 304 (193ms)
+2025-12-09T00:51:33.303Z [32minfo[39m [aaf48a31-34b3-4807-94ac-7d73cf4cdaad] GET / - 304 (179ms)
+2025-12-09T00:51:57.895Z [32minfo[39m [481aaa52-2995-4618-bd2b-8e6abfbe19d7] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:51:58.461Z [32minfo[39m [9500c170-a2c0-4522-acb9-2419ca9db9bb] Agent created: 693772ae33f367d00c5a32f7
+2025-12-09T00:51:58.471Z [32minfo[39m [9500c170-a2c0-4522-acb9-2419ca9db9bb] POST / - 201 (572ms)
+2025-12-09T00:51:58.718Z [32minfo[39m [c3fc55db-5703-4fe5-b812-88e1fc96be8d] GET / - 200 (186ms)
+2025-12-09T00:52:04.146Z [32minfo[39m [d55b0958-a7af-4339-a022-dbae5f57c924] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (7ms)
+2025-12-09T00:52:04.162Z [32minfo[39m [e1f35de7-eaf1-4fde-b012-64d7579f1098] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-09T00:52:04.379Z [32minfo[39m [a84a3398-db50-4891-b7da-9db62197dddf] GET /693772ae33f367d00c5a32f7 - 200 (199ms)
+2025-12-09T00:52:04.617Z [32minfo[39m [2fd7b888-38b5-4fbf-8def-e2becf2be01e] GET /693772ae33f367d00c5a32f7 - 304 (221ms)
+2025-12-09T09:32:22.639Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-09T09:32:22.741Z [32minfo[39m API vv1: /api/v1/
+2025-12-09T09:32:22.742Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-09T09:32:24.425Z [32minfo[39m Redis connecting
+2025-12-09T09:32:25.311Z [32minfo[39m Redis ready
+2025-12-09T09:32:26.561Z [32minfo[39m MongoDB connection established
+2025-12-09T09:32:30.431Z [32minfo[39m Scheduled agent 693772ae33f367d00c5a32f7 (Test) - every 5 minutes
+2025-12-09T09:32:30.431Z [32minfo[39m Scheduler started: 1 agents enabled, 1 agents scheduled for execution
+2025-12-09T09:32:37.905Z [32minfo[39m [e8a3d1fe-9351-4671-88fc-669df61e57bc] OPTIONS /api/v1/agents - 204 (6ms)
+2025-12-09T09:32:37.952Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T09:32:37.968Z [33mwarn[39m [0234af50-79c8-46bf-a22b-96252e11cb4c] GET /api/v1/agents - 401 (57ms)
+2025-12-09T09:32:39.589Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-09T09:33:39.468Z [32minfo[39m [16a336f4-4158-4a37-aa9e-bfac46d09b14] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T09:33:39.664Z [32minfo[39m [010edd33-ec1e-46b9-9e3c-246e8d30a90c] GET / - 200 (193ms)
+2025-12-09T09:34:00.312Z [32minfo[39m [a4e830ae-6d6e-4c31-a9e4-2218604b72e8] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T09:34:00.425Z [32minfo[39m [c127ba22-a900-48cc-8b41-ca478e5be619] OPTIONS /api/v1/agents - 204 (6ms)
+2025-12-09T09:34:00.682Z [32minfo[39m [e4317cb2-c310-4894-b411-32a527c3e47b] GET / - 304 (214ms)
+2025-12-09T09:34:01.348Z [32minfo[39m [c1777c60-e2e2-4f51-bd7f-507d3cf507c8] GET / - 304 (464ms)
+2025-12-09T09:34:07.026Z [32minfo[39m [b7cd5c06-7a35-4cbd-bb91-fc29cf697811] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-09T09:34:07.028Z [32minfo[39m [5f4be77c-82ff-4c28-bb4f-8708f3d28923] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-09T09:34:07.261Z [32minfo[39m [66d12ad7-3a95-4a7b-b5db-383b595ceb46] GET /693772ae33f367d00c5a32f7 - 200 (225ms)
+2025-12-09T09:34:07.684Z [32minfo[39m [e61c6693-b909-4dd3-8a43-f687be75cd70] GET /693772ae33f367d00c5a32f7 - 304 (421ms)
+2025-12-09T09:34:10.859Z [32minfo[39m [7bb2e353-982d-40bf-9df6-9132227e30e5] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7/run - 204 (0ms)
+2025-12-09T09:34:12.554Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T09:34:14.974Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_github
+2025-12-09T09:34:19.466Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T09:34:23.678Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:34:27.241Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:34:28.689Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_tools
+2025-12-09T09:34:28.690Z [32minfo[39m [runIndependentAgent] Tool list_tools execution result: failed
+2025-12-09T09:34:32.477Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T09:34:35.644Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T09:34:36.917Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: mark_notification_read
+2025-12-09T09:34:37.124Z [32minfo[39m [runIndependentAgent] Tool mark_notification_read execution result: failed
+2025-12-09T09:34:38.571Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_alert
+2025-12-09T09:34:39.894Z [32minfo[39m [runIndependentAgent] Tool create_alert execution result: failed
+2025-12-09T09:34:41.628Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T09:34:41.845Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T09:34:43.130Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: analyze_text
+2025-12-09T09:34:43.327Z [32minfo[39m [runIndependentAgent] Tool analyze_text execution result: failed
+2025-12-09T09:34:43.327Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 31954ms
+2025-12-09T09:34:43.541Z [32minfo[39m [e070fbbc-1f71-485a-a920-f726498aad24] Agent run completed: 693772ae33f367d00c5a32f7
+2025-12-09T09:34:43.542Z [32minfo[39m [e070fbbc-1f71-485a-a920-f726498aad24] POST /693772ae33f367d00c5a32f7/run - 200 (32680ms)
+2025-12-09T09:34:45.564Z [32minfo[39m [69d35737-0dee-422b-aab8-827c47c83982] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (1ms)
+2025-12-09T09:34:45.864Z [32minfo[39m [232edeef-4f79-4082-8f65-7a1180c3a08c] GET /693772ae33f367d00c5a32f7 - 200 (297ms)
+2025-12-09T09:35:08.039Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T09:35:24.616Z [32minfo[39m [1d7192db-cdae-415b-8248-b298a23ca858] OPTIONS /api/v1/agents - 204 (6ms)
+2025-12-09T09:35:24.692Z [32minfo[39m [83663a49-2f23-4eab-94cb-4b418cea1e47] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T09:35:24.776Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:35:25.789Z [32minfo[39m [04ebd343-5464-4275-b30a-2e5df325bebd] GET / - 200 (1017ms)
+2025-12-09T09:35:26.279Z [32minfo[39m [178b2def-a01e-4ed6-9ddd-ab0b0953148c] GET / - 304 (489ms)
+2025-12-09T09:35:28.343Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:35:30.075Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:35:31.281Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:35:32.624Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T09:35:32.625Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T09:35:35.728Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T09:35:36.643Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T09:35:38.215Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_alert
+2025-12-09T09:35:38.804Z [32minfo[39m [runIndependentAgent] Tool create_alert execution result: failed
+2025-12-09T09:35:40.343Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T09:35:40.636Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T09:35:42.091Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T09:35:42.375Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T09:35:43.832Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: post_x_tweet
+2025-12-09T09:35:44.142Z [32minfo[39m [runIndependentAgent] Tool post_x_tweet execution result: failed
+2025-12-09T09:35:44.143Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 38195ms
+2025-12-09T09:40:10.030Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T09:40:16.329Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:40:23.628Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:40:36.938Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: add_domain_to_resend
+2025-12-09T09:40:36.939Z [32minfo[39m [runIndependentAgent] Tool add_domain_to_resend execution result: failed
+2025-12-09T09:40:40.313Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T09:40:48.338Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T09:40:55.400Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T09:40:56.336Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T09:40:57.884Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_emails
+2025-12-09T09:40:57.887Z [32minfo[39m [runIndependentAgent] Tool list_emails execution result: failed
+2025-12-09T09:41:08.666Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T09:41:10.088Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T09:41:13.419Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_gmail
+2025-12-09T09:41:13.421Z [32minfo[39m [runIndependentAgent] Tool search_gmail execution result: failed
+2025-12-09T09:41:17.704Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: read_email
+2025-12-09T09:41:19.038Z [32minfo[39m [runIndependentAgent] Tool read_email execution result: failed
+2025-12-09T09:41:19.038Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 71317ms
+2025-12-09T09:45:02.611Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T09:45:04.641Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:45:07.990Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:45:09.463Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:45:10.289Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:45:11.578Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T09:45:11.579Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T09:45:13.044Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T09:45:13.227Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T09:45:15.388Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T09:45:16.660Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T09:45:17.942Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T09:45:17.943Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T09:45:19.660Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_issue
+2025-12-09T09:45:19.860Z [32minfo[39m [runIndependentAgent] Tool create_issue execution result: failed
+2025-12-09T09:45:21.379Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: comment_issue
+2025-12-09T09:45:21.593Z [32minfo[39m [runIndependentAgent] Tool comment_issue execution result: failed
+2025-12-09T09:45:21.594Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 19337ms
+2025-12-09T09:50:04.624Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T09:50:09.195Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:50:14.998Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:50:17.128Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:50:18.741Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:50:20.840Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:50:22.022Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:50:23.371Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_message
+2025-12-09T09:50:23.372Z [32minfo[39m [runIndependentAgent] Tool log_message execution result: failed
+2025-12-09T09:50:24.916Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_alert
+2025-12-09T09:50:26.232Z [32minfo[39m [runIndependentAgent] Tool create_alert execution result: failed
+2025-12-09T09:50:27.782Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T09:50:28.058Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T09:50:29.453Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_drive_files
+2025-12-09T09:50:29.665Z [32minfo[39m [runIndependentAgent] Tool list_drive_files execution result: failed
+2025-12-09T09:50:31.224Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_issue
+2025-12-09T09:50:31.432Z [32minfo[39m [runIndependentAgent] Tool create_issue execution result: failed
+2025-12-09T09:50:31.432Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 27199ms
+2025-12-09T09:55:23.726Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T09:55:27.238Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T09:55:38.790Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T09:55:42.485Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T09:55:42.486Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T09:55:45.545Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T09:55:46.072Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T09:55:47.529Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T09:55:47.775Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T09:55:50.003Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T09:55:50.381Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T09:55:52.389Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_drive_files
+2025-12-09T09:55:52.667Z [32minfo[39m [runIndependentAgent] Tool list_drive_files execution result: failed
+2025-12-09T09:55:55.033Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_web
+2025-12-09T09:55:56.055Z [32minfo[39m [runIndependentAgent] Tool search_web execution result: failed
+2025-12-09T09:55:58.177Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_notifications
+2025-12-09T09:55:58.404Z [32minfo[39m [runIndependentAgent] Tool list_notifications execution result: failed
+2025-12-09T09:55:58.405Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 35305ms
+2025-12-09T10:00:03.967Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:00:07.061Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:00:16.987Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:00:20.829Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:00:31.234Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:00:36.857Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T10:00:36.857Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T10:00:39.488Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:00:40.671Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:00:42.937Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T10:00:43.639Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T10:00:45.978Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T10:00:46.730Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T10:00:48.378Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_drive_files
+2025-12-09T10:00:48.612Z [32minfo[39m [runIndependentAgent] Tool list_drive_files execution result: failed
+2025-12-09T10:00:50.010Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_issue
+2025-12-09T10:00:50.282Z [32minfo[39m [runIndependentAgent] Tool create_issue execution result: failed
+2025-12-09T10:00:50.283Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 47350ms
+2025-12-09T10:05:07.577Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:05:11.078Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:05:15.672Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:05:18.421Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: verify_domain
+2025-12-09T10:05:18.422Z [32minfo[39m [runIndependentAgent] Tool verify_domain execution result: failed
+2025-12-09T10:05:21.154Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T10:05:28.183Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T10:05:30.489Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T10:05:30.852Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T10:05:32.158Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T10:05:32.931Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T10:05:34.330Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_emails
+2025-12-09T10:05:34.648Z [32minfo[39m [runIndependentAgent] Tool search_emails execution result: failed
+2025-12-09T10:05:35.869Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_notifications
+2025-12-09T10:05:36.142Z [32minfo[39m [runIndependentAgent] Tool list_notifications execution result: failed
+2025-12-09T10:05:37.924Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:05:38.301Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:05:38.302Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 31635ms
+2025-12-09T10:10:04.400Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:10:07.418Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:10:11.936Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:10:14.234Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T10:10:14.235Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T10:10:15.977Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T10:10:17.652Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T10:10:18.943Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: mark_notification_read
+2025-12-09T10:10:19.134Z [32minfo[39m [runIndependentAgent] Tool mark_notification_read execution result: failed
+2025-12-09T10:10:20.555Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T10:10:20.779Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T10:10:21.947Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_notifications
+2025-12-09T10:10:22.159Z [32minfo[39m [runIndependentAgent] Tool list_notifications execution result: failed
+2025-12-09T10:10:23.615Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T10:10:23.822Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T10:10:25.518Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:10:25.710Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:10:25.710Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 21923ms
+2025-12-09T10:15:03.043Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:15:05.400Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_github
+2025-12-09T10:15:08.133Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T10:15:11.650Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:15:16.012Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:15:18.479Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T10:15:18.480Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T10:15:24.301Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T10:15:25.861Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T10:15:27.091Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: mark_notification_read
+2025-12-09T10:15:27.284Z [32minfo[39m [runIndependentAgent] Tool mark_notification_read execution result: failed
+2025-12-09T10:15:29.233Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_alert
+2025-12-09T10:15:29.426Z [32minfo[39m [runIndependentAgent] Tool create_alert execution result: failed
+2025-12-09T10:15:30.756Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:15:30.966Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:15:32.230Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: analyze_text
+2025-12-09T10:15:32.424Z [32minfo[39m [runIndependentAgent] Tool analyze_text execution result: failed
+2025-12-09T10:15:32.425Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 29861ms
+2025-12-09T10:20:03.856Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:20:05.860Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:20:08.458Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:20:09.610Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: domain_verification
+2025-12-09T10:20:09.611Z [32minfo[39m [runIndependentAgent] Tool domain_verification execution result: failed
+2025-12-09T10:20:11.227Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T10:20:12.429Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T10:20:13.710Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: mark_notification_read
+2025-12-09T10:20:13.915Z [32minfo[39m [runIndependentAgent] Tool mark_notification_read execution result: failed
+2025-12-09T10:20:15.097Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T10:20:15.315Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T10:20:16.897Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:20:17.100Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:20:18.354Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_notifications
+2025-12-09T10:20:18.545Z [32minfo[39m [runIndependentAgent] Tool list_notifications execution result: failed
+2025-12-09T10:20:19.733Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_alert
+2025-12-09T10:20:19.925Z [32minfo[39m [runIndependentAgent] Tool create_alert execution result: failed
+2025-12-09T10:20:19.926Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 16529ms
+2025-12-09T10:25:03.310Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:25:05.570Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_github
+2025-12-09T10:25:08.072Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T10:25:13.345Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:25:15.911Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:25:18.173Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_email
+2025-12-09T10:25:18.174Z [32minfo[39m [runIndependentAgent] Tool search_email execution result: failed
+2025-12-09T10:25:21.446Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T10:25:21.645Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T10:25:22.930Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_gmail_messages
+2025-12-09T10:25:23.124Z [32minfo[39m [runIndependentAgent] Tool list_gmail_messages execution result: failed
+2025-12-09T10:25:24.405Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_web
+2025-12-09T10:25:24.664Z [32minfo[39m [runIndependentAgent] Tool search_web execution result: failed
+2025-12-09T10:25:27.880Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: write_to_sheet
+2025-12-09T10:25:28.488Z [32minfo[39m [runIndependentAgent] Tool write_to_sheet execution result: failed
+2025-12-09T10:25:29.858Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_drive_folder
+2025-12-09T10:25:30.064Z [32minfo[39m [runIndependentAgent] Tool create_drive_folder execution result: failed
+2025-12-09T10:25:30.064Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 27137ms
+2025-12-09T10:30:02.712Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:30:04.894Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: clarify_task_requirements
+2025-12-09T10:30:04.896Z [32minfo[39m [runIndependentAgent] Tool clarify_task_requirements execution result: failed
+2025-12-09T10:30:06.169Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: analyze_text
+2025-12-09T10:30:06.373Z [32minfo[39m [runIndependentAgent] Tool analyze_text execution result: failed
+2025-12-09T10:30:07.864Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:30:10.584Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:30:17.898Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:30:18.104Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:30:19.634Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_web
+2025-12-09T10:30:19.822Z [32minfo[39m [runIndependentAgent] Tool search_web execution result: failed
+2025-12-09T10:30:21.220Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_repos
+2025-12-09T10:30:23.781Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-09T10:30:25.241Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:30:25.454Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:30:26.740Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: fetch_repo_details
+2025-12-09T10:30:26.741Z [32minfo[39m [runIndependentAgent] Tool fetch_repo_details execution result: failed
+2025-12-09T10:30:26.741Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 24423ms
+2025-12-09T10:35:02.451Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:35:04.520Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_github
+2025-12-09T10:35:07.057Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T10:35:10.580Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:35:12.860Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:35:16.047Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_file
+2025-12-09T10:35:16.049Z [32minfo[39m [runIndependentAgent] Tool create_file execution result: failed
+2025-12-09T10:35:19.341Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T10:35:23.657Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T10:35:25.691Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: mark_notification_read
+2025-12-09T10:35:25.904Z [32minfo[39m [runIndependentAgent] Tool mark_notification_read execution result: failed
+2025-12-09T10:35:27.273Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-09T10:35:27.541Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-09T10:35:29.376Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:35:36.437Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:35:39.637Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T10:35:39.824Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T10:35:39.825Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 37755ms
+2025-12-09T10:40:16.177Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T10:40:43.254Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:41:19.111Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:41:32.443Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-09T10:41:48.940Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T10:41:50.928Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-09T10:41:50.928Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-09T10:41:52.518Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-09T10:42:03.062Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: failed
+2025-12-09T10:42:11.740Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: create_alert
+2025-12-09T10:42:11.940Z [32minfo[39m [runIndependentAgent] Tool create_alert execution result: failed
+2025-12-09T10:42:13.603Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-09T10:42:15.852Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-09T10:42:20.114Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T10:42:20.114Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 124846ms
+2025-12-09T10:48:20.775Z [33mwarn[39m MongoDB connection lost
+2025-12-09T10:49:23.780Z [32minfo[39m MongoDB connection established
+2025-12-09T10:49:23.781Z [32minfo[39m MongoDB reconnected
+2025-12-09T10:53:54.696Z [33mwarn[39m MongoDB connection lost
+2025-12-09T10:54:10.675Z [32minfo[39m MongoDB connection established
+2025-12-09T10:54:10.677Z [32minfo[39m MongoDB reconnected
+2025-12-09T10:56:24.311Z [33mwarn[39m MongoDB connection lost
+2025-12-09T10:56:36.098Z [32minfo[39m MongoDB connection established
+2025-12-09T10:56:36.099Z [32minfo[39m MongoDB reconnected
+2025-12-09T10:59:17.043Z [33mwarn[39m MongoDB connection lost
+2025-12-09T10:59:29.204Z [32minfo[39m MongoDB connection established
+2025-12-09T10:59:29.205Z [32minfo[39m MongoDB reconnected
+2025-12-09T11:11:21.258Z [33mwarn[39m MongoDB connection lost
+2025-12-09T11:11:44.523Z [32minfo[39m MongoDB connection established
+2025-12-09T11:11:44.523Z [32minfo[39m MongoDB reconnected
+2025-12-09T11:45:31.180Z [32minfo[39m [6fc711cd-4cb3-4f80-9c6c-dce28ae8e2a0] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (12ms)
+2025-12-09T11:45:31.267Z [32minfo[39m [40453d8e-3409-4dd3-9307-6590e28f46f2] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-09T11:45:58.459Z [32minfo[39m [d917f5ec-9e61-4de7-8612-98dc2f0be1fc] GET /693772ae33f367d00c5a32f7 - 200 (7174ms)
+2025-12-09T11:46:03.615Z [32minfo[39m [9881808a-37b7-455c-8a86-87be265b8ef7] GET /693772ae33f367d00c5a32f7 - 200 (32301ms)
+2025-12-09T14:41:00.751Z [31merror[39m Redis error read ECONNRESET
+2025-12-09T14:41:00.996Z [33mwarn[39m Redis connection closed
+2025-12-09T14:41:01.127Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-09T14:41:01.282Z [33mwarn[39m Redis connection closed
+2025-12-09T14:41:01.568Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-09T14:41:01.684Z [33mwarn[39m Redis connection closed
+2025-12-09T14:41:01.855Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-09T14:41:01.861Z [33mwarn[39m Redis connection closed
+2025-12-09T14:41:02.467Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-09T14:41:02.839Z [33mwarn[39m Redis connection closed
+2025-12-09T14:41:04.493Z [32minfo[39m Redis connecting
+2025-12-09T14:41:06.537Z [32minfo[39m Redis ready
+2025-12-09T14:41:12.748Z [33mwarn[39m MongoDB connection lost
+2025-12-09T14:41:13.842Z [32minfo[39m MongoDB connection established
+2025-12-09T14:41:13.849Z [32minfo[39m MongoDB reconnected
+2025-12-09T14:41:19.728Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T14:41:26.245Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T14:41:26.245Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 7435ms
+2025-12-09T14:41:40.775Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T14:41:44.048Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T14:41:44.049Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 4320ms
+2025-12-09T14:45:18.178Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T14:45:27.353Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T14:45:27.397Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 10624ms
+2025-12-09T14:46:51.244Z [32minfo[39m [53b91811-ee8c-4f43-abef-26b78cc12db2] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T14:46:51.252Z [32minfo[39m [a96201f7-48c4-4b9a-b2f1-bd5fdfa0a160] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T14:46:52.630Z [32minfo[39m [d40dd368-dedc-47a2-b5f1-368d10a090be] GET / - 200 (1363ms)
+2025-12-09T14:46:59.887Z [32minfo[39m [506f4aa9-dfad-4858-ae2f-414a3b63ab34] GET / - 304 (7255ms)
+2025-12-09T14:48:50.357Z [32minfo[39m [cc4a57d6-0a91-4edc-9d9e-dc6e2a6d651c] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-09T14:48:50.371Z [32minfo[39m [f46e34a5-8540-4569-96e5-b9a79ee3a0b3] OPTIONS /api/v1/auth/me - 204 (0ms)
+2025-12-09T14:48:50.405Z [32minfo[39m [df0a075c-9b6f-4eb0-a27a-3522d11f8825] GET /me - 200 (2ms)
+2025-12-09T14:48:50.424Z [32minfo[39m [cff2d5fd-960d-45c6-8fb8-3065c489bdc3] GET /me - 304 (2ms)
+2025-12-09T14:49:31.084Z [32minfo[39m [c2e68523-4015-471e-86d6-e4dcb3e3cfd5] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T14:49:31.095Z [32minfo[39m [7ed39247-44a9-471f-9668-77d2387e0aad] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T14:49:31.446Z [32minfo[39m [7874a1ba-b225-44bb-8f37-b48d2052ab80] GET / - 304 (349ms)
+2025-12-09T14:49:33.734Z [32minfo[39m [e1293d21-374e-472f-aa35-7ecd412e7278] GET / - 304 (2254ms)
+2025-12-09T14:49:53.040Z [32minfo[39m [6a4ede50-0dac-461e-b8e7-566be9354d5d] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-09T14:49:53.050Z [32minfo[39m [087d0e99-81a3-4be1-acf5-23ec320ccd29] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-09T14:49:55.737Z [32minfo[39m [a8f1139c-56b2-4e97-b4df-655452759153] GET /693772ae33f367d00c5a32f7 - 200 (2676ms)
+2025-12-09T14:49:56.483Z [32minfo[39m [671cb159-ef2b-4c87-bb62-94bb51916f2d] GET /693772ae33f367d00c5a32f7 - 304 (741ms)
+2025-12-09T14:50:13.210Z [32minfo[39m [620ed978-9e13-4bef-9ae0-6269e2cf9fd8] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (1ms)
+2025-12-09T14:50:13.215Z [33mwarn[39m [d85c044b-d018-49cb-83dd-88bb716a5a92] PATCH /api/v1/agents/693772ae33f367d00c5a32f7 - 404 (3ms)
+2025-12-09T14:50:16.814Z [33mwarn[39m [795642f3-798d-42ca-a792-60b223b0e491] PATCH /api/v1/agents/693772ae33f367d00c5a32f7 - 404 (2ms)
+2025-12-09T14:50:42.773Z [32minfo[39m [a089b130-7ddb-434b-8f8d-f4f7a4cb450f] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-09T14:50:42.778Z [33mwarn[39m [c93ead46-7b99-447f-a7e0-e15f94639c54] PATCH /api/v1/agents/693772ae33f367d00c5a32f7 - 404 (1ms)
+2025-12-09T14:52:50.934Z [32minfo[39m [b8c42f80-7542-464e-b71c-54f5ad293ee7] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T14:52:52.299Z [32minfo[39m [5db9e744-1da3-46dd-bb1c-7142c6a206b8] GET / - 304 (1344ms)
+2025-12-09T14:52:57.749Z [32minfo[39m [64b6e3a8-6a41-4234-86b1-40a072436b0c] GET / - 304 (5449ms)
+2025-12-09T14:52:58.251Z [32minfo[39m [820512ae-4c26-46ca-a958-16278cb47df9] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T14:52:58.255Z [32minfo[39m [e6c50789-07c7-41bb-b242-3aff8dc30097] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T14:53:05.504Z [32minfo[39m [cc8067d2-4c5f-4eda-9f5b-268aa8a33fbb] GET / - 304 (7247ms)
+2025-12-09T14:53:06.033Z [32minfo[39m [6cb6176d-3dc8-498d-9bf1-4ff585695724] GET / - 304 (526ms)
+2025-12-09T14:53:13.424Z [32minfo[39m [e3bc2ae6-e1f3-4759-a464-3b58543b4ba3] OPTIONS /api/v1/auth/me - 204 (2ms)
+2025-12-09T14:53:13.432Z [32minfo[39m [c65fbbf5-7030-4c1d-9dd7-d86bddfcdc6c] OPTIONS /api/v1/auth/me - 204 (3ms)
+2025-12-09T14:53:13.440Z [32minfo[39m [606cad16-dbf9-4541-a64d-db6d856e2b50] GET /me - 304 (1ms)
+2025-12-09T14:53:13.482Z [32minfo[39m [fdb07a00-b72e-4e79-b707-09840d8c3052] GET /me - 304 (8ms)
+2025-12-09T14:53:17.750Z [32minfo[39m [083d8ea2-933e-4561-a07a-f92a04199025] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T14:53:17.759Z [32minfo[39m [e1db4597-8e6d-4fe0-a071-b9fc0e99f7ab] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-09T14:53:18.136Z [32minfo[39m [2f282f9a-0cd0-4c38-bbc4-fba19ae2a973] GET / - 304 (340ms)
+2025-12-09T14:53:20.649Z [32minfo[39m [50e54184-87dd-4bda-ac3a-30caa360b5c1] GET / - 304 (2506ms)
+2025-12-09T14:53:20.967Z [32minfo[39m [3db94e2e-f176-45dd-9bf0-42c744146116] OPTIONS /api/v1/auth/me - 204 (0ms)
+2025-12-09T14:53:20.971Z [32minfo[39m [9878a53e-26a5-40a8-80ee-88810853219e] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-09T14:53:20.983Z [32minfo[39m [775564a6-fe4a-4c08-8e08-fb516c82c987] GET /me - 304 (4ms)
+2025-12-09T14:53:20.996Z [32minfo[39m [413053bc-f2b4-41a0-818f-c2d52e8863f8] GET /me - 304 (1ms)
+2025-12-09T14:53:52.213Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T14:54:04.110Z [32minfo[39m [6a2bf124-84ee-40c4-895a-8a2281e1895b] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T14:54:04.857Z [32minfo[39m [d7f8f32c-79ff-49c3-80ef-f04e72172696] GET / - 304 (729ms)
+2025-12-09T14:54:05.794Z [32minfo[39m [15266428-9edd-478b-9285-cca4dd43128c] GET / - 304 (918ms)
+2025-12-09T14:54:09.441Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T14:54:09.442Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 18413ms
+2025-12-09T14:55:37.017Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T14:55:48.762Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T14:55:48.763Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 15771ms
+2025-12-09T15:00:15.253Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T15:00:20.016Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T15:00:20.019Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 5437ms
+2025-12-09T15:05:07.680Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T15:05:12.865Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T15:05:12.867Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 5753ms
+2025-12-09T15:10:14.700Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-09T15:10:18.907Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-09T15:10:18.908Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 5100ms
