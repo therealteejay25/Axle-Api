@@ -80,7 +80,7 @@ export const verifyMagicLinkController = async (
     }
 
     const validated = VerifyMagicLinkSchema.parse(req.body);
-    logger.info(env.JWT_SECRET!)
+    logger.info(env.JWT_SECRET!);
     const decoded = jwt.verify(validated.token, env.JWT_SECRET!) as {
       userId: string;
       type: string;
@@ -122,6 +122,26 @@ export const verifyMagicLinkController = async (
     user.refreshToken = refreshToken;
 
     await user.save();
+
+    // Set HTTP-only cookies
+    const COOKIE_OPTIONS = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax" as const,
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days for access token
+    };
+
+    const REFRESH_COOKIE_OPTIONS = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax" as const,
+      path: "/",
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days for refresh token
+    };
+
+    res.cookie("accessToken", accessToken, COOKIE_OPTIONS);
+    res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTIONS);
 
     logger.info(`[${correlationId}] User authenticated: ${user._id}`);
 
@@ -170,6 +190,21 @@ export const refreshTokenController = async (req: Request, res: Response) => {
       expiresIn: "7d",
     });
 
+    // Update user's access token
+    user.accessToken = token;
+    await user.save();
+
+    // Set HTTP-only cookie
+    const COOKIE_OPTIONS = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax" as const,
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+
+    res.cookie("accessToken", token, COOKIE_OPTIONS);
+
     logger.info(`[${correlationId}] Token refreshed for user: ${user._id}`);
     res.status(200).json({ token });
   } catch (err) {
@@ -178,6 +213,35 @@ export const refreshTokenController = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Validation error" });
     }
     res.status(401).json({ error: "Invalid or expired refresh token" });
+  }
+};
+
+export const logoutController = async (req: Request, res: Response) => {
+  const correlationId = (req as any).correlationId;
+
+  try {
+    // Clear cookies
+    res.cookie("accessToken", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      expires: new Date(0),
+    });
+
+    res.cookie("refreshToken", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      expires: new Date(0),
+    });
+
+    logger.info(`[${correlationId}] User logged out`);
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    logger.error(`[${correlationId}] Logout failed`, err);
+    res.status(500).json({ error: "Unable to logout" });
   }
 };
 

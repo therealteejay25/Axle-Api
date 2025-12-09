@@ -8655,3 +8655,360 @@ Body: {"error":{"message":"This request requires more credits, or fewer max_toke
 2025-12-07T01:57:43.742Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
 2025-12-07T01:57:45.343Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
 2025-12-07T01:57:45.346Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 22682ms
+2025-12-07T02:00:04.066Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:00:06.839Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:09.649Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:11.234Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:13.272Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:15.159Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:17.020Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:18.120Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:19.676Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:20.878Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:24.395Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:25.658Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:28.191Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:29.386Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:32.310Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:33.741Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:00:35.555Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:00:35.824Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 32417ms
+2025-12-07T02:00:39.600Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:00:42.541Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:00:47.750Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:00:48.123Z [32minfo[39m [runIndependentAgent] Forcing email send prompt - data collected but email not sent yet
+2025-12-07T02:00:50.190Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_email
+2025-12-07T02:00:53.458Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-07T02:01:56.137Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:01:56.975Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:01:58.021Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:01:58.021Z [33mwarn[39m Agent 693397fec6006da098eff576 did not return a tool call. Response: Task completed successfully, and the daily GitHub report has been emailed to "therealteejay25@gmail.com".
+2025-12-07T02:01:59.045Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:02:00.906Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:02:02.154Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_commits
+2025-12-07T02:02:02.370Z [32minfo[39m [runIndependentAgent] Tool list_commits execution result: failed
+2025-12-07T02:02:03.464Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_commits
+2025-12-07T02:02:04.271Z [32minfo[39m [runIndependentAgent] Tool list_commits execution result: success
+2025-12-07T02:02:05.414Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_pull_requests
+2025-12-07T02:02:06.089Z [32minfo[39m [runIndependentAgent] Tool list_pull_requests execution result: success
+2025-12-07T02:02:06.089Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 87200ms
+2025-12-07T02:05:02.502Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:05:04.294Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:05.926Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:05:07.113Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:07.284Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:05:08.444Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:09.480Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:05:10.670Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:11.549Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:05:12.704Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:13.877Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:05:15.073Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:15.826Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:05:17.076Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:22.683Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:05:24.487Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:05:24.670Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:05:24.671Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 22781ms
+2025-12-07T02:05:27.229Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:05:28.241Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:05:30.567Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:05:30.571Z [32minfo[39m [runIndependentAgent] Forcing email send prompt - data collected but email not sent yet
+2025-12-07T02:05:32.166Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_email
+2025-12-07T02:05:33.890Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-07T02:05:35.469Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:05:36.653Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:05:37.707Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:05:37.707Z [33mwarn[39m Agent 693397fec6006da098eff576 did not return a tool call. Response: Task completed successfully. No further actions are required.
+2025-12-07T02:05:38.677Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:05:40.760Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:05:41.820Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_pull_requests
+2025-12-07T02:05:42.001Z [32minfo[39m [runIndependentAgent] Tool list_pull_requests execution result: failed
+2025-12-07T02:05:43.047Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_pull_requests
+2025-12-07T02:05:43.830Z [32minfo[39m [runIndependentAgent] Tool list_pull_requests execution result: success
+2025-12-07T02:05:44.985Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_issues
+2025-12-07T02:05:45.911Z [32minfo[39m [runIndependentAgent] Tool list_issues execution result: success
+2025-12-07T02:05:45.912Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 19200ms
+2025-12-07T02:10:03.296Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:10:05.216Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:07.412Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:10:08.585Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:09.571Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:10:10.732Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:10.902Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:10:12.095Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:13.281Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:10:14.447Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:16.026Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:10:17.189Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:17.998Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:10:19.191Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:20.368Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:10:21.666Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:10:22.549Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:10:22.550Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 19802ms
+2025-12-07T02:10:25.775Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:10:28.340Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:10:29.866Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:10:29.871Z [32minfo[39m [runIndependentAgent] Forcing email send prompt - data collected but email not sent yet
+2025-12-07T02:10:31.428Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_email
+2025-12-07T02:10:32.960Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-07T02:10:34.635Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:10:36.232Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:10:37.441Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:10:37.442Z [33mwarn[39m Agent 693397fec6006da098eff576 did not return a tool call. Response: Understood. The daily GitHub activity report has been successfully sent to your email at therealteejay25@gmail.com. If further monitoring or tasks are needed, let me know!
+2025-12-07T02:10:38.766Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:10:39.352Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:10:40.730Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:10:41.347Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:10:42.789Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:10:43.399Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:10:45.121Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:10:47.001Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:10:47.002Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 22499ms
+2025-12-07T02:15:02.580Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:15:04.296Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:06.841Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:15:08.142Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:09.215Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:15:10.654Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:10.839Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:15:12.105Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:13.634Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:15:14.941Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:15.739Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:15:16.883Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:17.672Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:15:18.782Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:20.108Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:15:21.284Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:15:22.677Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:15:22.678Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 20669ms
+2025-12-07T02:15:24.820Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:15:25.836Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:15:26.897Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:15:26.902Z [32minfo[39m [runIndependentAgent] Forcing email send prompt - data collected but email not sent yet
+2025-12-07T02:15:28.357Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_email
+2025-12-07T02:15:30.414Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-07T02:15:31.929Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:15:34.562Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:15:35.675Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:15:35.676Z [33mwarn[39m Agent 693397fec6006da098eff576 did not return a tool call. Response: The daily GitHub activity report has been successfully sent to your email: therealteejay25@gmail.com. If you need anything else, let me know!
+2025-12-07T02:15:37.249Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:15:37.819Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:15:39.186Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:15:39.850Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:15:40.841Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:15:42.600Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:15:43.649Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_pull_requests
+2025-12-07T02:15:43.824Z [32minfo[39m [runIndependentAgent] Tool list_pull_requests execution result: failed
+2025-12-07T02:15:43.825Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 19578ms
+2025-12-07T02:20:03.563Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:20:05.653Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:07.627Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:20:08.785Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:09.913Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:20:11.052Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:11.224Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:20:12.456Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:13.521Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:20:14.723Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:15.714Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:20:16.948Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:17.847Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:20:19.187Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:20.600Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:20:21.803Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:20:22.933Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:20:22.934Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 20124ms
+2025-12-07T02:20:25.508Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:20:26.590Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:20:27.792Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:20:27.795Z [32minfo[39m [runIndependentAgent] Forcing email send prompt - data collected but email not sent yet
+2025-12-07T02:20:29.725Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_email
+2025-12-07T02:20:31.398Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-07T02:20:33.260Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:20:34.444Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:20:35.530Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:20:35.531Z [33mwarn[39m Agent 693397fec6006da098eff576 did not return a tool call. Response: Task completed successfully. The daily GitHub activity report has been sent to the user's email.
+2025-12-07T02:20:36.655Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:20:38.441Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:20:39.602Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_commits
+2025-12-07T02:20:39.785Z [32minfo[39m [runIndependentAgent] Tool list_commits execution result: failed
+2025-12-07T02:20:41.052Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_commits
+2025-12-07T02:20:42.228Z [32minfo[39m [runIndependentAgent] Tool list_commits execution result: success
+2025-12-07T02:20:43.449Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_pull_requests
+2025-12-07T02:20:44.219Z [32minfo[39m [runIndependentAgent] Tool list_pull_requests execution result: success
+2025-12-07T02:20:44.220Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 19307ms
+2025-12-07T02:25:03.105Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:25:04.762Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:06.740Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:25:07.812Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:08.792Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:25:09.901Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:10.121Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:25:11.284Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:12.159Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:25:13.283Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:13.998Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:25:15.187Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:15.959Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-07T02:25:17.380Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:19.800Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:25:20.912Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-07T02:25:21.897Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-07T02:25:21.897Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 19352ms
+2025-12-07T02:25:24.665Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:25:25.748Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:25:26.794Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:25:26.797Z [32minfo[39m [runIndependentAgent] Forcing email send prompt - data collected but email not sent yet
+2025-12-07T02:25:28.973Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_email
+2025-12-07T02:25:32.549Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-07T02:25:34.282Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-07T02:25:35.158Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-07T02:25:36.213Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:25:36.214Z [33mwarn[39m Agent 693397fec6006da098eff576 did not return a tool call. Response: Acknowledged. The daily GitHub activity report has been successfully sent to your email. Let me know if you need further assistance.
+2025-12-07T02:25:37.237Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-07T02:25:40.321Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-07T02:25:41.437Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_pull_requests
+2025-12-07T02:25:41.684Z [32minfo[39m [runIndependentAgent] Tool list_pull_requests execution result: failed
+2025-12-07T02:25:43.552Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:25:43.553Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 19821ms
+2025-12-07T02:30:03.340Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:30:06.583Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:30:06.584Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 3809ms
+2025-12-07T02:30:09.394Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:30:11.337Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:30:11.337Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 3151ms
+2025-12-07T02:35:02.707Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:35:05.836Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:35:05.837Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 3687ms
+2025-12-07T02:35:08.443Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T02:35:10.357Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:35:10.357Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 2739ms
+2025-12-07T02:40:03.254Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T02:40:06.141Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:40:06.164Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 3508ms
+2025-12-07T02:40:08.376Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T16:36:34.725Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-07T16:36:34.742Z [32minfo[39m API vv1: /api/v1/
+2025-12-07T16:36:34.748Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-07T16:36:36.973Z [32minfo[39m Redis connecting
+2025-12-07T16:36:39.028Z [32minfo[39m Redis ready
+2025-12-07T16:36:48.672Z [31merror[39m Failed to start scheduler Operation `agents.find()` buffering timed out after 10000ms
+2025-12-07T16:36:49.716Z [32minfo[39m MongoDB connection established
+2025-12-07T16:37:23.241Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-07T16:37:26.474Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T16:37:26.476Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 22314ms
+2025-12-07T16:37:37.044Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T16:37:48.139Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T16:37:48.141Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 12835ms
+2025-12-07T16:38:08.863Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-07T16:38:35.292Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T16:38:35.293Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 32179ms
+2025-12-07T16:38:40.034Z [31merror[39m [7097501c-ec05-475b-89f0-d105fb671e16] Main agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received undefined"
+  }
+]
+2025-12-07T16:38:40.048Z [33mwarn[39m [7097501c-ec05-475b-89f0-d105fb671e16] POST /chat - 400 (74ms)
+2025-12-07T16:39:19.105Z [32minfo[39m [ba1ec0f3-7e18-4802-9ce2-5bfeef0d54da] Main agent run completed
+2025-12-07T16:39:19.106Z [32minfo[39m [ba1ec0f3-7e18-4802-9ce2-5bfeef0d54da] POST /chat - 200 (14053ms)
+2025-12-09T00:00:45.175Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-09T00:00:45.186Z [32minfo[39m API vv1: /api/v1/
+2025-12-09T00:00:45.187Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-09T00:00:45.642Z [32minfo[39m Redis connecting
+2025-12-09T00:00:46.129Z [32minfo[39m Redis ready
+2025-12-09T00:00:47.863Z [32minfo[39m MongoDB connection established
+2025-12-09T00:00:49.974Z [32minfo[39m Scheduled agent 6932e4753d00adc4341f3682 (GitHub Job Scout) - every 5 minutes
+2025-12-09T00:00:50.545Z [32minfo[39m Scheduled agent 693397fec6006da098eff576 (GitHub Repo Reporter) - every 5 minutes
+2025-12-09T00:00:50.568Z [32minfo[39m Scheduler started: 0 agents enabled, 2 agents scheduled for execution
+2025-12-09T00:00:51.800Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-09T00:00:52.709Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 starting execution with 6 tools available
+2025-12-09T00:00:55.202Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-09T00:00:58.252Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-09T00:00:58.259Z [32minfo[39m [runIndependentAgent] Forcing email send prompt - data collected but email not sent yet
+2025-12-09T00:01:02.093Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_email
+2025-12-09T00:01:05.185Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-09T00:01:07.602Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: send_gmail
+2025-12-09T00:01:12.290Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-09T00:01:14.409Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-09T00:01:14.410Z [33mwarn[39m Agent 693397fec6006da098eff576 did not return a tool call. Response: Task completed successfully. The daily GitHub activity report has been sent to your email: therealteejay25@gmail.com.
+2025-12-09T00:01:15.508Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_repos
+2025-12-09T00:01:19.885Z [32minfo[39m [runIndependentAgent] Tool list_repos execution result: success
+2025-12-09T00:01:21.736Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_commits
+2025-12-09T00:01:21.942Z [32minfo[39m [runIndependentAgent] Tool list_commits execution result: failed
+2025-12-09T00:01:23.199Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_commits
+2025-12-09T00:01:24.474Z [32minfo[39m [runIndependentAgent] Tool list_commits execution result: success
+2025-12-09T00:01:25.849Z [32minfo[39m [runIndependentAgent] Agent 693397fec6006da098eff576 calling tool: list_pull_requests
+2025-12-09T00:01:26.632Z [32minfo[39m [runIndependentAgent] Tool list_pull_requests execution result: success
+2025-12-09T00:01:26.632Z [32minfo[39m Agent 693397fec6006da098eff576 completed successfully in 35397ms
+2025-12-09T00:01:30.480Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 starting execution with 1 tools available
+2025-12-09T00:01:32.217Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:34.449Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:01:35.639Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:36.672Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:01:37.939Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:38.149Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-09T00:01:39.459Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:41.748Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:01:43.102Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:44.420Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-09T00:01:46.130Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:46.994Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:01:48.292Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:49.691Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:01:51.070Z [32minfo[39m [runIndependentAgent] Agent 6932e4753d00adc4341f3682 calling tool: search_github
+2025-12-09T00:01:52.063Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-09T00:01:52.064Z [32minfo[39m Agent 6932e4753d00adc4341f3682 completed successfully in 22746ms
+2025-12-09T00:02:14.934Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-09T00:02:14.938Z [32minfo[39m API vv1: /api/v1/
+2025-12-09T00:02:14.938Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-09T00:02:15.374Z [32minfo[39m Redis connecting
+2025-12-09T00:02:15.989Z [32minfo[39m Redis ready
+2025-12-09T00:02:17.327Z [32minfo[39m MongoDB connection established
+2025-12-09T00:02:17.548Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-09T00:02:19.052Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-09T00:03:57.136Z [32minfo[39m [0207675f-d71a-48f6-b5eb-0f83a99042f1] OPTIONS /api/v1/auth - 204 (5ms)
+2025-12-09T00:03:58.782Z [32minfo[39m [77ebc5c1-3cf3-4557-82be-359cd587ef03] Magic link sent to therealteejay25@gmail.com
+2025-12-09T00:03:58.786Z [32minfo[39m [77ebc5c1-3cf3-4557-82be-359cd587ef03] POST / - 200 (1648ms)
+2025-12-09T00:04:47.982Z [32minfo[39m [4594e477-47f8-481c-a3b3-186d26fb085c] OPTIONS /api/v1/auth/verify - 204 (0ms)
+2025-12-09T00:04:48.001Z [32minfo[39m ef2610351f19153b4cd0fce7af58abb84caf35e5128bccee01ff978a5282dbf0b6880a059933b632bb76df9bf27cbe918a90365c8d7ed3c1ea45404251462898
+2025-12-09T00:04:48.864Z [32minfo[39m [7fa3f306-d53b-4f30-97fc-9100702b8f35] User authenticated: 692ad22d8b93c44e2ceadf4e
+2025-12-09T00:04:48.867Z [32minfo[39m [7fa3f306-d53b-4f30-97fc-9100702b8f35] POST /verify - 200 (869ms)
+2025-12-09T00:04:52.778Z [32minfo[39m [b7d1943c-28e7-47aa-a98d-4d9556cbb1c4] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:04:52.905Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:04:52.950Z [33mwarn[39m [15dd2ddc-73bc-47f9-a152-4e88814b36c2] GET /api/v1/agents - 401 (93ms)
+2025-12-09T00:04:53.151Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:04:53.295Z [33mwarn[39m [dc82a1e4-e878-445f-b3b9-777dbc258e08] GET /api/v1/agents - 401 (295ms)
+2025-12-09T00:05:10.771Z [32minfo[39m [a80d9f6d-0f32-4df7-bf90-719d4d84671e] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-09T00:05:10.815Z [32minfo[39m [2d875295-4ca0-47eb-b6f1-79cdf4cea97d] OPTIONS /api/v1/agents - 204 (6ms)
+2025-12-09T00:05:10.886Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:05:10.907Z [33mwarn[39m [14fc05ce-e891-4e52-b74b-3b9e40f61154] GET /api/v1/agents - 401 (48ms)
+2025-12-09T00:05:10.942Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:05:10.946Z [33mwarn[39m [2b14531d-6dfe-4de9-951a-649eb738284f] GET /api/v1/agents - 401 (38ms)
+2025-12-09T00:06:25.187Z [32minfo[39m [6cce3621-471f-4ab6-ad6e-0b950a30dcb5] OPTIONS /api/v1/agents - 204 (12ms)
+2025-12-09T00:06:25.312Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:06:25.324Z [33mwarn[39m [0a4e3c87-67f4-4e2b-8efd-034aee59d414] POST /api/v1/agents - 401 (131ms)
+2025-12-09T00:10:20.959Z [32minfo[39m [7c040756-e321-4812-961d-87cef8022fc6] OPTIONS /api/v1/agents - 204 (353ms)
+2025-12-09T00:10:21.743Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:10:21.744Z [33mwarn[39m [83c9f57f-c767-4129-8a15-e77b3ba9773b] POST /api/v1/agents - 401 (763ms)
+2025-12-09T00:13:21.396Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-09T00:13:21.443Z [32minfo[39m API vv1: /api/v1/
+2025-12-09T00:13:21.443Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-09T00:13:22.626Z [32minfo[39m Redis connecting
+2025-12-09T00:13:23.123Z [32minfo[39m Redis ready
+2025-12-09T00:13:24.824Z [32minfo[39m MongoDB connection established
+2025-12-09T00:13:25.032Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-09T00:13:26.717Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-09T00:15:28.305Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-09T00:15:28.326Z [32minfo[39m API vv1: /api/v1/
+2025-12-09T00:15:28.327Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-09T00:15:28.919Z [32minfo[39m Redis connecting
+2025-12-09T00:15:29.455Z [32minfo[39m Redis ready
+2025-12-09T00:15:30.657Z [32minfo[39m MongoDB connection established
+2025-12-09T00:15:30.873Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-09T00:15:32.447Z [32minfo[39m Polling service started with 0 polling jobs

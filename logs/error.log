@@ -2867,3 +2867,34 @@ Body: {"error":{"message":"This request requires more credits, or fewer max_toke
 2025-12-07T01:50:15.355Z [31merror[39m parseModelJson: no JSON object found in model output
 2025-12-07T01:50:26.632Z [31merror[39m parseModelJson: no JSON object found in model output
 2025-12-07T01:56:35.416Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:01:58.021Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:05:37.707Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:10:37.441Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:15:35.675Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:20:35.530Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:25:36.213Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-07T02:25:43.552Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:30:06.583Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:30:11.337Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:35:05.836Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:35:10.357Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T02:40:06.141Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T16:36:48.672Z [31merror[39m Failed to start scheduler Operation `agents.find()` buffering timed out after 10000ms
+2025-12-07T16:37:26.474Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T16:37:48.139Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T16:38:35.292Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
+2025-12-07T16:38:40.034Z [31merror[39m [7097501c-ec05-475b-89f0-d105fb671e16] Main agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [],
+    "message": "Invalid input: expected object, received undefined"
+  }
+]
+2025-12-09T00:01:14.409Z [31merror[39m parseModelJson: no JSON object found in model output
+2025-12-09T00:04:52.905Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:04:53.151Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:05:10.886Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:05:10.942Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:06:25.312Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
+2025-12-09T00:10:21.743Z [31merror[39m Unhandled error Cannot set headers after they are sent to the client
