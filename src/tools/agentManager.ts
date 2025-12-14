@@ -10,44 +10,26 @@ const queue = new Queue("agent-run-queue", { connection: redis as any });
 function ensureAxleCaller(ctx?: RunContext<any>) {
   // Allow calls from axle system or skip if context not available (for internal tool executor)
   const caller = ctx?.context?.caller || ctx?.context?.from;
-  
-  // Log for debugging
-  console.log("[agentManager.ensureAxleCaller] Context check:", {
-    hasContext: !!ctx,
-    caller,
-    contextKeys: ctx ? Object.keys(ctx) : [],
-    nestedContextKeys: ctx?.context ? Object.keys(ctx.context) : [],
-  });
-  
-  // If no context provided, allow (for internal tool executor)
-  if (!ctx) {
-    console.log("[agentManager.ensureAxleCaller] No context provided, allowing");
-    return;
-  }
-  
-  // If caller is "axle", allow
-  if (caller === "axle") {
-    console.log("[agentManager.ensureAxleCaller] Caller is 'axle', allowing");
-    return;
-  }
-  
-  // If bypass flag is set, allow
-  if ((ctx.context as any)?._bypassAuth) {
-    console.log("[agentManager.ensureAxleCaller] Bypass flag set, allowing");
-    return;
-  }
-  
-  // Otherwise, reject
   if (caller && caller !== "axle") {
-    console.error("[agentManager.ensureAxleCaller] Unauthorized caller:", caller);
     throw new Error(
       "Unauthorized: agent-manager tools may only be invoked by Axle"
     );
   }
 }
 
-// Extract execute logic so it can be called directly
-export const createAgentExecute = async (params: any, ctx?: RunContext<any>) => {
+export const create_agent = tool({
+  name: "axle_create_agent",
+  description: "Create a new micro-agent for the user",
+  parameters: z.object({
+    ownerId: z.string(),
+    name: z.string(),
+    description: z.string().nullable().default(""),
+    systemPrompt: z.string().nullable().default(""),
+    tools: z.array(z.string()).default([]),
+    integrations: z.array(z.string()).default([]),
+    schedule: z.any().nullable().default(null),
+  }),
+  execute: async (params, ctx?: RunContext<any>) => {
     console.log("[agentManager.execute] Called with params:", {
       paramType: typeof params,
       paramKeys: Object.keys(params || {}),
@@ -75,47 +57,22 @@ export const createAgentExecute = async (params: any, ctx?: RunContext<any>) => 
         schedule,
       });
       
-      // Transform integrations from string array to object array if needed
-      let transformedIntegrations = [];
-      if (integrations && Array.isArray(integrations)) {
-        transformedIntegrations = integrations.map((integration: any) => {
-          // If it's already an object, use it as-is
-          if (typeof integration === "object" && integration !== null) {
-            return integration;
-          }
-          // If it's a string, convert to object with name field
-          if (typeof integration === "string") {
-            return { name: integration };
-          }
-          return integration;
-        });
-      }
-      
-      // Default to 24/7 running if no schedule provided
-      const defaultSchedule = schedule || {
-        enabled: true,
-        intervalMinutes: 5, // Run every 5 minutes for continuous operation
-      };
-
       const a = await Agent.create({
         ownerId,
         name,
         description,
         systemPrompt,
         tools: t || [],
-        integrations: transformedIntegrations,
-        model: params.model || "gpt-4o",
-        schedule: defaultSchedule,
+        integrations: integrations || [],
+        schedule: schedule || { enabled: false },
       } as any);
 
       console.log("[agentManager.execute] Agent created:", {
         agentId: a._id,
         name: a.name,
-        model: a.model,
-        schedule: a.schedule,
       });
 
-      // Schedule if enabled (should be enabled by default now)
+      // Schedule if requested
       if (a.schedule?.enabled) {
         try {
           const repeatOpts: any = {};
@@ -140,22 +97,7 @@ export const createAgentExecute = async (params: any, ctx?: RunContext<any>) => 
       console.error("[agentManager.execute] Error in create_agent:", err);
       throw err;
     }
-};
-
-export const create_agent = tool({
-  name: "axle_create_agent",
-  description: "Create a new micro-agent for the user",
-  parameters: z.object({
-    ownerId: z.string(),
-    name: z.string(),
-    description: z.string().nullable().default(""),
-    systemPrompt: z.string().nullable().default(""),
-    tools: z.array(z.string()).default([]),
-    integrations: z.array(z.string()).default([]),
-    model: z.string().default("gpt-4o"),
-    schedule: z.any().nullable().default(null),
-  }),
-  execute: createAgentExecute,
+  },
 });
 
 export const update_agent = tool({

@@ -1,5 +1,4 @@
 import { tools as rawTools } from "../tools/registry";
-import { buildIntegrationContext } from "../services/agentRunner";
 import { Agent } from "../models/Agent";
 import { logger } from "../lib/logger";
 
@@ -30,80 +29,26 @@ const getToolByName = (name: string) => {
 };
 
 // Extract execute or invoke function from tool
-const getExecuteFn = (
-  tool: any
-): { fn: Function; useInvoke: boolean } | undefined => {
+const getExecuteFn = (tool: any): Function | undefined => {
   if (!tool) return undefined;
 
-  // PRIORITY 1: Try to access private _execute first (most reliable for @openai/agents)
-  // The @openai/agents tool() wrapper stores execute in _execute
-  if ((tool as any)._execute && typeof (tool as any)._execute === "function") {
-    console.log("[toolExecutor] Found private _execute function");
-    return { fn: (tool as any)._execute, useInvoke: false };
-  }
-
-  // PRIORITY 2: Check for execute in tool definition (stored internally by @openai/agents)
-  if ((tool as any)._definition?.execute && typeof (tool as any)._definition.execute === "function") {
-    console.log("[toolExecutor] Found execute in _definition");
-    return { fn: (tool as any)._definition.execute, useInvoke: false };
-  }
-
-  // PRIORITY 3: Check Symbol properties (might be stored in a Symbol key)
-  const symbols = Object.getOwnPropertySymbols(tool);
-  for (const sym of symbols) {
-    const value = (tool as any)[sym];
-    if (typeof value === "function" && value.length >= 1) {
-      // Likely the execute function (takes at least params)
-      console.log(`[toolExecutor] Found execute via Symbol`);
-      return { fn: value, useInvoke: false };
-    } else if (value && typeof value.execute === "function") {
-      console.log("[toolExecutor] Found execute in Symbol value");
-      return { fn: value.execute, useInvoke: false };
-    }
-  }
-
-  // PRIORITY 4: Try to access execute function directly (bypasses invoke validation)
-  // OpenAI tool() wrapper stores execute in the tool definition
-  if (tool.execute && typeof tool.execute === "function") {
-    console.log("[toolExecutor] Found execute function directly on tool");
-    return { fn: tool.execute, useInvoke: false };
-  }
-
-  // PRIORITY 5: Check for execute in tool.tool (nested structure)
-  if (tool.tool?.execute && typeof tool.tool.execute === "function") {
-    console.log("[toolExecutor] Found execute in tool.tool");
-    return { fn: tool.tool.execute, useInvoke: false };
-  }
-
-  // PRIORITY 6: Check non-enumerable execute property
-  const executeDesc = Object.getOwnPropertyDescriptor(tool, "execute");
-  if (executeDesc?.value && typeof executeDesc.value === "function") {
-    console.log("[toolExecutor] Found non-enumerable execute function");
-    return { fn: executeDesc.value, useInvoke: false };
-  }
-
-  // PRIORITY 7: Check all properties including Symbol properties
-  const allProps = Object.getOwnPropertyNames(tool);
-  for (const prop of allProps) {
-    if (prop.includes("execute") || prop === "_execute" || prop.includes("fn")) {
-      const desc = Object.getOwnPropertyDescriptor(tool, prop);
-      if (desc?.value && typeof desc.value === "function") {
-        console.log(`[toolExecutor] Found execute function in property: ${prop}`);
-        return { fn: desc.value, useInvoke: false };
-      }
-    }
-  }
-
-  // PRIORITY 5: Fallback to invoke wrapper (has validation, might fail)
+  // Try invoke first (OpenAI tool() format)
   if (typeof tool.invoke === "function") {
-    console.log("[toolExecutor] Using invoke wrapper (will validate input)");
-    return { fn: tool.invoke, useInvoke: true };
+    return tool.invoke;
   }
 
-  // PRIORITY 6: Try nested invoke
+  // Try execute
+  if (typeof tool.execute === "function") {
+    return tool.execute;
+  }
+
+  // Try nested
   if (tool.tool?.invoke && typeof tool.tool.invoke === "function") {
-    console.log("[toolExecutor] Using nested invoke wrapper");
-    return { fn: tool.tool.invoke, useInvoke: true };
+    return tool.tool.invoke;
+  }
+
+  if (tool.tool?.execute && typeof tool.tool.execute === "function") {
+    return tool.tool.execute;
   }
 
   return undefined;
@@ -146,29 +91,23 @@ export const executeTool = async (
 
     console.log("[toolExecutor] Tool found:", toolName);
 
-    const execInfo = getExecuteFn(tool);
+    const execFn = getExecuteFn(tool);
     console.log("[toolExecutor] Tool object structure:", {
       hasInvoke: typeof tool.invoke === "function",
       hasExecute: typeof tool.execute === "function",
       hasTool: !!tool.tool,
       toolKeys: Object.keys(tool),
       toolType: tool.constructor?.name,
-      execInfoFound: !!execInfo,
     });
 
-    if (!execInfo) {
+    if (!execFn) {
       return {
         success: false,
         error: `Tool ${toolName} has no executable function`,
       };
     }
 
-    const { fn: execFn, useInvoke } = execInfo;
-    console.log(
-      "[toolExecutor] Executing function (useInvoke:",
-      useInvoke,
-      ")..."
-    );
+    console.log("[toolExecutor] Executing function...");
 
     // Clean args for JSON safety
     const cleanArgs = JSON.parse(JSON.stringify(decision.args || {}));
@@ -180,668 +119,44 @@ export const executeTool = async (
     });
 
     // Call the tool with context
-    // OpenAI tool() wrapper expects RunContext format: { context: { caller, userId, ... } }
-    // Also include integration context for tools that need it
-    const integrationContext = userId ? await buildIntegrationContext(userId) : {};
-    const runContext = {
+    const context = {
       context: {
         caller: "axle",
         userId,
-        from: "axle", // Also set 'from' for compatibility
-        ...integrationContext, // Include integration data (github, google, etc.)
       },
     };
 
     let result;
     try {
-      console.log("[toolExecutor] Calling tool with context:", {
-        hasContext: !!runContext,
-        caller: runContext.context.caller,
-        useInvoke,
-      });
-
-      if (useInvoke) {
-        // invoke wrapper might expect parameters as JSON string or in specific format
-        // Try multiple formats if one fails or returns error string
-        let attempts = 0;
-        const maxAttempts = 3;
-
-        while (attempts < maxAttempts) {
-          attempts++;
-          let attemptResult;
-
-          try {
-            if (attempts === 1) {
-              // First try: pass params as object with proper context format
-              // @openai/agents invoke expects: invoke(params, context)
-              console.log("[toolExecutor] Attempt 1: Passing params as object with context");
-              try {
-                // Try calling invoke with just params first (some tools don't need context)
-                attemptResult = await execFn(cleanArgs);
-              } catch (e1) {
-                // If that fails, try with context
-                attemptResult = await execFn(cleanArgs, runContext as any);
-              }
-            } else if (attempts === 2) {
-              // Second try: validate params against Zod schema first, then call
-              console.log(
-                "[toolExecutor] Attempt 2: Validating params then calling"
-              );
-              // Try to parse and validate with Zod if tool has parameters
-              if (tool.parameters) {
-                try {
-                  const zodSchema = tool.parameters as any;
-                  // Parse the args through Zod
-                  const parsed = zodSchema.parse(cleanArgs);
-                  attemptResult = await execFn(parsed, runContext as any);
-                } catch (zodErr) {
-                  // If Zod validation fails, try without validation
-                  attemptResult = await execFn(cleanArgs, runContext as any);
-                }
-              } else {
-                attemptResult = await execFn(cleanArgs, runContext as any);
-              }
-            } else if (attempts === 3) {
-              // Third try: access execute directly if available
-              console.log(
-                "[toolExecutor] Attempt 3: Trying direct execute access"
-              );
-              // Comprehensive search for execute function
-              let executeFn: Function | undefined;
-
-              // Check direct property
-              if (tool.execute && typeof tool.execute === "function") {
-                executeFn = tool.execute;
-                console.log("[toolExecutor] Found execute on tool directly");
-              }
-
-              // Check private _execute
-              if (
-                !executeFn &&
-                (tool as any)._execute &&
-                typeof (tool as any)._execute === "function"
-              ) {
-                executeFn = (tool as any)._execute;
-                console.log("[toolExecutor] Found private _execute");
-              }
-
-              // Check tool.tool.execute
-              if (
-                !executeFn &&
-                tool.tool?.execute &&
-                typeof tool.tool.execute === "function"
-              ) {
-                executeFn = tool.tool.execute;
-                console.log("[toolExecutor] Found execute in tool.tool");
-              }
-
-              // Check non-enumerable properties
-              if (!executeFn) {
-                const executeDesc = Object.getOwnPropertyDescriptor(
-                  tool,
-                  "execute"
-                );
-                if (
-                  executeDesc?.value &&
-                  typeof executeDesc.value === "function"
-                ) {
-                  executeFn = executeDesc.value;
-                  console.log("[toolExecutor] Found non-enumerable execute");
-                }
-              }
-
-              // Check all own properties (including non-enumerable)
-              if (!executeFn) {
-                const allProps = Object.getOwnPropertyNames(tool);
-                console.log("[toolExecutor] All tool properties:", allProps);
-                for (const prop of allProps) {
-                  if (prop.includes("execute") || prop.includes("Execute")) {
-                    const desc = Object.getOwnPropertyDescriptor(tool, prop);
-                    if (desc?.value && typeof desc.value === "function") {
-                      executeFn = desc.value;
-                      console.log(
-                        `[toolExecutor] Found execute function in property: ${prop}`
-                      );
-                      break;
-                    }
-                  }
-                }
-              }
-
-              // Check prototype chain
-              if (!executeFn) {
-                for (
-                  let obj = tool;
-                  obj && obj !== Object.prototype;
-                  obj = Object.getPrototypeOf(obj)
-                ) {
-                  const protoProps = Object.getOwnPropertyNames(obj);
-                  for (const prop of protoProps) {
-                    if (prop.includes("execute") || prop.includes("Execute")) {
-                      const desc = Object.getOwnPropertyDescriptor(obj, prop);
-                      if (desc?.value && typeof desc.value === "function") {
-                        executeFn = desc.value;
-                        console.log(
-                          `[toolExecutor] Found execute in prototype: ${prop}`
-                        );
-                        break;
-                      }
-                    }
-                  }
-                  if (executeFn) break;
-                }
-              }
-
-              // Last resort: Try to extract execute from tool's internal structure
-              // The @openai/agents tool() wrapper stores execute in a closure
-              // We can try to access it by calling invoke with invalid params to get the error,
-              // or by accessing the tool's internal definition
-              if (!executeFn) {
-                try {
-                  console.log(
-                    "[toolExecutor] Attempting to extract execute from tool wrapper"
-                  );
-                  
-                  const toolAny = tool as any;
-                  
-                  // Method 1: Check if tool has a _definition property
-                  if (toolAny._definition?.execute) {
-                    executeFn = toolAny._definition.execute;
-                    console.log("[toolExecutor] Found execute in _definition");
-                  }
-                  
-                  // Method 2: Try to access through the tool's constructor or prototype
-                  if (!executeFn && toolAny.constructor) {
-                    const proto = toolAny.constructor.prototype;
-                    if (proto && proto.execute) {
-                      executeFn = proto.execute;
-                      console.log("[toolExecutor] Found execute in prototype");
-                    }
-                  }
-                  
-                  // Method 3: Try to call invoke with a trap to extract execute
-                  // This is a hack - we'll try to bypass validation by calling invoke
-                  // with a proxy that captures the execute call
-                  if (!executeFn) {
-                    // Try wrapping invoke to see what it calls internally
-                    const originalInvoke = toolAny.invoke;
-                    if (originalInvoke) {
-                      // Create a proxy to intercept the execute call
-                      let capturedExecute: Function | null = null;
-                      try {
-                        // Try to parse the tool's internal structure
-                        // @openai/agents might store execute in a WeakMap or closure
-                        // We'll try to access it by inspecting the function's closure
-                        const invokeStr = originalInvoke.toString();
-                        // If invoke references execute, we might be able to extract it
-                        console.log("[toolExecutor] Inspecting invoke function structure");
-                      } catch (e) {
-                        // Ignore
-                      }
-                    }
-                  }
-                  
-                  // Method 4: Import from source and create raw execute functions
-                  if (!executeFn) {
-                    try {
-                      // Create direct execute function wrappers
-                      if (toolName === "search_github") {
-                        const { makeGitHubRequest } = await import("../lib/githubapis");
-                        executeFn = async (params: any, ctx?: any) => {
-                          // Extract userId from context - it's passed in runContext.context.userId
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          if (!userId) {
-                            throw new Error("User ID not found in context");
-                          }
-                          // Validate search type - GitHub only supports: repositories, code, commits, issues, users
-                          const validTypes = ["repositories", "code", "commits", "issues", "users"];
-                          const searchType = params.type || "repositories";
-                          if (!validTypes.includes(searchType)) {
-                            throw new Error(`Invalid search type: ${searchType}. Valid types: ${validTypes.join(", ")}`);
-                          }
-                          return makeGitHubRequest(
-                            `/search/${searchType}?q=${encodeURIComponent(params.query)}`,
-                            "GET",
-                            undefined,
-                            userId
-                          );
-                        };
-                        console.log("[toolExecutor] Created direct execute for search_github");
-                      } else if (toolName === "list_repos") {
-                        const { makeGitHubRequest } = await import("../lib/githubapis");
-                        executeFn = async (params: any, ctx?: any) => {
-                          // Extract userId from context - it's passed in runContext.context.userId
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          if (!userId) {
-                            throw new Error("User ID not found in context");
-                          }
-                          return makeGitHubRequest(
-                            `/user/repos?per_page=100&visibility=${params.visibility || "all"}`,
-                            "GET",
-                            undefined,
-                            userId
-                          );
-                        };
-                        console.log("[toolExecutor] Created direct execute for list_repos");
-                      } else if (toolName === "list_commits") {
-                        const { makeGitHubRequest } = await import("../lib/githubapis");
-                        executeFn = async (params: any, ctx?: any) => {
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          if (!userId) {
-                            throw new Error("User ID not found in context");
-                          }
-                          // Handle both formats: {owner, repo} or {repo: "owner/repo"}
-                          let owner: string, repo: string;
-                          if (params.owner && params.repo) {
-                            owner = params.owner;
-                            repo = params.repo;
-                          } else if (params.repo && params.repo.includes("/")) {
-                            [owner, repo] = params.repo.split("/");
-                          } else {
-                            throw new Error("Repository required. Use {owner, repo} or {repo: 'owner/repo'}");
-                          }
-                          
-                          let url = `/repos/${owner}/${repo}/commits?`;
-                          const queryParams = new URLSearchParams();
-                          if (params.sha) queryParams.append("sha", params.sha);
-                          if (params.path) queryParams.append("path", params.path);
-                          if (params.author) queryParams.append("author", params.author);
-                          if (params.since) queryParams.append("since", params.since);
-                          if (params.until) queryParams.append("until", params.until);
-                          if (params.per_page) queryParams.append("per_page", String(params.per_page));
-                          
-                          const queryString = queryParams.toString();
-                          if (queryString) url += queryString;
-                          
-                          return makeGitHubRequest(url, "GET", undefined, userId);
-                        };
-                        console.log("[toolExecutor] Created direct execute for list_commits");
-                      } else if (toolName === "list_pull_requests") {
-                        const { makeGitHubRequest } = await import("../lib/githubapis");
-                        executeFn = async (params: any, ctx?: any) => {
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          if (!userId) {
-                            throw new Error("User ID not found in context");
-                          }
-                          let owner: string, repo: string;
-                          if (params.owner && params.repo) {
-                            owner = params.owner;
-                            repo = params.repo;
-                          } else if (params.repo && params.repo.includes("/")) {
-                            [owner, repo] = params.repo.split("/");
-                          } else {
-                            throw new Error("Repository required. Use {owner, repo} or {repo: 'owner/repo'}");
-                          }
-                          const state = params.state || "open";
-                          return makeGitHubRequest(
-                            `/repos/${owner}/${repo}/pulls?state=${state}`,
-                            "GET",
-                            undefined,
-                            userId
-                          );
-                        };
-                        console.log("[toolExecutor] Created direct execute for list_pull_requests");
-                      } else if (toolName === "list_issues") {
-                        const { makeGitHubRequest } = await import("../lib/githubapis");
-                        executeFn = async (params: any, ctx?: any) => {
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          if (!userId) {
-                            throw new Error("User ID not found in context");
-                          }
-                          let owner: string, repo: string;
-                          if (params.owner && params.repo) {
-                            owner = params.owner;
-                            repo = params.repo;
-                          } else if (params.repo && params.repo.includes("/")) {
-                            [owner, repo] = params.repo.split("/");
-                          } else {
-                            throw new Error("Repository required. Use {owner, repo} or {repo: 'owner/repo'}");
-                          }
-                          let url = `/repos/${owner}/${repo}/issues?state=${params.state || "open"}`;
-                          if (params.labels) url += `&labels=${encodeURIComponent(params.labels)}`;
-                          if (params.assignee) url += `&assignee=${encodeURIComponent(params.assignee)}`;
-                          return makeGitHubRequest(url, "GET", undefined, userId);
-                        };
-                        console.log("[toolExecutor] Created direct execute for list_issues");
-                      } else if (toolName === "send_email") {
-                        const { Resend } = await import("resend");
-                        const { env } = await import("../config/env");
-                        const { getGoogleDetails } = await import("../lib/googleapis");
-                        const { decrypt } = await import("../lib/crypto");
-                        executeFn = async (params: any, ctx?: any) => {
-                          // Check if Resend API key is configured
-                          if (!env.RESEND_API_KEY) {
-                            throw new Error("RESEND_API_KEY not configured. Please set RESEND_API_KEY environment variable.");
-                          }
-                          
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          let userEmail: string | undefined;
-                          
-                          // Try to get user's email from Google integration if available
-                          if (userId && ctx?.context?.google?.accessToken) {
-                            try {
-                              const accessToken = decrypt(ctx.context.google.accessToken);
-                              const googleDetails = await getGoogleDetails(accessToken);
-                              userEmail = googleDetails.email;
-                            } catch (err) {
-                              // If we can't get email from Google, continue without it
-                              logger.debug("[toolExecutor] Could not get user email from Google integration:", err);
-                            }
-                          }
-                          
-                          // Use provided 'to' address, or fallback to user's email from Google
-                          const toAddress = params.to || userEmail;
-                          if (!toAddress) {
-                            throw new Error("No recipient email address provided. Please specify 'to' parameter or connect Google integration.");
-                          }
-                          
-                          const resend = new Resend(env.RESEND_API_KEY);
-                          const toArray = Array.isArray(toAddress) ? toAddress : [toAddress];
-                          const fromEmail = env.RESEND_FROM_EMAIL || "Axle <onboarding@resend.dev>";
-                          
-                          const emailOptions: any = {
-                            from: fromEmail,
-                            to: toArray,
-                            subject: params.subject,
-                            text: params.body,
-                          };
-                          
-                          if (params.html) emailOptions.html = params.html;
-                          if (params.cc) {
-                            emailOptions.cc = Array.isArray(params.cc) ? params.cc : [params.cc];
-                          }
-                          if (params.bcc) {
-                            emailOptions.bcc = Array.isArray(params.bcc) ? params.bcc : [params.bcc];
-                          }
-                          if (params.attachments && params.attachments.length > 0) {
-                            emailOptions.attachments = params.attachments.map((att: any) => ({
-                              filename: att.filename,
-                              content: Buffer.from(att.content, "base64"),
-                              contentType: att.contentType,
-                            }));
-                          }
-                          
-                          const result = await resend.emails.send(emailOptions);
-                          
-                          if (result.error) {
-                            throw new Error(`Resend API error: ${result.error.message || JSON.stringify(result.error)}`);
-                          }
-                          
-                          return { success: true, messageId: result.data?.id || "sent" };
-                        };
-                        console.log("[toolExecutor] Created direct execute for send_email using Resend");
-                      } else if (toolName === "send_gmail") {
-                        executeFn = async (params: any, ctx?: any) => {
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          if (!userId) {
-                            throw new Error("User ID not found in context");
-                          }
-                          const googleIntegration = ctx?.context?.google;
-                          if (!googleIntegration?.accessToken) {
-                            throw new Error("Google integration not found or no access token. Please reconnect your Google account.");
-                          }
-                          
-                          let accessToken = googleIntegration.accessToken;
-                          const refreshToken = googleIntegration.refreshToken;
-                          
-                          // Use Gmail API to send email
-                          const sendEmail = async (token: string) => {
-                            const toList = Array.isArray(params.to) ? params.to.join(", ") : params.to;
-                            const ccList = params.cc ? (Array.isArray(params.cc) ? params.cc.join(", ") : params.cc) : "";
-                            const bccList = params.bcc ? (Array.isArray(params.bcc) ? params.bcc.join(", ") : params.bcc) : "";
-                            
-                            const email = [
-                              `To: ${toList}`,
-                              ccList ? `Cc: ${ccList}` : "",
-                              bccList ? `Bcc: ${bccList}` : "",
-                              `Subject: ${params.subject}`,
-                              `Content-Type: ${params.html ? "text/html" : "text/plain"}; charset=utf-8`,
-                              "",
-                              params.html || params.body,
-                            ]
-                              .filter(Boolean)
-                              .join("\r\n");
-                            
-                            const message = {
-                              raw: Buffer.from(email).toString("base64url"),
-                            };
-                            
-                            const res = await fetch(
-                              "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
-                              {
-                                method: "POST",
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify(message),
-                              }
-                            );
-                            
-                            if (!res.ok) {
-                              const error = await res.text();
-                              throw new Error(`Gmail API error: ${res.statusText} - ${error}`);
-                            }
-                            
-                            return await res.json();
-                          };
-                          
-                          try {
-                            // Try sending with current token
-                            return await sendEmail(accessToken);
-                          } catch (err: any) {
-                            // If unauthorized and we have a refresh token, try refreshing
-                            if (err.message?.includes("401") || err.message?.includes("Unauthorized") || err.message?.includes("UNAUTHENTICATED")) {
-                              if (refreshToken) {
-                                try {
-                                  const { refreshGoogleToken } = await import("../lib/googleapis");
-                                  const { encrypt } = await import("../lib/crypto");
-                                  const { Integration } = await import("../models/Integration");
-                                  
-                                  // Refresh the token
-                                  const newCredentials = await refreshGoogleToken(refreshToken);
-                                  if (!newCredentials.access_token) {
-                                    throw new Error("Failed to refresh Google token");
-                                  }
-                                  
-                                  // Update integration in database
-                                  await Integration.findOneAndUpdate(
-                                    { userId, name: "google" },
-                                    {
-                                      accessToken: encrypt(newCredentials.access_token),
-                                      expiresAt: newCredentials.expiry_date ? new Date(newCredentials.expiry_date) : undefined,
-                                    }
-                                  );
-                                  
-                                  // Retry with new token
-                                  accessToken = newCredentials.access_token;
-                                  return await sendEmail(accessToken);
-                                } catch (refreshErr: any) {
-                                  throw new Error(`Google token refresh failed: ${refreshErr.message}. Please reconnect your Google account.`);
-                                }
-                              } else {
-                                throw new Error("Google access token expired and no refresh token available. Please reconnect your Google account.");
-                              }
-                            }
-                            throw err;
-                          }
-                        };
-                        console.log("[toolExecutor] Created direct execute for send_gmail");
-                      } else if (toolName === "list_calendar_events") {
-                        const { listCalendarEventsForToken } = await import("../lib/googleapis");
-                        executeFn = async (params: any, ctx?: any) => {
-                          const userId = ctx?.context?.userId || ctx?.userId;
-                          if (!userId) {
-                            throw new Error("User ID not found in context");
-                          }
-                          const googleIntegration = ctx?.context?.google;
-                          if (!googleIntegration?.accessToken) {
-                            throw new Error("Google integration not found or no access token. Please reconnect your Google account.");
-                          }
-                          
-                          // accessToken is already decrypted by buildIntegrationContext
-                          return listCalendarEventsForToken(
-                            googleIntegration.accessToken,
-                            params.calendarId || "primary",
-                            params.maxResults || 10,
-                            {
-                              ...(params.timeMin && { timeMin: params.timeMin }),
-                              ...(params.timeMax && { timeMax: params.timeMax }),
-                              ...(params.singleEvents !== null && params.singleEvents !== undefined && { singleEvents: params.singleEvents }),
-                              ...(params.orderBy && { orderBy: params.orderBy }),
-                            }
-                          );
-                        };
-                        console.log("[toolExecutor] Created direct execute for list_calendar_events");
-                      } else if (toolName.startsWith("axle_")) {
-                        const agentManager = await import("../tools/agentManager");
-                        const executeMap: Record<string, Function | undefined> = {
-                          axle_create_agent: agentManager.createAgentExecute,
-                        };
-                        executeFn = executeMap[toolName];
-                      }
-                    } catch (importErr) {
-                      console.warn("[toolExecutor] Could not create direct execute:", importErr);
-                    }
-                  }
-                  
-                  if (executeFn && typeof executeFn === "function") {
-                    console.log(
-                      `[toolExecutor] Found/created execute function for ${toolName}`
-                    );
-                  }
-                } catch (importErr) {
-                  console.warn(
-                    "[toolExecutor] Could not extract execute function:",
-                    importErr
-                  );
-                }
-              }
-
-              if (executeFn && typeof executeFn === "function") {
-                attemptResult = await executeFn(cleanArgs, runContext as any);
-              } else {
-                throw new Error(
-                  "No execute function found after exhaustive search"
-                );
-              }
-            }
-
-            // Check if result is an error string
-            if (
-              typeof attemptResult === "string" &&
-              (attemptResult.includes("Error") ||
-                attemptResult.includes("Invalid JSON") ||
-                attemptResult.includes("error occurred"))
-            ) {
-              console.warn(
-                `[toolExecutor] Attempt ${attempts} returned error string:`,
-                attemptResult.substring(0, 200)
-              );
-              if (attempts < maxAttempts) {
-                continue; // Try next attempt
-              } else {
-                result = attemptResult; // Last attempt, return the error
-                break;
-              }
-            } else {
-              // Success!
-              result = attemptResult;
-              console.log(`[toolExecutor] Attempt ${attempts} succeeded`);
-              break;
-            }
-          } catch (invokeErr) {
-            const invokeErrorMsg = invokeErr?.message || String(invokeErr);
-            console.warn(
-              `[toolExecutor] Attempt ${attempts} threw error:`,
-              invokeErrorMsg
-            );
-
-            if (attempts < maxAttempts) {
-              continue; // Try next attempt
-            } else {
-              throw invokeErr; // Last attempt failed, throw error
-            }
-          }
-        }
-      } else {
-        // execute function - pass params and context directly
-        result = await execFn(cleanArgs, runContext as any);
-      }
+      // Try with context
+      result = await execFn(cleanArgs, context as any);
     } catch (err) {
-      const errorMsg = (err as any)?.message || String(err);
-      console.error("[toolExecutor] Tool execution error:", {
-        error: errorMsg,
-        stack: (err as any)?.stack,
-      });
-
-      // If it's an authorization error, try without the caller check
-      if (
-        errorMsg.includes("Unauthorized") ||
-        errorMsg.includes("may only be invoked")
-      ) {
-        console.warn(
-          "[toolExecutor] Authorization error, trying with caller override:",
-          errorMsg
-        );
-        // Try calling with a context that bypasses the check
-        try {
-          const bypassContext = {
-            context: {
-              caller: "axle",
-              userId,
-              from: "axle",
-              _bypassAuth: true, // Flag to bypass auth if needed
-            },
-          };
-          result = await execFn(cleanArgs, bypassContext as any);
-        } catch (err2) {
-          // Last resort: try without context
-          console.warn(
-            "[toolExecutor] Bypass attempt failed, trying without context:",
-            (err2 as any)?.message
-          );
-          try {
-            result = await execFn(cleanArgs);
-          } catch (err3) {
-            console.error("[toolExecutor] All attempts failed:", {
-              err1: errorMsg,
-              err2: (err2 as any)?.message,
-              err3: (err3 as any)?.message,
-            });
-            throw err; // throw original error
-          }
-        }
-      } else {
-        // For other errors, just throw
-        throw err;
+      // Fallback: try without context
+      console.warn(
+        "[toolExecutor] First attempt failed, trying without context:",
+        (err as any)?.message
+      );
+      try {
+        result = await execFn(cleanArgs);
+      } catch (err2) {
+        console.error("[toolExecutor] Both attempts failed:", {
+          err1: (err as any)?.message,
+          err2: (err2 as any)?.message,
+        });
+        throw err; // throw original error
       }
     }
 
     console.log("[toolExecutor] Tool execution result:", {
       type: typeof result,
       hasError: typeof result === "string" && result.includes("Error"),
-      resultPreview:
-        typeof result === "string"
-          ? result.substring(0, 500)
-          : JSON.stringify(result).substring(0, 500),
     });
 
     // Check if result contains an error message
     if (typeof result === "string" && result.includes("Error")) {
-      console.error("[toolExecutor] Tool returned error string:", result);
       return {
         success: false,
         error: result,
-      };
-    }
-
-    // Check if result is an error object
-    if (result && typeof result === "object" && "error" in result) {
-      console.error("[toolExecutor] Tool returned error object:", result);
-      return {
-        success: false,
-        error: result.error || JSON.stringify(result),
       };
     }
 
@@ -893,7 +208,7 @@ export const executeAgent = async (
     console.log("[toolExecutor] Agent found:", agent.name);
 
     // Import dynamically to avoid circular dependencies
-    const { axleAgent } = await import("../agent/main");
+    const axleAgent = (await import("../agent/main")).default;
 
     // Run the agent
     const result = await axleAgent.run({

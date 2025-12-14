@@ -9532,3 +9532,1666 @@ Body: {"error":{"message":"This request requires more credits, or fewer max_toke
 2025-12-09T15:10:14.700Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
 2025-12-09T15:10:18.907Z [31merror[39m Independent agent execution error: 429 "Daily limit exceeded"
 2025-12-09T15:10:18.908Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 5100ms
+2025-12-11T08:24:55.522Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-11T08:24:55.528Z [32minfo[39m API vv1: /api/v1/
+2025-12-11T08:24:55.528Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-11T08:24:56.233Z [32minfo[39m Redis connecting
+2025-12-11T08:24:56.829Z [32minfo[39m Redis ready
+2025-12-11T08:25:00.452Z [32minfo[39m MongoDB connection established
+2025-12-11T08:25:01.420Z [32minfo[39m Scheduled agent 693772ae33f367d00c5a32f7 (Test) - every 5 minutes
+2025-12-11T08:25:01.420Z [32minfo[39m Scheduler started: 0 agents enabled, 1 agents scheduled for execution
+2025-12-11T08:25:02.407Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-11T08:25:04.503Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 starting execution with 0 tools available
+2025-12-11T08:25:07.102Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: search_github
+2025-12-11T08:25:10.076Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: success
+2025-12-11T08:25:13.925Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-11T08:25:17.549Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-11T08:25:21.056Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_email
+2025-12-11T08:25:25.256Z [32minfo[39m [runIndependentAgent] Tool send_email execution result: failed
+2025-12-11T08:25:31.224Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: log_error
+2025-12-11T08:25:31.226Z [32minfo[39m [runIndependentAgent] Tool log_error execution result: failed
+2025-12-11T08:25:34.716Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_slack_message
+2025-12-11T08:25:35.611Z [32minfo[39m [runIndependentAgent] Tool send_slack_message execution result: failed
+2025-12-11T08:25:39.019Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_gmail
+2025-12-11T08:25:43.210Z [32minfo[39m [runIndependentAgent] Tool send_gmail execution result: success
+2025-12-11T08:25:45.230Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: send_notification
+2025-12-11T08:25:45.563Z [32minfo[39m [runIndependentAgent] Tool send_notification execution result: failed
+2025-12-11T08:25:46.657Z [32minfo[39m [runIndependentAgent] Agent 693772ae33f367d00c5a32f7 calling tool: list_notifications
+2025-12-11T08:25:47.207Z [32minfo[39m [runIndependentAgent] Tool list_notifications execution result: failed
+2025-12-11T08:25:47.208Z [32minfo[39m Agent 693772ae33f367d00c5a32f7 completed successfully in 43092ms
+2025-12-11T08:26:27.029Z [32minfo[39m [49d26831-fa36-4471-b1e1-d8f4e9b0548f] OPTIONS /api/v1/auth - 204 (5ms)
+2025-12-11T08:26:29.168Z [32minfo[39m [4b53e318-35b4-4806-a75e-e06c7586184a] Magic link sent to therealteejay25@gmail.com
+2025-12-11T08:26:29.170Z [32minfo[39m [4b53e318-35b4-4806-a75e-e06c7586184a] POST / - 200 (2139ms)
+2025-12-11T08:26:48.180Z [32minfo[39m [3af1fa7e-c57a-4cb9-9791-52f6c03f033b] OPTIONS /api/v1/auth/verify - 204 (1ms)
+2025-12-11T08:26:48.194Z [32minfo[39m ef2610351f19153b4cd0fce7af58abb84caf35e5128bccee01ff978a5282dbf0b6880a059933b632bb76df9bf27cbe918a90365c8d7ed3c1ea45404251462898
+2025-12-11T08:26:48.809Z [32minfo[39m [8c35469c-f6bb-4b29-8b19-d3e09cf2e82a] User authenticated: 692ad22d8b93c44e2ceadf4e
+2025-12-11T08:26:48.811Z [32minfo[39m [8c35469c-f6bb-4b29-8b19-d3e09cf2e82a] POST /verify - 200 (619ms)
+2025-12-11T08:26:52.986Z [32minfo[39m [df4b8e79-6362-4074-a218-58603feaf342] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-11T08:26:53.117Z [32minfo[39m [702e9b42-00dd-4129-bba5-76f5285f842e] OPTIONS /api/v1/agents - 204 (4ms)
+2025-12-11T08:26:53.195Z [32minfo[39m [0d6ee4d2-34a4-4eb9-a9ce-7d581171cf15] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-11T08:26:53.198Z [32minfo[39m [84b3bbb0-2176-40f4-ba01-9c04e41e0198] OPTIONS /api/v1/auth/me - 204 (0ms)
+2025-12-11T08:26:53.216Z [32minfo[39m [350ef440-7c0b-48db-836f-26769ce73609] OPTIONS /api/v1/agents - 204 (2ms)
+2025-12-11T08:26:53.310Z [32minfo[39m [336bae2c-c8b0-4a94-9bb0-92ccc764af08] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-11T08:26:53.415Z [32minfo[39m [35b30ffd-dbfa-4fc7-a29d-217eb2c9b4cc] GET /me - 200 (30ms)
+2025-12-11T08:26:53.618Z [32minfo[39m [9e0a23fe-180f-4aff-8c27-c542ecdce93c] GET /me - 304 (5ms)
+2025-12-11T08:26:53.661Z [32minfo[39m [921e077b-13ac-4099-adc5-42ec100b2864] GET /me - 304 (2ms)
+2025-12-11T08:26:53.688Z [32minfo[39m [6d2fba73-162b-4ab8-b0d9-48f75952145d] GET /me - 304 (7ms)
+2025-12-11T08:26:53.878Z [32minfo[39m [f649f298-3c95-4439-9e92-92466e3e54b9] GET / - 200 (428ms)
+2025-12-11T08:26:54.847Z [32minfo[39m [712c5a8b-99cd-473b-87df-e654eeef9286] GET / - 304 (962ms)
+2025-12-11T08:27:22.001Z [32minfo[39m [749b236e-1417-4914-a729-0fe71ab24f24] OPTIONS /api/v1/api/v1/chat/stream - 204 (2ms)
+2025-12-11T08:27:22.018Z [33mwarn[39m [7c792171-ff6a-49ef-ab23-7f3f5db99030] POST /api/v1/api/v1/chat/stream - 404 (8ms)
+2025-12-11T08:27:22.100Z [32minfo[39m [20eedca6-934e-46ec-851c-9a343aa6c537] OPTIONS /api/v1/agents/chat - 204 (1ms)
+2025-12-11T08:27:22.224Z [31merror[39m [738d6657-93a6-456c-829b-cd6cf381593d] Main agent failed [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "instruction"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+2025-12-11T08:27:22.403Z [33mwarn[39m [738d6657-93a6-456c-829b-cd6cf381593d] POST /chat - 400 (198ms)
+2025-12-11T08:28:13.629Z [32minfo[39m [38bc04fb-47dc-4f4b-9f34-7971cb2110e5] OPTIONS /api/v1/agents - 204 (4ms)
+2025-12-11T08:28:13.682Z [32minfo[39m [99d6b315-0576-436d-90e8-2b6c685ad0c0] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-11T08:28:13.999Z [32minfo[39m [c042d333-0d3a-4631-97fa-6dd2572a266b] GET / - 304 (304ms)
+2025-12-11T08:28:14.305Z [32minfo[39m [4f17c3d0-79ad-4fb6-a476-d89a484c9633] GET / - 304 (258ms)
+2025-12-11T08:28:28.113Z [32minfo[39m [f6c601a9-f48f-4aed-adbf-ad19c099781d] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-11T08:28:28.158Z [32minfo[39m [5a93cc21-ee9a-4d7a-992a-7efe9b1e4555] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (1ms)
+2025-12-11T08:28:28.389Z [32minfo[39m [656c81c0-1fac-4e2a-9730-8f12fdd44ee6] GET /693772ae33f367d00c5a32f7 - 200 (200ms)
+2025-12-11T08:28:28.583Z [32minfo[39m [9ad8410c-cc76-4f13-845f-54921f17806c] GET /693772ae33f367d00c5a32f7 - 304 (191ms)
+2025-12-11T08:28:33.313Z [32minfo[39m [26698fd4-3272-4a46-b179-64207a0087cf] GET /693772ae33f367d00c5a32f7 - 304 (194ms)
+2025-12-11T08:28:38.117Z [32minfo[39m [37742c5b-fb9e-41f0-afa6-735ad7b4988e] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-11T08:28:38.307Z [32minfo[39m [f2d1f02f-3623-46a7-9444-74b99c65a080] GET /693772ae33f367d00c5a32f7 - 304 (187ms)
+2025-12-11T08:28:43.330Z [32minfo[39m [308ec2d3-e5f1-4fc7-83c9-bc453331ba4a] GET /693772ae33f367d00c5a32f7 - 304 (217ms)
+2025-12-11T08:28:48.111Z [32minfo[39m [ba673780-ccca-4ef5-a904-f99ee9221845] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (1ms)
+2025-12-11T08:28:58.112Z [32minfo[39m [2bb10fa1-438d-4f0b-bfaa-f4dbab928418] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (1ms)
+2025-12-11T08:28:59.997Z [32minfo[39m [86175a97-a112-46be-92b9-668f7a2eb32c] OPTIONS /api/v1/oauth/integrations - 204 (0ms)
+2025-12-11T08:29:00.013Z [32minfo[39m [6b51e516-b329-4166-b1ad-0be21b356c4c] OPTIONS /api/v1/oauth/integrations - 204 (1ms)
+2025-12-11T08:29:00.030Z [33mwarn[39m [beb0e4bc-8bad-450c-9b2d-d027ee161383] GET /api/v1/oauth/integrations - 404 (2ms)
+2025-12-11T08:29:00.235Z [33mwarn[39m [7ec3f139-81a1-4610-9bf7-28d3c7ee883e] GET /api/v1/oauth/integrations - 404 (1ms)
+2025-12-11T08:29:05.180Z [32minfo[39m [58ac91c7-48c3-4201-a16c-875be214a043] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-11T08:29:05.214Z [32minfo[39m [c5ccd321-4088-4a78-92fa-131683bca822] OPTIONS /api/v1/auth/me - 204 (0ms)
+2025-12-11T08:29:05.233Z [32minfo[39m [092bfd2d-c7df-43c7-9b8a-a0492b154502] GET /me - 304 (3ms)
+2025-12-11T08:29:05.303Z [32minfo[39m [dd5148bf-804f-4387-bf7c-3ec32e713634] GET /me - 304 (3ms)
+2025-12-11T08:29:07.414Z [33mwarn[39m MongoDB connection lost
+2025-12-11T08:29:08.453Z [32minfo[39m MongoDB connection established
+2025-12-11T08:29:08.454Z [32minfo[39m MongoDB reconnected
+2025-12-11T08:29:09.886Z [32minfo[39m [75623dff-b20c-4756-b74b-7379ae8f5085] GET /693772ae33f367d00c5a32f7 - 304 (21771ms)
+2025-12-11T08:29:10.088Z [32minfo[39m [6515eaf4-8099-450b-8e96-c1cc2a173b2b] GET /693772ae33f367d00c5a32f7 - 304 (198ms)
+2025-12-11T08:29:10.342Z [32minfo[39m [ac2002b1-fda2-426b-a06b-8423d2ce32ff] GET /693772ae33f367d00c5a32f7 - 304 (253ms)
+2025-12-11T08:29:14.311Z [32minfo[39m [73d00bbc-9ccf-4c49-bfa8-849f9a521d5a] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-11T08:29:14.337Z [32minfo[39m [a5db3fc4-054e-4f30-8a06-b13f79593859] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-11T08:29:14.533Z [32minfo[39m [89b02110-48e2-4516-9a66-5f8ee53de08f] GET / - 304 (189ms)
+2025-12-11T08:29:14.742Z [32minfo[39m [b5661c2c-669c-46bd-b857-a61eb9aa7d8e] GET / - 304 (208ms)
+2025-12-11T08:29:19.847Z [32minfo[39m [e4fc4175-3cc9-4fe4-8c59-69bc302e49f6] OPTIONS /api/v1/auth/me - 204 (0ms)
+2025-12-11T08:29:19.867Z [32minfo[39m [86bcc3b8-2316-44d3-b32a-8b73ac715142] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-11T08:29:19.869Z [32minfo[39m [211cc94b-690d-4c41-854c-56f613904435] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-11T08:29:19.879Z [32minfo[39m [240441bd-02a4-45f8-9a61-ee34cef2c9a8] GET /me - 304 (2ms)
+2025-12-11T08:29:19.983Z [32minfo[39m [b099ec2a-74b4-4d3f-8dd6-aa464bcda0ee] GET /me - 304 (2ms)
+2025-12-11T08:29:20.507Z [32minfo[39m [ce9c6da6-4b83-44e9-b7e0-5aeafb3b9420] GET / - 304 (522ms)
+2025-12-11T08:29:20.715Z [32minfo[39m [b187daad-0609-4b0c-98f0-1a601c469ddd] GET / - 304 (203ms)
+2025-12-11T08:29:22.933Z [32minfo[39m [57f4078a-b9d3-4f1a-b73f-c87d02e0ba08] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (1ms)
+2025-12-11T08:29:22.935Z [32minfo[39m [efa46232-7a2c-47eb-8fd8-4f74eed313d3] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (1ms)
+2025-12-11T08:29:23.196Z [32minfo[39m [b31f9cba-798e-449f-a7a7-099222f55f1d] GET /693772ae33f367d00c5a32f7 - 304 (229ms)
+2025-12-11T08:29:23.551Z [32minfo[39m [9a6bbbd0-f96d-4338-8370-4437c335a030] GET /693772ae33f367d00c5a32f7 - 304 (353ms)
+2025-12-11T08:29:28.133Z [32minfo[39m [fa99ce8f-5fd6-44cd-aa30-067bf088b1aa] GET /693772ae33f367d00c5a32f7 - 304 (200ms)
+2025-12-11T08:29:32.934Z [32minfo[39m [1cff73b0-0776-40a4-a233-971adfe54323] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-11T08:29:33.158Z [32minfo[39m [7385b316-34e2-411b-8b41-3cc9cc7554e6] GET /693772ae33f367d00c5a32f7 - 304 (221ms)
+2025-12-11T08:29:37.590Z [32minfo[39m [a8536260-d344-469f-ae95-e7bebe7f879b] Removed repeatable job for agent 693772ae33f367d00c5a32f7: agent-693772ae33f367d00c5a32f7::::300000
+2025-12-11T08:29:37.942Z [32minfo[39m [2f660c08-6f1f-43f5-b454-66a44fe0b88b] OPTIONS /api/v1/agents/693772ae33f367d00c5a32f7 - 204 (0ms)
+2025-12-11T08:29:37.991Z [32minfo[39m [a8536260-d344-469f-ae95-e7bebe7f879b] Agent deleted: 693772ae33f367d00c5a32f7
+2025-12-11T08:29:38.016Z [32minfo[39m [a8536260-d344-469f-ae95-e7bebe7f879b] DELETE /693772ae33f367d00c5a32f7 - 200 (1240ms)
+2025-12-11T08:29:38.210Z [32minfo[39m [92b1f9b5-a4b8-455c-a123-4c18d6f578fc] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-11T08:29:38.213Z [32minfo[39m [436c01fa-c8e1-42b7-af8b-7cd217952566] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-11T08:29:38.318Z [33mwarn[39m [cf47f5db-9a64-41de-926e-462aea65b692] GET /693772ae33f367d00c5a32f7 - 404 (208ms)
+2025-12-11T08:29:39.909Z [32minfo[39m [73431803-1d1c-4ed4-950b-947a838203f5] GET / - 200 (1682ms)
+2025-12-11T08:29:40.892Z [32minfo[39m [a8b4fa4f-7e74-4121-85cf-d94423689a39] GET / - 304 (982ms)
+2025-12-12T11:13:50.502Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-12T11:13:50.528Z [32minfo[39m API vv1: /api/v1/
+2025-12-12T11:13:50.533Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-12T11:13:51.160Z [32minfo[39m Redis connecting
+2025-12-12T11:13:53.358Z [32minfo[39m Redis ready
+2025-12-12T11:14:04.124Z [31merror[39m Failed to start scheduler Operation `agents.find()` buffering timed out after 10000ms
+2025-12-12T11:14:24.216Z [32minfo[39m MongoDB connection established
+2025-12-12T11:15:03.085Z [33mwarn[39m MongoDB connection lost
+2025-12-12T11:15:14.104Z [32minfo[39m MongoDB connection established
+2025-12-12T11:15:14.105Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:17:24.578Z [33mwarn[39m MongoDB connection lost
+2025-12-12T11:17:36.952Z [32minfo[39m MongoDB connection established
+2025-12-12T11:17:36.952Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:20:58.248Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:20:58.250Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:21:10.340Z [33mwarn[39m MongoDB connection lost
+2025-12-12T11:21:10.996Z [32minfo[39m MongoDB connection established
+2025-12-12T11:21:10.997Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:22:05.312Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:22:15.319Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:22:16.067Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:22:27.576Z [31merror[39m Redis error read ECONNRESET
+2025-12-12T11:22:27.582Z [33mwarn[39m Redis connection closed
+2025-12-12T11:22:27.639Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-12T11:22:27.644Z [33mwarn[39m Redis connection closed
+2025-12-12T11:22:27.750Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-12T11:22:27.762Z [33mwarn[39m Redis connection closed
+2025-12-12T11:22:38.466Z [32minfo[39m Redis connecting
+2025-12-12T11:22:41.324Z [32minfo[39m Redis ready
+2025-12-12T11:39:35.510Z [32minfo[39m MongoDB reconnected
+2025-12-12T11:40:22.454Z [33mwarn[39m MongoDB connection lost
+2025-12-12T11:40:28.379Z [32minfo[39m MongoDB connection established
+2025-12-12T11:40:28.379Z [32minfo[39m MongoDB reconnected
+2025-12-12T21:11:09.698Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-12T21:11:10.715Z [32minfo[39m API vv1: /api/v1/
+2025-12-12T21:11:10.719Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-12T21:11:15.646Z [32minfo[39m Redis connecting
+2025-12-12T21:11:18.007Z [32minfo[39m Redis ready
+2025-12-12T21:11:30.477Z [32minfo[39m MongoDB connection established
+2025-12-12T21:11:31.013Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-12T21:11:32.978Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-12T21:14:44.694Z [32minfo[39m MongoDB reconnected
+2025-12-12T21:14:50.501Z [32minfo[39m MongoDB reconnected
+2025-12-12T21:14:57.066Z [32minfo[39m [3863ffa2-6ae5-4f32-901e-2853cdeff77f] OPTIONS /api/v1/agents - 204 (24ms)
+2025-12-12T21:15:03.408Z [32minfo[39m [59c155a3-23fc-495d-97aa-3bb8e7a962f4] GET / - 200 (6339ms)
+2025-12-12T21:28:33.674Z [32minfo[39m [40cc790f-1d39-4189-b680-5d3366d39b0a] OPTIONS /api/v1/agents - 204 (7ms)
+2025-12-12T21:28:34.107Z [32minfo[39m [e30d70d0-118b-412e-9843-28cb8792808a] GET / - 304 (249ms)
+2025-12-12T21:28:55.519Z [32minfo[39m [13a526c9-3399-473e-a7b9-d64991831dec] OPTIONS /api/v1/agents - 204 (2ms)
+2025-12-12T21:28:55.823Z [32minfo[39m [11c7a834-2222-4764-b082-5f5b7e8895bc] GET / - 304 (215ms)
+2025-12-12T21:31:45.551Z [32minfo[39m [99c903ba-47bd-4049-9979-ea3215635696] OPTIONS /api/v1/agents - 204 (3ms)
+2025-12-12T21:31:45.774Z [32minfo[39m [35da2847-d024-4ac9-9ab9-632e08650b31] GET / - 304 (186ms)
+2025-12-12T21:31:50.224Z [32minfo[39m [1f5207bc-41e6-4dad-a157-6d0e225e49b5] GET / - 304 (181ms)
+2025-12-12T21:31:57.946Z [32minfo[39m [cffb2fcf-9749-48e7-932c-c0cc0221b036] OPTIONS /api/v1/agents - 204 (2ms)
+2025-12-12T21:31:58.206Z [32minfo[39m [d6615415-6e25-4f39-b0a8-e0c4ec5aa3a5] GET / - 304 (198ms)
+2025-12-12T21:32:04.339Z [32minfo[39m [c17f5d4e-88fc-4061-bc0e-7c9f516317ef] OPTIONS /api/v1/auth/me - 204 (13ms)
+2025-12-12T21:32:04.389Z [32minfo[39m [34b1983b-0794-4d59-9ab1-40d993e92501] OPTIONS /api/v1/auth/me - 204 (1ms)
+2025-12-12T21:32:04.425Z [32minfo[39m [a90e7c38-9f74-450a-ad79-2c40e254219e] GET /me - 200 (17ms)
+2025-12-12T21:32:04.466Z [32minfo[39m [89c7e424-0bfe-4200-bbd3-f21c4e883624] GET /me - 304 (11ms)
+2025-12-12T21:32:06.042Z [32minfo[39m [3df146a5-bf34-49e6-8810-162c6d4fa33d] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-12T21:32:06.055Z [32minfo[39m [040fc5d9-43c7-4f7a-a13a-92ea6847738d] OPTIONS /api/v1/agents - 204 (2ms)
+2025-12-12T21:32:06.356Z [32minfo[39m [46941f5f-e945-4efd-aebb-f41339bf04d9] GET / - 304 (198ms)
+2025-12-12T21:32:06.531Z [32minfo[39m [bbbba604-bdbf-4b93-be8b-f849d69a0e64] GET / - 304 (174ms)
+2025-12-12T21:32:31.121Z [32minfo[39m [bca101dc-6b24-459c-9120-574dd77b1381] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-12T21:32:31.299Z [32minfo[39m [5b16e075-139e-4122-8d51-576ea365246b] GET / - 304 (172ms)
+2025-12-12T21:51:18.114Z [32minfo[39m [c4e6c034-b06c-4b19-b5ad-fb21fe1a41da] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-12T21:51:18.317Z [32minfo[39m [b9afbad8-de45-470a-965e-2c6cb11b3eb7] GET / - 304 (166ms)
+2025-12-12T21:51:18.484Z [32minfo[39m [ad339845-bbd6-44bd-9f0c-545a3e5aa5d2] GET / - 304 (166ms)
+2025-12-12T21:53:42.001Z [32minfo[39m [1e94d989-75dc-46a2-8897-b154503d52cc] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-12T21:53:42.208Z [32minfo[39m [45d8dd26-f663-4fef-9178-b7625e797595] GET / - 304 (178ms)
+2025-12-12T21:55:09.179Z [32minfo[39m [6c5bf73d-e35a-4663-ba95-b64076329961] GET /x/url - 302 (399ms)
+2025-12-12T21:56:40.221Z [33mwarn[39m [8df74ada-ff29-4db4-bccc-f2964ebb3f8a] GET /api/v1/oauth/twitter/callback - 404 (34ms)
+2025-12-12T21:56:40.529Z [33mwarn[39m [9b0d7ef5-aceb-4f0d-a407-47ba8bc40ef3] GET /favicon.ico - 404 (1ms)
+2025-12-12T21:56:47.340Z [33mwarn[39m [7d786235-e8a9-4458-a1df-26fc96a019f6] GET /api/v1/oauth/twitter/url - 404 (3ms)
+2025-12-12T21:56:50.915Z [33mwarn[39m [a5ab79fc-a1fe-4f1a-9d8d-c63ae134339e] GET /api/v1/oauth/twitter/url - 404 (1ms)
+2025-12-12T21:56:58.797Z [32minfo[39m [60668ffb-d432-4873-9129-22532d720f8c] GET /x/url - 302 (4ms)
+2025-12-12T21:58:31.725Z [33mwarn[39m [5340a5e4-6cd8-42fe-89ef-adc690542645] GET /api/v1/oauth/twitter/callback - 404 (10ms)
+2025-12-12T21:58:39.809Z [32minfo[39m [ffe34a3b-f11d-4677-9611-7aa5f59d2340] GET /x/url - 302 (2ms)
+2025-12-12T21:59:04.787Z [32minfo[39m MongoDB reconnected
+2025-12-12T21:59:15.872Z [33mwarn[39m MongoDB connection lost
+2025-12-12T21:59:16.025Z [32minfo[39m MongoDB connection established
+2025-12-12T21:59:16.025Z [32minfo[39m MongoDB reconnected
+2025-12-12T22:13:53.237Z [33mwarn[39m MongoDB connection lost
+2025-12-12T22:14:04.759Z [32minfo[39m MongoDB connection established
+2025-12-12T22:14:04.771Z [32minfo[39m MongoDB reconnected
+2025-12-13T03:43:14.355Z [31merror[39m Redis error read ECONNRESET
+2025-12-13T03:43:15.956Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:16.381Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:17.090Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:17.540Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:17.980Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:18.131Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:18.500Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:18.712Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:18.740Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:18.997Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:19.367Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:19.677Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:19.850Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:20.227Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:20.404Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:20.806Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:20.835Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:21.299Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:21.332Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:21.845Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:21.857Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:22.411Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:22.418Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:23.022Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:23.053Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:23.720Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:23.736Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:24.454Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:24.475Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:25.229Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:25.268Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:26.081Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:26.087Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:26.940Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:26.970Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:27.885Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:27.901Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:28.865Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:28.869Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:29.874Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:29.880Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:30.935Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:30.941Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:32.052Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:32.064Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:33.225Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:33.237Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:34.440Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:34.445Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:35.696Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:35.701Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:37.015Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:37.020Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:38.381Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:38.386Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:39.799Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:39.810Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:41.265Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:41.270Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:42.783Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:42.793Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:44.348Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:44.353Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:45.973Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:45.996Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:47.655Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:47.663Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:49.376Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:49.382Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:51.143Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:51.154Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:52.957Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:52.966Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:54.823Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:54.828Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:56.731Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:56.736Z [33mwarn[39m Redis connection closed
+2025-12-13T03:43:58.692Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:43:58.697Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:00.705Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:00.710Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:02.711Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:02.716Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:04.724Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:04.730Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:06.732Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:06.740Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:08.749Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:08.754Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:10.769Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:10.774Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:12.789Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:12.794Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:14.804Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:14.810Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:16.822Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:16.827Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:18.834Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:18.839Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:20.843Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:20.848Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:22.861Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:22.865Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:24.872Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:24.877Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:26.886Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:26.909Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:28.915Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:28.923Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:30.932Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:30.937Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:32.941Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:32.946Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:34.953Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:34.958Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:36.978Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:37.055Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:39.077Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:39.566Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:41.573Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:41.581Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:43.594Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:43.609Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:45.624Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:45.641Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:47.642Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:47.656Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:49.669Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:49.699Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:51.701Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:51.714Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:53.726Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:53.731Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:55.735Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:55.741Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:57.755Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:57.772Z [33mwarn[39m Redis connection closed
+2025-12-13T03:44:59.783Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:44:59.789Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:01.797Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:01.802Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:03.815Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:03.823Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:05.830Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:05.836Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:07.845Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:07.849Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:09.862Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:09.867Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:11.877Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:11.882Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:13.894Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:13.905Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:15.913Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:15.918Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:17.928Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:17.941Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:19.950Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:19.955Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:21.961Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:21.980Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:23.991Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:23.998Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:26.000Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:26.026Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:28.034Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:28.072Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:30.077Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:30.496Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:32.591Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:33.059Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:35.083Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:35.397Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:37.408Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:37.928Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:39.994Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:41.107Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:43.139Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:43.695Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:45.728Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:46.378Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:48.404Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:48.544Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:50.561Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:50.594Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:52.609Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:52.749Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:54.764Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:54.891Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:56.900Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:56.909Z [33mwarn[39m Redis connection closed
+2025-12-13T03:45:58.940Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:45:59.272Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:01.276Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:01.309Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:03.325Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:03.397Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:05.403Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:05.439Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:07.449Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:07.497Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:09.512Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:09.536Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:11.541Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:11.583Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:13.584Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:13.629Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:15.633Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:15.736Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:17.747Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:17.770Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:19.787Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:19.835Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:21.848Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:21.864Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:23.878Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:23.893Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:25.909Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:25.919Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:27.926Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:27.935Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:29.944Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:29.949Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:31.960Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:31.965Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:33.977Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:33.981Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:35.992Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:35.997Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:38.008Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:38.015Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:40.025Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:40.030Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:42.041Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:42.045Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:44.058Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:44.063Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:46.073Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:46.078Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:48.090Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:48.094Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:50.108Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:50.113Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:52.121Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:52.126Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:54.139Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:54.144Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:56.155Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:56.159Z [33mwarn[39m Redis connection closed
+2025-12-13T03:46:58.172Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:46:58.177Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:00.190Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:00.198Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:02.206Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:02.214Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:04.221Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:04.228Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:06.237Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:06.246Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:08.253Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:08.262Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:10.270Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:10.279Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:12.285Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:12.300Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:14.306Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:14.312Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:16.332Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:16.340Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:18.351Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:18.357Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:20.368Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:20.372Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:22.382Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:22.392Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:24.400Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:24.406Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:26.415Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:26.425Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:28.441Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:28.450Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:30.451Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:30.457Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:32.466Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:32.475Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:34.481Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:34.487Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:36.523Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:36.618Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:38.627Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:38.633Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:40.641Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:40.653Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:42.658Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:42.662Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:44.674Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:44.682Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:46.692Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:46.696Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:48.708Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:48.713Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:50.724Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:50.732Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:52.738Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:52.743Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:54.756Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:54.772Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:56.787Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:56.791Z [33mwarn[39m Redis connection closed
+2025-12-13T03:47:58.803Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:47:58.808Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:00.819Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:00.825Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:02.836Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:02.841Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:04.854Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:04.860Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:06.870Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:06.875Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:08.886Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:08.898Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:10.902Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:10.908Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:12.920Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:12.934Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:14.936Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:14.941Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:16.952Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:16.970Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:18.983Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:19.003Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:21.016Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:21.027Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:23.032Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:23.043Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:25.047Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:25.059Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:27.064Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:27.075Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:29.080Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:29.092Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:31.098Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:31.104Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:33.114Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:33.121Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:35.131Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:35.142Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:37.148Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:37.158Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:39.165Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:39.176Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:41.181Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T03:48:41.421Z [33mwarn[39m Redis connection closed
+2025-12-13T03:48:43.350Z [33mwarn[39m MongoDB connection lost
+2025-12-13T03:48:43.373Z [32minfo[39m MongoDB connection established
+2025-12-13T03:48:43.373Z [32minfo[39m MongoDB reconnected
+2025-12-13T03:48:43.656Z [32minfo[39m Redis connecting
+2025-12-13T03:48:44.087Z [32minfo[39m Redis ready
+2025-12-13T03:59:23.088Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T03:59:23.097Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T03:59:23.098Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T03:59:23.599Z [32minfo[39m Redis connecting
+2025-12-13T03:59:24.131Z [32minfo[39m Redis ready
+2025-12-13T03:59:26.489Z [32minfo[39m MongoDB connection established
+2025-12-13T03:59:26.700Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T03:59:27.860Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T03:59:51.398Z [33mwarn[39m [5955973b-4f44-4de3-9370-57e44716fddb] GET /.well-known/appspecific/com.chrome.devtools.json - 404 (18ms)
+2025-12-13T03:59:57.456Z [32minfo[39m [d993a9bd-3ed3-4749-afed-7dc217eb6876] GET /x/url - 302 (29ms)
+2025-12-13T04:00:31.309Z [33mwarn[39m [166fa8bd-31aa-4f14-871a-90405b4939a5] GET /api/v1/oauth/x/callback - 404 (402ms)
+2025-12-13T04:00:33.443Z [33mwarn[39m [e95ebe50-6458-409a-ba97-fd52ec4add57] GET /.well-known/appspecific/com.chrome.devtools.json - 404 (1ms)
+2025-12-13T04:06:12.612Z [33mwarn[39m [112df50f-9da9-46cb-91bf-6215b35d5830] POST /x/callback - 400 (447ms)
+2025-12-13T04:13:45.210Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:13:45.229Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:13:45.231Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:13:45.795Z [32minfo[39m Redis connecting
+2025-12-13T04:13:46.306Z [32minfo[39m Redis ready
+2025-12-13T04:13:48.021Z [32minfo[39m MongoDB connection established
+2025-12-13T04:13:48.346Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:13:49.400Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:13:58.399Z [33mwarn[39m [4821dce2-369f-460e-96a6-2e6109efb070] POST /x/callback - 400 (53ms)
+2025-12-13T04:14:40.605Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:14:40.611Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:14:40.612Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:14:40.997Z [32minfo[39m Redis connecting
+2025-12-13T04:14:41.455Z [32minfo[39m Redis ready
+2025-12-13T04:14:42.467Z [32minfo[39m MongoDB connection established
+2025-12-13T04:14:42.664Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:14:43.677Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:16:00.504Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:16:00.521Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:16:00.522Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:16:00.894Z [32minfo[39m Redis connecting
+2025-12-13T04:16:01.345Z [32minfo[39m Redis ready
+2025-12-13T04:16:02.742Z [32minfo[39m MongoDB connection established
+2025-12-13T04:16:02.919Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:16:03.962Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:16:06.332Z [33mwarn[39m [4245a24c-a8d5-4715-a8f2-f25b756cb920] POST /x/callback - 400 (51ms)
+2025-12-13T04:17:28.136Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:17:28.263Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:17:28.272Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:17:29.087Z [32minfo[39m Redis connecting
+2025-12-13T04:17:29.557Z [32minfo[39m Redis ready
+2025-12-13T04:17:31.028Z [32minfo[39m MongoDB connection established
+2025-12-13T04:17:31.227Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:17:32.309Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:18:54.703Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:18:54.785Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:18:54.786Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:18:55.229Z [32minfo[39m Redis connecting
+2025-12-13T04:18:55.674Z [32minfo[39m Redis ready
+2025-12-13T04:18:56.898Z [32minfo[39m MongoDB connection established
+2025-12-13T04:18:57.119Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:18:58.185Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:19:22.857Z [33mwarn[39m [e4380975-b560-44f8-9cdb-cd97e9ad9307] POST /x/callback - 400 (69ms)
+2025-12-13T04:20:08.707Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:20:08.710Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:20:08.710Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:20:09.079Z [32minfo[39m Redis connecting
+2025-12-13T04:20:09.538Z [32minfo[39m Redis ready
+2025-12-13T04:20:10.913Z [32minfo[39m MongoDB connection established
+2025-12-13T04:20:11.131Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:20:12.172Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:22:44.178Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:22:44.188Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:22:44.189Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:22:44.609Z [32minfo[39m Redis connecting
+2025-12-13T04:22:45.067Z [32minfo[39m Redis ready
+2025-12-13T04:22:46.218Z [32minfo[39m MongoDB connection established
+2025-12-13T04:22:46.394Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:22:47.396Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:22:50.095Z [33mwarn[39m [4288b3c1-d69f-4835-a648-667493d464fd] POST /x/callback - 400 (67ms)
+2025-12-13T04:23:24.307Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T04:23:24.313Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T04:23:24.314Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T04:23:24.664Z [32minfo[39m Redis connecting
+2025-12-13T04:23:25.109Z [32minfo[39m Redis ready
+2025-12-13T04:23:26.083Z [32minfo[39m MongoDB connection established
+2025-12-13T04:23:26.286Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T04:23:27.375Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T04:23:28.686Z [33mwarn[39m [fac800f1-2201-4f1b-a2a9-5a7e8dd7f5d5] POST /x/callback - 400 (61ms)
+2025-12-13T04:23:45.569Z [33mwarn[39m [5bc9154b-65bc-4d24-8c35-d76a7f156cb4] POST /x/callback - 400 (12ms)
+2025-12-13T14:06:29.155Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T14:06:29.174Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T14:06:29.174Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T14:06:30.496Z [32minfo[39m Redis connecting
+2025-12-13T14:06:31.414Z [32minfo[39m Redis ready
+2025-12-13T14:10:17.061Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T14:10:17.130Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T14:10:17.180Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T14:10:18.810Z [32minfo[39m Redis connecting
+2025-12-13T14:10:20.243Z [32minfo[39m MongoDB connection established
+2025-12-13T14:10:20.609Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T14:10:20.662Z [32minfo[39m Redis ready
+2025-12-13T14:10:24.152Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T14:11:59.370Z [32minfo[39m [c3d7518d-618a-45d0-91ca-f35db010e012] OPTIONS /api/v1/agents - 204 (13ms)
+2025-12-13T14:11:59.691Z [32minfo[39m [9052b262-32ff-4425-b229-5d6a5a9b23fe] GET / - 200 (314ms)
+2025-12-13T14:12:03.901Z [32minfo[39m [40379775-1c59-4710-8ebf-24ac9b5c4030] GET / - 304 (221ms)
+2025-12-13T14:14:19.683Z [32minfo[39m [7707c96a-f9dc-4fd8-af77-9a6df72b09a4] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T14:14:21.972Z [32minfo[39m [d3d9f749-6830-431d-a6f0-49c304c1693f] Agent created: 693d74bcc7b86f74b9ff827f
+2025-12-13T14:14:21.979Z [32minfo[39m [d3d9f749-6830-431d-a6f0-49c304c1693f] POST / - 201 (2246ms)
+2025-12-13T14:14:22.213Z [32minfo[39m [291db463-038e-4808-b5e3-e31b4cc9f378] GET / - 200 (207ms)
+2025-12-13T14:14:33.884Z [32minfo[39m [2c022d52-2b24-42df-a141-9fc20d0bbf36] OPTIONS /api/v1/agents/693d74bcc7b86f74b9ff827f - 204 (2ms)
+2025-12-13T14:14:33.888Z [32minfo[39m [f8adf7fc-9d9b-4d68-9774-9322470be354] OPTIONS /api/v1/agents/693d74bcc7b86f74b9ff827f - 204 (0ms)
+2025-12-13T14:14:34.680Z [32minfo[39m [61fcfcc2-025a-4fc5-a1ea-2f0dbfa1ba1c] GET /693d74bcc7b86f74b9ff827f - 200 (789ms)
+2025-12-13T14:14:34.882Z [32minfo[39m [18ec9f31-eceb-4d5b-9dd2-e450690f7650] GET /693d74bcc7b86f74b9ff827f - 304 (197ms)
+2025-12-13T14:14:47.440Z [32minfo[39m [489966b7-d947-4c5e-8d6c-0b2841faa007] OPTIONS /api/v1/agents/undefined - 204 (1ms)
+2025-12-13T14:14:47.448Z [33mwarn[39m [8ae91964-3d37-4f1a-8ea3-0135c0879507] PATCH /api/v1/agents/undefined - 404 (4ms)
+2025-12-13T14:15:02.545Z [32minfo[39m [493245f2-04a7-4d6c-ab9e-7565eb49f558] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T14:15:02.743Z [32minfo[39m [cbe41b42-6c31-4eaf-a61b-d9d3a0fc7943] GET / - 304 (193ms)
+2025-12-13T14:15:02.969Z [32minfo[39m [e18d09e5-430d-4d39-9f54-d5d4ba183128] GET / - 304 (222ms)
+2025-12-13T14:15:06.514Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f starting execution with 0 tools available
+2025-12-13T14:15:18.763Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:18.835Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:20.139Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:20.152Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:21.367Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:21.372Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:22.617Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:22.621Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:23.806Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:23.831Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:25.006Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:25.020Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:26.422Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:26.488Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:27.738Z [32minfo[39m [runIndependentAgent] Agent 693d74bcc7b86f74b9ff827f calling tool: search_github
+2025-12-13T14:15:27.741Z [32minfo[39m [runIndependentAgent] Tool search_github execution result: failed
+2025-12-13T14:15:27.743Z [32minfo[39m Agent 693d74bcc7b86f74b9ff827f completed successfully in 21695ms
+2025-12-13T14:15:57.807Z [32minfo[39m [d469c381-4411-4d57-8283-55ffa61a1869] OPTIONS /api/v1/agents/693d74bcc7b86f74b9ff827f - 204 (1ms)
+2025-12-13T14:15:58.134Z [32minfo[39m [29b0a012-15bd-4a9a-8b14-18271d98b4d0] GET /693d74bcc7b86f74b9ff827f - 200 (242ms)
+2025-12-13T14:15:58.633Z [32minfo[39m [cc316658-5607-4d94-be18-12a0374d0466] GET /693d74bcc7b86f74b9ff827f - 304 (309ms)
+2025-12-13T14:22:40.977Z [32minfo[39m [910bdd72-5e0c-416a-9967-8b940c7c6d1a] OPTIONS /api/v1/agents/693d74bcc7b86f74b9ff827f - 204 (100ms)
+2025-12-13T14:22:41.643Z [32minfo[39m [bbc658d7-fc6b-4eae-8785-944712dd959f] GET /693d74bcc7b86f74b9ff827f - 304 (623ms)
+2025-12-13T14:23:17.898Z [32minfo[39m [2fa9fc29-74ce-44cd-af7b-403db45696e6] OPTIONS /api/v1/agents/693d74bcc7b86f74b9ff827f - 204 (1ms)
+2025-12-13T14:23:19.287Z [32minfo[39m [d121c03e-3e5a-4a51-add8-0078587e0074] GET /693d74bcc7b86f74b9ff827f - 304 (957ms)
+2025-12-13T14:25:18.632Z [32minfo[39m [3f97d111-170e-4145-9f80-c847e0cddbdb] OPTIONS /api/v1/agents/693d74bcc7b86f74b9ff827f - 204 (1ms)
+2025-12-13T14:25:19.022Z [32minfo[39m [e13c8e74-5e37-4413-8a3c-9a5f4e093112] GET /693d74bcc7b86f74b9ff827f - 304 (365ms)
+2025-12-13T14:26:05.004Z [32minfo[39m [ff173095-c172-40d6-8590-af06a2de726e] OPTIONS /api/v1/agents - 204 (0ms)
+2025-12-13T14:26:05.158Z [32minfo[39m [1eaa3ac7-a9e2-42be-af8e-1cfef7a523a3] OPTIONS /api/v1/agents - 204 (2ms)
+2025-12-13T14:26:05.396Z [32minfo[39m [e426bd89-73f1-4597-9877-ad2b7e6ac821] GET / - 200 (213ms)
+2025-12-13T14:26:05.660Z [32minfo[39m [e9d92201-7deb-4531-8bec-316ab7b51e60] GET / - 304 (258ms)
+2025-12-13T14:32:24.991Z [32minfo[39m [14059f40-c5d6-4eae-b862-5c1dc8ea5b00] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T14:32:25.257Z [32minfo[39m [966423b4-b2eb-4931-b539-64224cd3bf17] GET / - 304 (261ms)
+2025-12-13T14:34:22.562Z [32minfo[39m [0c3f8d33-da1b-4548-bfcb-78b6782a94e3] OPTIONS /api/v1/agents - 204 (4ms)
+2025-12-13T14:34:22.818Z [32minfo[39m [71816378-328f-4abe-99a1-8e692ed0206e] GET / - 304 (218ms)
+2025-12-13T14:39:30.292Z [32minfo[39m [fc33e668-4c3d-4432-ba7c-21987df885fb] OPTIONS /api/v1/agents - 204 (61ms)
+2025-12-13T14:39:31.378Z [32minfo[39m [871d0fea-4b36-4801-9c32-e1d347bf8f75] GET / - 200 (437ms)
+2025-12-13T14:41:41.257Z [32minfo[39m [472c2d26-cb2d-4bce-9ba8-f2294de6ee79] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T14:41:41.571Z [32minfo[39m [8ae3f176-fe5e-41f4-9d81-7abecc312e91] OPTIONS /api/v1/agents - 204 (310ms)
+2025-12-13T14:41:42.002Z [32minfo[39m [d4558dbd-db67-4084-814c-45a5d1e2d989] GET / - 304 (251ms)
+2025-12-13T14:41:42.208Z [32minfo[39m [dc6ec1f3-2e06-4048-9dff-402e35aeafba] GET / - 304 (201ms)
+2025-12-13T14:49:08.362Z [32minfo[39m [656d3cfa-9d32-41db-aa3a-a76dd5c54989] OPTIONS /api/v1/agents - 204 (3ms)
+2025-12-13T14:49:08.368Z [32minfo[39m [6ae26a3b-5977-4151-ae18-e69db0f1d5dc] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T14:49:09.216Z [32minfo[39m [7c17a693-a6e0-414b-af47-4b66fc840883] GET / - 304 (834ms)
+2025-12-13T14:49:09.429Z [32minfo[39m [0ef2e901-dbee-4ff2-9e3f-2c7eb1c4bea8] GET / - 304 (211ms)
+2025-12-13T14:56:25.057Z [32minfo[39m [98d17cc3-052f-4889-871b-8ea53bbb4900] OPTIONS /api/v1/agents - 204 (14ms)
+2025-12-13T14:56:25.318Z [32minfo[39m [2df8a345-5c50-4ba1-a981-8af38c444a5b] GET / - 304 (248ms)
+2025-12-13T14:57:32.077Z [32minfo[39m [ccfd3c7f-77e2-4aab-9efd-7b8ffd5abe58] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T14:57:32.420Z [31merror[39m [fc5c1ca4-dfd7-4eec-b75f-9ee4edb736e7] Create agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      0
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      1
+    ],
+    "message": "Invalid input: expected object, received string"
+  }
+]
+2025-12-13T14:57:32.462Z [33mwarn[39m [fc5c1ca4-dfd7-4eec-b75f-9ee4edb736e7] POST / - 400 (370ms)
+2025-12-13T15:06:43.036Z [32minfo[39m [918ec4ea-d900-4765-95f7-f3810498179b] OPTIONS /api/v1/agents - 204 (485ms)
+2025-12-13T15:06:45.338Z [32minfo[39m [77091889-1201-48af-baba-ef3218ee49cc] GET / - 304 (1767ms)
+2025-12-13T18:26:49.325Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T18:26:49.360Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T18:26:49.396Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T18:26:49.475Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T18:26:49.858Z [33mwarn[39m Redis connection closed
+2025-12-13T18:26:50.312Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T18:26:50.627Z [33mwarn[39m Redis connection closed
+2025-12-13T18:57:05.026Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-13T18:57:05.037Z [32minfo[39m API vv1: /api/v1/
+2025-12-13T18:57:05.037Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-13T18:57:07.015Z [32minfo[39m Redis connecting
+2025-12-13T18:57:07.512Z [32minfo[39m Redis ready
+2025-12-13T18:57:12.574Z [32minfo[39m MongoDB connection established
+2025-12-13T18:57:12.787Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-13T18:57:15.339Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-13T18:57:16.704Z [32minfo[39m [24bc7264-2018-4e60-aac3-37097c7da7c0] OPTIONS /api/v1/agents - 204 (11ms)
+2025-12-13T18:57:16.945Z [32minfo[39m [7380c976-d16c-4d72-a2a5-dc1dd590f34d] GET / - 200 (233ms)
+2025-12-13T18:57:21.254Z [32minfo[39m [b3930f9d-78ff-4558-a5bd-c5b9b65f09f4] GET / - 304 (722ms)
+2025-12-13T18:58:18.371Z [32minfo[39m [e4a3be6d-33d8-4323-a4c2-61f3eb48ff60] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T18:58:19.093Z [32minfo[39m [cdc722a9-6232-43fe-a62b-14bc49642868] GET / - 304 (699ms)
+2025-12-13T18:58:24.713Z [32minfo[39m [9b600c21-e06a-480a-941f-16d77e3e7f73] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T18:58:24.715Z [32minfo[39m [2466776c-cc50-41bb-8175-b3fe07a80d7c] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T18:58:24.911Z [32minfo[39m [1d4528e3-3d61-4937-bcc6-4b2b4e8bd657] GET / - 304 (192ms)
+2025-12-13T18:58:25.103Z [32minfo[39m [9b84cf98-2e57-464d-ba2b-45a2f7714f61] GET / - 304 (188ms)
+2025-12-13T18:59:32.311Z [32minfo[39m [33cd8052-5593-47a3-8b12-e8559d3a9776] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T18:59:32.415Z [31merror[39m [d2112948-ddf4-4817-8287-b5e3fb911dba] Create agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      0
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      1
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      2
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      3
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      4
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      5
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      6
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      7
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      8
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      9
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      10
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      11
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      12
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      13
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      14
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      15
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      16
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      17
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      18
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      19
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      20
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      21
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      22
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      23
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      24
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      25
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      26
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      27
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      28
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      29
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      30
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      31
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      32
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      33
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      34
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      35
+    ],
+    "message": "Invalid input: expected object, received string"
+  }
+]
+2025-12-13T18:59:32.450Z [33mwarn[39m [d2112948-ddf4-4817-8287-b5e3fb911dba] POST / - 400 (135ms)
+2025-12-13T18:59:33.590Z [31merror[39m [c1f148d8-1172-445d-a38b-1ad62fdeb36a] Create agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      0
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      1
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      2
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      3
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      4
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      5
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      6
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      7
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      8
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      9
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      10
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      11
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      12
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      13
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      14
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      15
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      16
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      17
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      18
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      19
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      20
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      21
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      22
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      23
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      24
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      25
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      26
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      27
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      28
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      29
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      30
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      31
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      32
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      33
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      34
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      35
+    ],
+    "message": "Invalid input: expected object, received string"
+  }
+]
+2025-12-13T18:59:33.992Z [33mwarn[39m [c1f148d8-1172-445d-a38b-1ad62fdeb36a] POST / - 400 (407ms)
+2025-12-13T19:06:23.157Z [32minfo[39m MongoDB reconnected
+2025-12-13T19:06:23.322Z [32minfo[39m MongoDB reconnected
+2025-12-13T19:06:34.282Z [33mwarn[39m MongoDB connection lost
+2025-12-13T19:06:37.977Z [32minfo[39m MongoDB connection established
+2025-12-13T19:06:37.977Z [32minfo[39m MongoDB reconnected
+2025-12-13T19:17:59.457Z [32minfo[39m [e1dbde6c-8906-43b3-8165-f03a80d911d7] OPTIONS /api/v1/agents - 204 (10ms)
+2025-12-13T19:17:59.547Z [31merror[39m [6e58a72e-e0f5-4fd1-b25d-bf01a304d0ca] Create agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      0
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      1
+    ],
+    "message": "Invalid input: expected object, received string"
+  }
+]
+2025-12-13T19:17:59.767Z [33mwarn[39m [6e58a72e-e0f5-4fd1-b25d-bf01a304d0ca] POST / - 400 (260ms)
+2025-12-13T19:21:55.775Z [32minfo[39m [398c8faf-e6db-4077-aca5-f34e470a322d] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T19:21:55.962Z [32minfo[39m [d5a28b92-5bdc-4c4f-b7b3-ed4186f6d33c] GET / - 304 (179ms)
+2025-12-13T19:22:51.421Z [32minfo[39m [01e8e0e1-6f97-42b2-8c4b-bdb9c05dbefb] OPTIONS /api/v1/agents - 204 (1ms)
+2025-12-13T19:22:51.428Z [31merror[39m [8acf5132-1ad2-4e4d-b21b-964939ee8e49] Create agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      0
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      1
+    ],
+    "message": "Invalid input: expected object, received string"
+  }
+]
+2025-12-13T19:22:51.627Z [33mwarn[39m [8acf5132-1ad2-4e4d-b21b-964939ee8e49] POST / - 400 (194ms)
+2025-12-13T19:26:58.899Z [32minfo[39m MongoDB reconnected
+2025-12-13T22:43:04.445Z [31merror[39m Redis error read ECONNRESET
+2025-12-13T22:43:06.391Z [33mwarn[39m Redis connection closed
+2025-12-13T22:43:11.600Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-13T22:43:12.718Z [33mwarn[39m Redis connection closed
+2025-12-13T22:43:15.833Z [32minfo[39m Redis connecting
+2025-12-13T22:43:16.498Z [32minfo[39m Redis ready
+2025-12-13T22:59:18.168Z [32minfo[39m MongoDB reconnected
+2025-12-13T22:59:18.645Z [32minfo[39m MongoDB reconnected
+2025-12-13T22:59:31.269Z [33mwarn[39m MongoDB connection lost
+2025-12-13T22:59:32.036Z [32minfo[39m MongoDB connection established
+2025-12-13T22:59:32.127Z [32minfo[39m MongoDB reconnected
+2025-12-14T04:30:06.728Z [32minfo[39m MongoDB reconnected
+2025-12-14T04:30:06.773Z [31merror[39m Redis error read ECONNRESET
+2025-12-14T04:30:09.833Z [32minfo[39m MongoDB reconnected
+2025-12-14T04:30:10.328Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:13.642Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:14.969Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:16.019Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:16.554Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:18.320Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:20.298Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:20.883Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:22.034Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:23.466Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:24.483Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:24.874Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:25.451Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:25.820Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:27.259Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:28.154Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:28.523Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:29.709Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:30.593Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:31.350Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:33.412Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:34.378Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:36.050Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:36.825Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:37.696Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:38.526Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:38.987Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:39.695Z [31merror[39m Redis error getaddrinfo ENOTFOUND redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com
+2025-12-14T04:30:39.844Z [33mwarn[39m Redis connection closed
+2025-12-14T04:30:42.258Z [32minfo[39m Redis connecting
+2025-12-14T04:30:42.757Z [32minfo[39m Redis ready
+2025-12-14T04:30:43.371Z [33mwarn[39m MongoDB connection lost
+2025-12-14T04:30:43.893Z [32minfo[39m MongoDB connection established
+2025-12-14T04:30:44.015Z [32minfo[39m MongoDB reconnected
+2025-12-14T04:33:14.994Z [32minfo[39m MongoDB reconnected
+2025-12-14T04:33:15.078Z [32minfo[39m MongoDB reconnected
+2025-12-14T04:33:18.210Z [33mwarn[39m MongoDB connection lost
+2025-12-14T04:33:18.362Z [32minfo[39m MongoDB connection established
+2025-12-14T04:33:18.374Z [32minfo[39m MongoDB reconnected
+2025-12-14T04:38:28.169Z [32minfo[39m [1305e4e8-6621-47ce-b109-b44a6e0dc62d] OPTIONS /api/v1/agents - 204 (14ms)
+2025-12-14T04:38:28.288Z [31merror[39m [39973173-4dc7-41db-b94d-03b6d0f0a819] Create agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      0
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      1
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      2
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      3
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      4
+    ],
+    "message": "Invalid input: expected object, received string"
+  }
+]
+2025-12-14T04:38:28.311Z [33mwarn[39m [39973173-4dc7-41db-b94d-03b6d0f0a819] POST / - 400 (110ms)
+2025-12-14T04:39:15.246Z [32minfo[39m [3fe5bbb4-2cb5-434c-a186-52b30a92e5f5] OPTIONS /api/v1/agents - 204 (8ms)
+2025-12-14T04:39:15.363Z [31merror[39m [abc8aab7-c479-4789-a4c3-c611e08c3843] Create agent failed [
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      0
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      1
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      2
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      3
+    ],
+    "message": "Invalid input: expected object, received string"
+  },
+  {
+    "expected": "object",
+    "code": "invalid_type",
+    "path": [
+      "integrations",
+      4
+    ],
+    "message": "Invalid input: expected object, received string"
+  }
+]
+2025-12-14T04:39:15.367Z [33mwarn[39m [abc8aab7-c479-4789-a4c3-c611e08c3843] POST / - 400 (6ms)
+2025-12-14T04:41:03.381Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-14T04:41:03.391Z [32minfo[39m API vv1: /api/v1/
+2025-12-14T04:41:03.391Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-14T04:41:04.527Z [32minfo[39m Redis connecting
+2025-12-14T04:41:05.129Z [32minfo[39m Redis ready
+2025-12-14T04:41:06.707Z [32minfo[39m MongoDB connection established
+2025-12-14T04:41:06.894Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-14T04:41:07.985Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-14T04:50:12.938Z [32minfo[39m [45e1f2a1-6c51-48b9-b07e-f1a1e6141f27] OPTIONS /api/v1/oauth/integrations - 204 (443ms)
+2025-12-14T04:50:13.900Z [33mwarn[39m [847f7ae1-2c10-4521-978c-2d2df8600925] GET /api/v1/oauth/integrations - 404 (800ms)
+2025-12-14T04:53:23.153Z [32minfo[39m [development] Express server listening on http://localhost:7000
+2025-12-14T04:53:23.348Z [32minfo[39m API vv1: /api/v1/
+2025-12-14T04:53:23.361Z [32minfo[39m Health checks: http://localhost:7000/health/live
+2025-12-14T04:53:24.130Z [32minfo[39m Redis connecting
+2025-12-14T04:53:24.636Z [32minfo[39m Redis ready
+2025-12-14T04:53:26.486Z [32minfo[39m MongoDB connection established
+2025-12-14T04:53:26.943Z [32minfo[39m Scheduler started: 0 agents enabled, 0 agents scheduled for execution
+2025-12-14T04:53:28.036Z [32minfo[39m Polling service started with 0 polling jobs
+2025-12-14T04:53:56.112Z [32minfo[39m [740490b6-1f6b-4b6e-adfc-ba43c0d19755] OPTIONS /api/v1/agents - 204 (38ms)
+2025-12-14T04:53:59.474Z [32minfo[39m [70fba500-ede1-43c1-97b2-beac17147c7c] Agent created: 693e42e6e7dfff33c1079632
+2025-12-14T04:53:59.484Z [32minfo[39m [70fba500-ede1-43c1-97b2-beac17147c7c] POST / - 201 (1656ms)
+2025-12-14T04:53:59.932Z [32minfo[39m [c325c23a-7ba1-4c13-a78f-988e92774c05] GET / - 200 (169ms)
+2025-12-14T04:55:06.525Z [32minfo[39m [runIndependentAgent] Agent 693e42e6e7dfff33c1079632 starting execution with 69 tools available
+2025-12-14T04:55:10.834Z [31merror[39m Independent agent execution error: 500 "Service unavailable"
+2025-12-14T04:55:10.842Z [32minfo[39m Agent 693e42e6e7dfff33c1079632 completed successfully in 4683ms
+2025-12-14T04:55:37.117Z [32minfo[39m [7eaa1b61-771d-4341-a1a8-bf451c609fc0] OPTIONS /api/v1/agents/693e42e6e7dfff33c1079632 - 204 (2ms)
+2025-12-14T04:55:37.120Z [32minfo[39m [ac54ac74-fb26-47aa-a1b3-9623be76e6f8] OPTIONS /api/v1/agents/693e42e6e7dfff33c1079632 - 204 (2ms)
+2025-12-14T04:55:37.328Z [32minfo[39m [8c58ab83-3f3a-4749-a49b-bc5aa78e7582] GET /693e42e6e7dfff33c1079632 - 200 (186ms)
+2025-12-14T04:55:37.521Z [32minfo[39m [b643eda6-37dc-433f-b777-441de2cdbe23] GET /693e42e6e7dfff33c1079632 - 304 (186ms)
+2025-12-14T04:58:48.951Z [32minfo[39m [f97783d5-61c8-439f-a147-de9fcc2832b5] OPTIONS /api/v1/agents/693e42e6e7dfff33c1079632/run - 204 (4ms)
+2025-12-14T04:58:50.476Z [32minfo[39m [runIndependentAgent] Agent 693e42e6e7dfff33c1079632 starting execution with 69 tools available
+2025-12-14T04:58:54.193Z [31merror[39m Independent agent execution error: 500 "Service unavailable"
+2025-12-14T04:58:54.195Z [32minfo[39m Agent 693e42e6e7dfff33c1079632 completed successfully in 4107ms
+2025-12-14T04:58:54.377Z [32minfo[39m [b7db721e-0628-405c-8618-2eb98d81116e] Agent run completed: 693e42e6e7dfff33c1079632
+2025-12-14T04:58:54.378Z [32minfo[39m [b7db721e-0628-405c-8618-2eb98d81116e] POST /693e42e6e7dfff33c1079632/run - 200 (5367ms)
+2025-12-14T04:58:56.431Z [32minfo[39m [f18e211e-d1cd-4511-83b9-cd95bbb056e1] OPTIONS /api/v1/agents/693e42e6e7dfff33c1079632 - 204 (1ms)
+2025-12-14T04:58:56.796Z [32minfo[39m [9e62cad4-fb30-48df-a0a1-66de36ea5560] GET /693e42e6e7dfff33c1079632 - 200 (199ms)
+2025-12-14T05:00:08.252Z [32minfo[39m [runIndependentAgent] Agent 693e42e6e7dfff33c1079632 starting execution with 69 tools available
+2025-12-14T05:00:12.459Z [31merror[39m Independent agent execution error: 500 "Service unavailable"
+2025-12-14T05:00:12.481Z [32minfo[39m Agent 693e42e6e7dfff33c1079632 completed successfully in 4566ms

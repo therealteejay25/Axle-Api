@@ -1,10 +1,17 @@
 import { Request, Response } from "express";
 import { getGitHubOAuthUrl, getGitHubToken } from "../lib/githubapis";
+import crypto from "crypto";
+// import qs from "querystring";
+import { generatePKCE } from "../lib/pkce";
+// import { pkceStore } from "./pkceStore";
 import { getGoogleOAuthUrl, exchangeGoogleCode } from "../lib/googleapis";
 import axios from "axios";
 import { Integration } from "../models/Integration";
 import { env } from "../config/env";
 import qs from "querystring";
+
+export const pkceStore = new Map<string, string>();
+
 
 export const getGitHubUrlController = async (req: Request, res: Response) => {
   // Comprehensive GitHub scopes for all tools
@@ -258,46 +265,51 @@ export const instagramCallbackController = async (
   }
 };
 
+// let codeVerifier: string;
+
 export const getXUrlController = async (_req: Request, res: Response) => {
-  // For PKCE flow the client must generate a code_challenge from a code_verifier.
-  // Return a URL template and required parameters for the frontend to assemble.
-  try {
-    // Comprehensive X/Twitter scopes for all tools
-    const scopes = [
-      "tweet.read",         // Read tweets (list_x_posts, get_x_timeline, get_tweet, search_tweets)
-      "tweet.write",        // Create tweets (post_x_tweet, reply_to_tweet)
-      "users.read",         // Read user profiles
-      "dm.read",            // Read DMs
-      "dm.write",           // Send DMs (send_x_dm)
-      "like.read",          // Read likes
-      "like.write",         // Like tweets (like_tweet)
-      "bookmark.read",      // Read bookmarks
-      "offline.access",     // Refresh token support (for long-lived access)
-    ];
-    
-    const params = {
-      response_type: "code",
-      client_id: env.X_CLIENT_ID || "",
-      redirect_uri: env.X_REDIRECT_URI || "",
-      scope: scopes.join(" "), // X/Twitter uses space-separated scopes
-      state: "",
-      code_challenge: "<CODE_CHALLENGE_FROM_FRONTEND>",
-      code_challenge_method: "S256",
-    } as any;
-    const url = `https://twitter.com/i/oauth2/authorize?${qs.stringify(
-      params
-    )}`;
-    res.redirect(url);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Unable to build X OAuth url", err: err.message });
-  }
+  const codeVerifier = generatePKCE();
+  const state = crypto.randomBytes(16).toString("hex");
+
+  // Generate code challenge from verifier using SHA256
+  const codeChallenge = crypto
+    .createHash("sha256")
+    .update(codeVerifier)
+    .digest("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+
+  // Store verifier using state as key
+  pkceStore.set(state, codeVerifier);
+
+  const scopes = [
+    "tweet.read",
+    "tweet.write",
+    "users.read",
+    "offline.access",
+  ];
+
+  const params = {
+    response_type: "code",
+    client_id: env.X_CLIENT_ID,
+    redirect_uri: env.X_REDIRECT_URI,
+    scope: scopes.join(" "),
+    state,
+    code_challenge: codeChallenge,
+    code_challenge_method: "S256",
+  };
+
+  const url = `https://twitter.com/i/oauth2/authorize?${qs.stringify(params)}`;
+
+  res.redirect(url);
 };
+
 
 export const xCallbackController = async (req: Request, res: Response) => {
   const code = req.query.code || req.body.code;
-  const code_verifier = req.body.code_verifier || req.query.code_verifier;
+  const state = req.query.state || req.body.state;
+  const code_verifier = pkceStore.get(String(state));
   const userId = (req as any).userId || req.body.userId;
 
   if (!code || !userId || !code_verifier)
@@ -335,6 +347,9 @@ export const xCallbackController = async (req: Request, res: Response) => {
         : undefined,
       scope: response.data.scope,
     } as any);
+
+    // Clear the stored code verifier after use
+    pkceStore.delete(String(state));
 
     res.json({ integration });
   } catch (err) {
