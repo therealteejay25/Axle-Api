@@ -2,96 +2,114 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import cors from "cors";
-import express, {
-  Request,
-  Response,
-  NextFunction,
-  RequestHandler,
-} from "express";
+import express, { Request, Response, NextFunction } from "express";
+import http from "http";
+import cookieParser from "cookie-parser";
+
 import router from "./src/routes";
 import healthRouter from "./src/routes/health";
 import { connectDB } from "./src/lib/db";
-import { logger } from "./src/lib/logger";
+import { logger } from "./src/services/logger";
 import { env } from "./src/config/env";
-import cookieParser from "cookie-parser";
-import rateLimit from "express-rate-limit";
-import { requestLoggingMiddleware } from "./src/middleware/logging";
-import { perUserRateLimitMiddleware } from "./src/middleware/rateLimitPerUser";
+import { globalRateLimiter } from "./src/middleware/rateLimit";
+import { initQueueScheduler } from "./src/queue/executionQueue";
+import { startWorker } from "./src/worker";
+import { initScheduler } from "./src/triggers/scheduleHandler";
 
-dotenv.config();
+// ============================================
+// AXLE AGENT EXECUTION ENGINE
+// ============================================
+// Event-driven agent runtime.
+// Agents are activated by triggers, not continuously running.
+// ============================================
 
-connectDB();
+const startServer = async () => {
+  // Connect to database
+  await connectDB();
+  
+  // Initialize Express
+  const app = express();
+  
+  // Security & Parsing
+  app.use(express.json({ limit: "1mb" }));
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+  
+  // CORS
+  app.use(cors({
+    origin: env.ALLOWED_ORIGINS.split(",").map(o => o.trim()),
+    credentials: true
+  }));
+  
+  // Rate limiting
+  app.use(globalRateLimiter);
+  
+  // Routes
+  const apiVersion = env.API_VERSION || "v1";
+  app.use(`/api/${apiVersion}`, router);
+  
+  // Health checks (no rate limit)
+  app.use("/health", healthRouter);
+  
+  // 404 Handler
+  app.use((_req: Request, res: Response) => {
+    res.status(404).json({ error: "Not Found" });
+  });
+  
+  // Error Handler
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    logger.error("Unhandled error:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+  
+  // Create HTTP server
+  const server = http.createServer(app);
+  
+  // Start server
+  const PORT = env.PORT || 9000;
+  server.listen(PORT, () => {
+    const envLabel = env.IS_PROD ? "PRODUCTION" : "development";
+    logger.info(`[${envLabel}] Axle API listening on http://localhost:${PORT}`);
+    logger.info(`API v${apiVersion}: /api/${apiVersion}/`);
+    logger.info(`Health: http://localhost:${PORT}/health/live`);
+  });
+  
+  // Initialize queue scheduler
+  await initQueueScheduler();
+  logger.info("Queue scheduler initialized");
+  
+  // Start worker
+  startWorker();
+  logger.info("Worker started");
+  
+  // Initialize schedule triggers
+  await initScheduler();
+  logger.info("Scheduler initialized");
+  
+  // Graceful shutdown
+  const shutdown = async (signal: string) => {
+    logger.info(`Received ${signal}, shutting down...`);
+    
+    server.close(() => {
+      logger.info("HTTP server closed");
+      process.exit(0);
+    });
+    
+    // Force exit after 10s
+    setTimeout(() => {
+      logger.error("Forced shutdown after timeout");
+      process.exit(1);
+    }, 10000);
+  };
+  
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
+};
 
-const apiVersion = env.API_VERSION;
-
-const app = express();
-
-// Request logging middleware
-app.use(requestLoggingMiddleware);
-
-// Security: Parse JSON with size limits
-app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-
-// CORS with strict origin validation in production
-app.use(
-  cors({
-    origin: env.ALLOWED_ORIGINS.split(",").map((o) => o.trim()),
-    credentials: true,
-  })
-);
-
-// Global rate limiting (IP-based)
-const apiLimiter = rateLimit({
-  windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.RATE_LIMIT_MAX_REQUESTS,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error: "Too many requests from this IP, please try again after 15 minutes.",
-  },
-});
-
-app.use(`/api/${apiVersion}/`, apiLimiter, perUserRateLimitMiddleware, router);
-
-// Health checks (outside API limiter)
-app.use("/health", healthRouter);
-
-// 404 Handler
-app.use((_req: Request, res: Response, _next: NextFunction) => {
-  res.status(404).json({ error: "Endpoint Not Found" });
-});
-
-// Global Error Handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error("Unhandled error", err);
-  if (!res.headersSent) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-const PORT = env.PORT || 9000;
-
-import http from "http";
-import { initRealtime } from "./src/services/realtime";
-import { startScheduler } from "./src/services/scheduler";
-
-const server = http.createServer(app);
-
-// initialize realtime socket.io server
-initRealtime(server);
-
-server.listen(PORT, () => {
-  const env_label = env.IS_PROD ? "PRODUCTION" : "development";
-  logger.info(
-    `[${env_label}] Express server listening on http://localhost:${PORT}`
-  );
-  logger.info(`API v${apiVersion}: /api/${apiVersion}/`);
-  logger.info(`Health checks: http://localhost:${PORT}/health/live`);
-});
-
-// Start persistent scheduler (BullMQ) to process scheduled agent runs
-startScheduler().catch((err) => {
-  logger.error("Failed to start scheduler", err);
+// Start
+startServer().catch(err => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });

@@ -1,27 +1,28 @@
-import IORedis from "ioredis";
+import Redis from "ioredis";
 import { env } from "../config/env";
-import { logger } from "./logger";
 
-// Create a single shared Redis client for the app.
-// Accept REDIS_URL in the form `redis://:password@host:port` or `redis://host:port`.
-const redis = new IORedis(env.REDIS_URL, {
-  maxRetriesPerRequest: null,
+// ============================================
+// REDIS CONNECTION
+// ============================================
+
+export const redis = new Redis(env.REDIS_URL, {
+  maxRetriesPerRequest: null, // Required for BullMQ
+  enableReadyCheck: false,
+  retryStrategy: (times) => {
+    if (times > 3) {
+      console.error("Redis connection failed after 3 retries");
+      return null;
+    }
+    return Math.min(times * 200, 2000);
+  }
 });
 
 redis.on("connect", () => {
-  logger.info("Redis connecting");
-});
-
-redis.on("ready", () => {
-  logger.info("Redis ready");
+  console.log("Redis connected");
 });
 
 redis.on("error", (err) => {
-  logger.error("Redis error", err);
-});
-
-redis.on("close", () => {
-  logger.warn("Redis connection closed");
+  console.error("Redis error:", err.message);
 });
 
 export default redis;

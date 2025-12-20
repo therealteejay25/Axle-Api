@@ -1,32 +1,26 @@
 import mongoose from "mongoose";
 import { env } from "../config/env";
-import { logger } from "./logger";
 
-const uri = env.MONGODB_URI!;
+// ============================================
+// DATABASE CONNECTION
+// ============================================
 
-// logging for MongoDB connection events
-mongoose.connection.on("connected", () => {
-  logger.info("MongoDB connection established");
+export const connectDB = async (): Promise<void> => {
+  try {
+    await mongoose.connect(env.MONGODB_URI);
+    console.log("MongoDB connected");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  }
+};
+
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB error:", err);
 });
 
 mongoose.connection.on("disconnected", () => {
-  logger.warn("MongoDB connection lost");
+  console.warn("MongoDB disconnected");
 });
 
-mongoose.connection.on("reconnected", () => {
-  logger.info("MongoDB reconnected");
-});
-
-mongoose.connection.on("error", (err) => {
-  logger.error("MongoDB connection error:", err);
-});
-
-export async function connectDB(): Promise<void> {
-  try {
-    await mongoose.connect(uri);
-    // The event listener above will log on successful connection
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    process.exit(1);
-  }
-}
+export default { connectDB };

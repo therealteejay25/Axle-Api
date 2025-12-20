@@ -1,81 +1,107 @@
-import { model, Schema } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
-const AgentSchema = new Schema(
+// ============================================
+// AGENT MODEL - Pure Configuration
+// ============================================
+// Agents do NOT run continuously.
+// They are activated by triggers.
+// No runtime state lives here.
+// ============================================
+
+export interface IAgent extends Document {
+  _id: Types.ObjectId;
+  ownerId: Types.ObjectId;
+  name: string;
+  description?: string;
+  status: "active" | "paused";
+  brain: {
+    model: string;
+    systemPrompt: string;
+    temperature: number;
+    maxTokens: number;
+  };
+  // Names of integrations this agent can use (e.g., "github", "slack")
+  integrations: string[];
+  // Allowed action types this agent can execute
+  actions: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AgentSchema = new Schema<IAgent>(
   {
-    name: { type: String, required: true },
-    description: { type: String },
-    systemPrompt: { type: String },
-    ownerId: { type: String, required: true },
-    // AI model to use for this agent (e.g., "gpt-4o", "gpt-4", etc.)
-    model: { type: String, default: "gpt-4o" },
-    // list of tool names the micro-agent is allowed to use
-    tools: { type: [String], default: [] },
-    // optional references to integration ids (e.g., { name: 'github', integrationId: '...' })
-    integrations: {
-      type: [{ name: String, integrationId: String }],
-      default: [],
+    ownerId: { 
+      type: Schema.Types.ObjectId, 
+      ref: "User",
+      required: true,
+      index: true 
     },
-    // schedule/triggers for automated runs
-    schedule: {
-      enabled: { type: Boolean, default: false },
-      // simple interval in minutes for MVP
-      intervalMinutes: { type: Number },
-      // optional cron expression for future use
-      cron: { type: String },
-      // next scheduled run time
-      nextRunAt: { type: Date },
+    name: { 
+      type: String, 
+      required: true,
+      trim: true,
+      maxlength: 100
     },
-    // event-based triggers (webhooks, integration events)
-    triggers: {
-      type: [
-        {
-          type: {
-            type: String,
-            enum: ["webhook", "integration_event", "time", "manual"],
-            required: true,
-          },
-          // For webhook triggers: the webhook path/identifier
-          webhookPath: { type: String },
-          // For integration events: e.g., "github.issue.created", "slack.message.posted"
-          eventPattern: { type: String },
-          // Conditions/filters for when to trigger (optional)
-          conditions: { type: Schema.Types.Mixed },
-          enabled: { type: Boolean, default: true },
-        },
-      ],
-      default: [],
+    description: { 
+      type: String,
+      trim: true,
+      maxlength: 500
     },
-    // Chatbot/conversation settings
-    chatbot: {
-      enabled: { type: Boolean, default: false },
-      // Conversation history stored per user/thread
-      conversations: {
-        type: [
-          {
-            threadId: { type: String, required: true },
-            messages: [
-              {
-                role: { type: String, enum: ["user", "assistant"], required: true },
-                content: { type: String, required: true },
-                timestamp: { type: Date, default: Date.now },
-              },
-            ],
-            createdAt: { type: Date, default: Date.now },
-            updatedAt: { type: Date, default: Date.now },
-          },
-        ],
-        default: [],
+    status: { 
+      type: String, 
+      enum: ["active", "paused"], 
+      default: "active",
+      index: true
+    },
+    brain: {
+      model: { 
+        type: String, 
+        default: "gpt-4o" 
       },
+      systemPrompt: { 
+        type: String, 
+        required: true 
+      },
+      temperature: { 
+        type: Number, 
+        default: 0.7,
+        min: 0,
+        max: 2
+      },
+      maxTokens: { 
+        type: Number, 
+        default: 1024,
+        min: 1,
+        max: 16000
+      }
     },
-
-    // last run metadata and logs
-    lastRunAt: { type: Date },
-    logs: {
-      type: [{ message: String, createdAt: { type: Date, default: Date.now } }],
-      default: [],
+    // Integration names this agent uses (resolved at execution time)
+    integrations: {
+      type: [String],
+      default: []
     },
+    // Allowed action types
+    actions: {
+      type: [String],
+      default: []
+    }
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
 );
 
-export const Agent = model("Agent", AgentSchema);
+// Virtual to get triggers for this agent
+AgentSchema.virtual("triggers", {
+  ref: "Trigger",
+  localField: "_id",
+  foreignField: "agentId"
+});
+
+// Indexes for common queries
+AgentSchema.index({ ownerId: 1, status: 1 });
+AgentSchema.index({ ownerId: 1, createdAt: -1 });
+
+export const Agent = model<IAgent>("Agent", AgentSchema);

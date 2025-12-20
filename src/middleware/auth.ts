@@ -1,74 +1,91 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { User } from "../models/User";
+import { User, IUser } from "../models/User";
 import { env } from "../config/env";
-import { refreshTokenController } from "../controllers/auth";
-import { generateTokens, verifyRefreshToken } from "../lib/jwt";
 
-const JWT_SECRET = env.JWT_SECRET!;
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: false,
-  sameSite: "lax" as const,
-  path: "/",
-};
+// ============================================
+// AUTH MIDDLEWARE
+// ============================================
 
-export interface AuthRequest extends Request {
-  user?: any;
+// Extend Express Request type
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        plan?: string;
+      };
+    }
+  }
 }
 
-export const requireAuth = async (
-  req: AuthRequest,
+export const authMiddleware = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.cookies.accessToken || req.headers.authorization;
-  const refreshToken = req.cookies.refreshToken;
-    try {
-  if (!token) {
-    res.status(401).json({ message: "No token provided" });
-  }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      userId: string;
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Authorization required" });
+    }
+    
+    const token = authHeader.slice(7);
+    
+    // Verify token
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, env.JWT_SECRET);
+    } catch (err: any) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({ error: "Token expired" });
+      }
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    
+    // Attach user to request
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      plan: decoded.plan
     };
-    (req as any).userId = decoded.userId;
+    
     next();
   } catch (err: any) {
-    res.status(400).json({ message: err.name });
-    if (err.name === "TokenExpiredError"  && refreshToken) {
-       try {
-          const refreshDecoded = verifyRefreshToken(refreshToken) as { userId: string };
-          const user = await User.findById(refreshDecoded.userId);
-          
-          if (!user) {
-            console.log("User not found for refresh token");
-            return res.status(401).json({ error: "Invalid refresh token" });
-          }
+    res.status(500).json({ error: "Authentication error" });
+  }
+};
 
-          // Generate new tokens
-          const { accessToken: newAccessToken, refreshToken: newRefreshToken } = generateTokens(user._id!.toString());
-          
-          // Set new cookies
-          res.cookie("accessToken", newAccessToken, COOKIE_OPTIONS);
-          res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS);
-          
-          console.log("✅ Tokens refreshed successfully");
-          (req as any).userId = user._id!.toString();
-          next();
-          
-        } catch (refreshError) {
-          console.log("Refresh token error:", refreshError);
-          return res.status(401).json({ error: "Session expired. Please log in again." });
-        }
-      } else {
-        // Access token is invalid for other reasons, or no refresh token
-        console.log("Access token invalid and no valid refresh token");
-        return res.status(401).json({ error: "Invalid or expired token" });
+// Optional auth - doesn't fail if no token
+export const optionalAuthMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.slice(7);
+      
+      try {
+        const decoded = jwt.verify(token, env.JWT_SECRET) as any;
+        req.user = {
+          id: decoded.id,
+          email: decoded.email,
+          plan: decoded.plan
+        };
+      } catch {
+        // Continue without auth
       }
     }
-} catch (error) {
-    console.log("Unexpected error in requireAuth:", error);
-    return res.status(401).json({ error: "Authentication failed" });
-    }
-}
+    
+    next();
+  } catch {
+    next();
+  }
+};
+
+export default authMiddleware;

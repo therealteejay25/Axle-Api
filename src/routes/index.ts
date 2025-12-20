@@ -1,23 +1,29 @@
 import { Router } from "express";
-import authRouter from "./auth";
 import agentsRouter from "./agents";
-import oauthRouter from "./oauth";
+import triggersRouter from "./triggers";
+import integrationsRouter from "./integrations";
+import executionsRouter from "./executions";
 import webhooksRouter from "./webhooks";
-import chatRouter from "./chat";
+import billingRouter from "./billing";
+import authRouter from "./auth";
+
+// ============================================
+// MAIN ROUTER
+// ============================================
 
 const router = Router();
 
-router.get("/", (_req, res) => {
-  res.json({
-    message: "Axle API - Personal AI Workflow Agent Builder",
-    version: "1.0",
-  });
-});
-
+// Auth routes (no prefix)
 router.use("/auth", authRouter);
+
+// API routes
 router.use("/agents", agentsRouter);
-router.use("/oauth", oauthRouter);
+router.use("/triggers", triggersRouter);
+router.use("/integrations", integrationsRouter);
+router.use("/executions", executionsRouter);
+router.use("/billing", billingRouter);
+
+// Webhooks (outside main API, no auth)
 router.use("/webhooks", webhooksRouter);
-router.use("/chat", chatRouter);
 
 export default router;

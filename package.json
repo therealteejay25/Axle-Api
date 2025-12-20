@@ -35,12 +35,16 @@
     "mongoose": "^8.20.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.11",
+    "openai": "^6.15.0",
     "redis": "^5.10.0",
     "resend": "^6.5.2",
     "socket.io": "^4.8.1",
-    "tsc": "^2.0.4",
     "tsx": "^4.20.6",
     "winston": "^3.18.3",
     "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^7.0.4",
+    "typescript": "^5.9.3"
   }
 }
