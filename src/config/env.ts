@@ -10,30 +10,30 @@ if (process.env.OPENAI_KEY && !process.env.OPENAI_API_KEY) {
 const NODE_ENV = process.env.NODE_ENV || "development";
 const IS_PROD = NODE_ENV === "production";
 
-// Validate required env vars
-const requiredVars = [
-  "PORT",
-  "MONGODB_URI",
-  "API_VERSION",
-  "JWT_SECRET",
-  "REFRESH_SECRET",
-  "OPENAI_KEY",
-  "GITHUB_CLIENT_ID",
-  "GITHUB_CLIENT_SECRET",
-  "GITHUB_REDIRECT_URI",
-  "INTEGRATION_ENC_KEY",
-];
+// // Validate required env vars
+// const requiredVars = [
+//   "PORT",
+//   "MONGODB_URI",
+//   "API_VERSION",
+//   "JWT_SECRET",
+//   "REFRESH_SECRET",
+//   "OPENAI_KEY",
+//   "GITHUB_CLIENT_ID",
+//   "GITHUB_CLIENT_SECRET",
+//   "GITHUB_REDIRECT_URI",
+//   "INTEGRATION_ENC_KEY",
+// ];
 
-if (IS_PROD) {
-  const missing = requiredVars.filter((v) => !process.env[v]);
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables in production: ${missing.join(
-        ", "
-      )}`
-    );
-  }
-}
+// if (IS_PROD) {
+//   const missing = requiredVars.filter((v) => !process.env[v]);
+//   if (missing.length > 0) {
+//     throw new Error(
+//       `Missing required environment variables in production: ${missing.join(
+//         ", "
+//       )}`
+//     );
+//   }
+// }
 
 export const env = {
   NODE_ENV,
