@@ -46,7 +46,7 @@ export const env = {
   RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL!,
   JWT_SECRET: process.env.JWT_SECRET!,
   REFRESH_SECRET: process.env.REFRESH_SECRET!,
-  OPENAI_KEY: process.env.OPENAI_KEY!,
+  // OPENAI_KEY: process.env.OPENAI_KEY!,
   OPENAI_API_BASE: process.env.OPENAI_API_BASE || "https://api.algion.dev/v1",
   // OpenRouter AI
   OPENROUTER_API_KEY: "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",
@@ -67,19 +67,19 @@ export const env = {
   X_CLIENT_SECRET: process.env.X_CLIENT_SECRET,
   X_REDIRECT_URI: process.env.X_REDIRECT_URI,
   REDIS_URL: process.env.REDIS_URL || "redis://127.0.0.1:6379",
-  INTEGRATION_ENC_KEY: process.env.INTEGRATION_ENC_KEY!,
+  // INTEGRATION_ENC_KEY: process.env.INTEGRATION_ENC_KEY!,
   // SMTP configuration for send_email tool
-  SMTP_HOST: process.env.SMTP_HOST,
-  SMTP_PORT: process.env.SMTP_PORT || "587",
-  SMTP_USER: process.env.SMTP_USER,
-  SMTP_PASS: process.env.SMTP_PASS,
-  SMTP_FROM: process.env.SMTP_FROM,
-  // Rate limiting
-  RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 min
-  RATE_LIMIT_MAX_REQUESTS: parseInt(
-    process.env.RATE_LIMIT_MAX_REQUESTS || "100"
-  ),
-  // Agent execution
-  AGENT_TIMEOUT_MS: parseInt(process.env.AGENT_TIMEOUT_MS || "30000"), // 30 sec
-  AGENT_MAX_RETRIES: parseInt(process.env.AGENT_MAX_RETRIES || "3"),
+  // SMTP_HOST: process.env.SMTP_HOST,
+  // SMTP_PORT: process.env.SMTP_PORT || "587",
+  // SMTP_USER: process.env.SMTP_USER,
+  // SMTP_PASS: process.env.SMTP_PASS,
+  // SMTP_FROM: process.env.SMTP_FROM,
+  // // Rate limiting
+  // RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 min
+  // RATE_LIMIT_MAX_REQUESTS: parseInt(
+  //   process.env.RATE_LIMIT_MAX_REQUESTS || "100"
+  // ),
+  // // Agent execution
+  // AGENT_TIMEOUT_MS: parseInt(process.env.AGENT_TIMEOUT_MS || "30000"), // 30 sec
+  // AGENT_MAX_RETRIES: parseInt(process.env.AGENT_MAX_RETRIES || "3"),
 };

@@ -4,7 +4,7 @@ Welcome to the Axle API documentation for frontend developers. This guide covers
 
 ## Base URL
 All API requests (except Auth) should be prefixed with:
-`http://localhost:9000/api/v1`
+`http://localhost:7000/api/v1`
 
 ## Authentication
 Axle uses cookie-based JWT authentication.

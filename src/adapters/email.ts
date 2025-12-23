@@ -23,21 +23,21 @@ interface IntegrationData {
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
 // Initialize SMTP transporter if config available
-const getSmtpTransporter = () => {
-  if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASS) {
-    return null;
-  }
+// const getSmtpTransporter = () => {
+//   if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASS) {
+//     return null;
+//   }
   
-  return nodemailer.createTransport({
-    host: env.SMTP_HOST,
-    port: parseInt(env.SMTP_PORT),
-    secure: parseInt(env.SMTP_PORT) === 465,
-    auth: {
-      user: env.SMTP_USER,
-      pass: env.SMTP_PASS
-    }
-  });
-};
+//   return nodemailer.createTransport({
+//     host: env.SMTP_HOST,
+//     port: parseInt(env.SMTP_PORT),
+//     secure: parseInt(env.SMTP_PORT) === 465,
+//     auth: {
+//       user: env.SMTP_USER,
+//       pass: env.SMTP_PASS
+//     }
+//   });
+// };
 
 // ==================== ACTIONS ====================
 
@@ -55,20 +55,20 @@ export const sendEmail = async (
   const { to, subject, text, html, from, replyTo } = params;
   const recipients = Array.isArray(to) ? to : [to];
   
-  // Handle Google Integration (Gmail)
-  if (integration.provider === "google") {
-    // Gmail adapter expects single 'to' usually, or handle array
-    const toAddress = Array.isArray(to) ? to.join(",") : to;
+  // // Handle Google Integration (Gmail)
+  // if (integration.provider === "google") {
+  //   // Gmail adapter expects single 'to' usually, or handle array
+  //   const toAddress = Array.isArray(to) ? to.join(",") : to;
     
-    return sendGmail({
-      to: toAddress,
-      subject,
-      body: html || text || "",
-      html: !!html
-    }, integration);
-  }
+  //   return sendGmail({
+  //     to: toAddress,
+  //     subject,
+  //     body: html || text || "",
+  //     html: !!html
+  //   }, integration);
+  // }
 
-  const fromAddress = from || env.RESEND_FROM_EMAIL || env.SMTP_FROM || "noreply@axle.dev";
+  // const fromAddress = from || env.RESEND_FROM_EMAIL || env.SMTP_FROM || "noreply@axle.dev";
   
   // Try Resend first
   if (resend) {
@@ -87,20 +87,20 @@ export const sendEmail = async (
   }
   
   // Fall back to SMTP
-  const transporter = getSmtpTransporter();
-  if (transporter) {
-    const result = await transporter.sendMail({
-      from: fromAddress,
-      to: recipients.join(", "),
-      subject,
-      text,
-      html,
-      replyTo
-    });
+  // const transporter = getSmtpTransporter();
+  // if (transporter) {
+  //   const result = await transporter.sendMail({
+  //     from: fromAddress,
+  //     to: recipients.join(", "),
+  //     subject,
+  //     text,
+  //     html,
+  //     replyTo
+  //   });
     
-    logger.info("Email sent via SMTP", { to: recipients, subject });
-    return { messageId: result.messageId };
-  }
+  //   logger.info("Email sent via SMTP", { to: recipients, subject });
+  //   return { messageId: result.messageId };
+  // }
   
   throw new Error("No email provider configured (Resend, SMTP, or Google)");
 };
