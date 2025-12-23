@@ -26,13 +26,19 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   try {
+    // Check Authorization header first, then cookies
     const authHeader = req.headers.authorization;
+    let token: string | undefined;
     
-    if (!authHeader?.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Authorization required" });
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.slice(7);
+    } else if (req.cookies?.axle_access_token) {
+      token = req.cookies.axle_access_token;
     }
     
-    const token = authHeader.slice(7);
+    if (!token) {
+      return res.status(401).json({ error: "Authorization required" });
+    }
     
     // Verify token
     let decoded: any;

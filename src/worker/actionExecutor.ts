@@ -50,21 +50,24 @@ export const executeActions = async (
     }
     
     try {
+      // Resolve params using results from previous actions
+      const resolvedParams = resolveParams(action.params, results, loaded);
+
       logger.info("Executing action", { 
         type: action.type,
-        params: sanitizeParams(action.params)
+        params: sanitizeParams(resolvedParams)
       });
       
       // Execute the action via adapter registry
       const result = await executeAction(
         action.type,
-        action.params,
+        resolvedParams,
         loaded.integrations
       );
       
       results.push({
         type: action.type,
-        params: action.params,
+        params: resolvedParams,
         result,
         startedAt,
         finishedAt: new Date()
@@ -94,6 +97,55 @@ export const executeActions = async (
   return results;
 };
 
+// Resolve templates in params using Nunjucks
+const resolveParams = (
+  params: Record<string, any>, 
+  previousResults: ActionResult[],
+  loaded: LoadedAgent
+): Record<string, any> => {
+  // Create context from results
+  const context: Record<string, any> = {
+    user: loaded.user,
+    agent: loaded.agent
+  };
+  
+  for (const r of previousResults) {
+    if (r.result) {
+      context[r.type] = r.result;
+    }
+  }
+
+  // Use Nunjucks for rendering
+  const nunjucks = require("nunjucks");
+  nunjucks.configure({ autoescape: false });
+
+  const processValue = (value: any): any => {
+    if (typeof value === "string") {
+      // Check if it looks like a template
+      if (value.includes("{{") || value.includes("{%")) {
+        try {
+          return nunjucks.renderString(value, context);
+        } catch (e) {
+          logger.warn("Template render failed", { value, error: e });
+          return value;
+        }
+      }
+      return value;
+    } else if (Array.isArray(value)) {
+      return value.map(v => processValue(v));
+    } else if (typeof value === "object" && value !== null) {
+      const result: Record<string, any> = {};
+      for (const [k, v] of Object.entries(value)) {
+        result[k] = processValue(v);
+      }
+      return result;
+    }
+    return value;
+  };
+
+  return processValue(params);
+};
+
 // Convert results to execution action format
 export const toExecutionActions = (results: ActionResult[]): IExecutionAction[] => {
   return results.map(r => ({
@@ -101,9 +153,29 @@ export const toExecutionActions = (results: ActionResult[]): IExecutionAction[] 
     params: r.params,
     result: r.result,
     error: r.error,
+    humanReadableStep: generateHumanReadableStep(r),
     startedAt: r.startedAt,
     finishedAt: r.finishedAt
   }));
+};
+
+// Simple heuristic for human-readable steps
+const generateHumanReadableStep = (result: ActionResult): string => {
+  const type = result.type.replace(/_/g, " ");
+  const parts = type.split(" ");
+  const platform = parts[0].toUpperCase();
+  const action = parts.slice(1).join(" ");
+
+  if (result.error) {
+    return `Failed to ${action} on ${platform}: ${result.error}`;
+  }
+
+  // Common patterns
+  if (type.includes("send message")) return `Sent a message to ${result.params.channel || result.params.to}`;
+  if (type.includes("post tweet")) return `Posted a tweet: "${result.params.text?.substring(0, 30)}..."`;
+  if (type.includes("create issue")) return `Created GitHub issue: "${result.params.title}"`;
+  
+  return `Successfully executed ${action} on ${platform}`;
 };
 
 // Remove sensitive data from params for logging

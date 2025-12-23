@@ -19,6 +19,7 @@ export interface IExecutionAction {
   params: Record<string, any>;
   result?: Record<string, any>;
   error?: string;
+  humanReadableStep?: string; // Human-friendly description of what happened
   startedAt: Date;
   finishedAt?: Date;
 }
@@ -29,6 +30,7 @@ export interface IExecution extends Document {
   triggerId?: Types.ObjectId;
   triggerType: TriggerType;
   status: ExecutionStatus;
+  name?: string; // AI-generated name for this execution
   // Input from the trigger
   inputPayload: Record<string, any>;
   // Final output
@@ -43,6 +45,8 @@ export interface IExecution extends Document {
   error?: string;
   errorStack?: string;
   retryCount: number;
+  // Approval
+  approvalStatus?: "pending" | "approved" | "rejected";
   // Billing
   creditsUsed: number;
   // Timing
@@ -58,6 +62,7 @@ const ExecutionActionSchema = new Schema<IExecutionAction>(
     params: { type: Schema.Types.Mixed, default: {} },
     result: { type: Schema.Types.Mixed },
     error: { type: String },
+    humanReadableStep: { type: String },
     startedAt: { type: Date, required: true },
     finishedAt: { type: Date }
   },
@@ -87,6 +92,7 @@ const ExecutionSchema = new Schema<IExecution>(
       default: "pending",
       index: true
     },
+    name: { type: String, trim: true },
     inputPayload: {
       type: Schema.Types.Mixed,
       default: {}
@@ -106,6 +112,11 @@ const ExecutionSchema = new Schema<IExecution>(
     retryCount: {
       type: Number,
       default: 0
+    },
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      index: true
     },
     creditsUsed: {
       type: Number,

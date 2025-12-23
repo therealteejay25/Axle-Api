@@ -3,11 +3,10 @@ import { env } from "../config/env";
 import { logger } from "../services/logger";
 
 // ============================================
-// AI CALLER
+// AI CALLER (OpenRouter via OpenAI SDK)
 // ============================================
-// Calls AI and validates structured JSON response.
-// AI NEVER makes network calls.
-// AI returns structured actions for backend to execute.
+// Calls AI via OpenRouter using OpenAI-compatible SDK.
+// Validates structured JSON response.
 // ============================================
 
 export interface AIAction {
@@ -23,14 +22,15 @@ export interface AIResponse {
 
 let _openai: OpenAI | null = null;
 
-const getOpenAI = (): OpenAI => {
+const getOpenAICallback = (): OpenAI => {
   if (!_openai) {
-    if (!env.OPENAI_KEY) {
-      throw new Error("OPENAI_KEY environment variable is not set");
+    const apiKey = env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      throw new Error("OPENROUTER_API_KEY environment variable is not set");
     }
     _openai = new OpenAI({
-      apiKey: env.OPENAI_KEY,
-      baseURL: env.OPENAI_API_BASE
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: apiKey
     });
   }
   return _openai;
@@ -38,17 +38,28 @@ const getOpenAI = (): OpenAI => {
 
 export const callAI = async (
   systemPrompt: string,
-  model: string = "gpt-4o",
+  model: string = "google/gemini-2.0-flash-001",
   temperature: number = 0.7,
-  maxTokens: number = 1024
+  maxTokens: number = 4096
 ): Promise<AIResponse> => {
   const startTime = Date.now();
   
   try {
-    const response = await getOpenAI().chat.completions.create({
+    const openai = getOpenAICallback();
+    
+    logger.debug("Calling AI via OpenRouter", { model });
+
+    const response = await openai.chat.completions.create({
       model,
       messages: [
-        { role: "system", content: systemPrompt }
+        {
+          role: "system",
+          content: `You are an AI assistant that responds ONLY in valid JSON format. Your response must always be a JSON object with an "actions" array containing objects with "type" and "params" fields.`
+        },
+        {
+          role: "user",
+          content: systemPrompt
+        }
       ],
       temperature,
       max_tokens: maxTokens,

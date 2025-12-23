@@ -8,6 +8,11 @@ import { Schema, model, Document, Types } from "mongoose";
 // No runtime state lives here.
 // ============================================
 
+export interface IAgentRule {
+  if: string;    // Condition, e.g., "new github issue"
+  then: string;  // Action, e.g., "post to slack"
+}
+
 export interface IAgent extends Document {
   _id: Types.ObjectId;
   ownerId: Types.ObjectId;
@@ -20,10 +25,29 @@ export interface IAgent extends Document {
     temperature: number;
     maxTokens: number;
   };
+  // Structured rules (IF -> THEN)
+  rules: IAgentRule[];
+  // Metadata about how the agent was generated
+  blueprint?: {
+    originalPrompt: string;
+    generatedAt: Date;
+    category?: string;
+  };
+  // Advanced settings
+  settings: {
+    tone: string;
+    maxActionsPerRun: number;
+    approvalRequired: boolean;
+  };
   // Names of integrations this agent can use (e.g., "github", "slack")
   integrations: string[];
   // Allowed action types this agent can execute
   actions: string[];
+  blueprintHistory: {
+    rules: IAgentRule[];
+    settings: any;
+    updatedAt: Date;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,7 +80,7 @@ const AgentSchema = new Schema<IAgent>(
     brain: {
       model: { 
         type: String, 
-        default: "gpt-4o" 
+        default: "google/gemini-2.0-flash-001" 
       },
       systemPrompt: { 
         type: String, 
@@ -75,6 +99,23 @@ const AgentSchema = new Schema<IAgent>(
         max: 16000
       }
     },
+    rules: {
+      type: [{
+        if: { type: String, required: true },
+        then: { type: String, required: true }
+      }],
+      default: []
+    },
+    blueprint: {
+      originalPrompt: { type: String },
+      generatedAt: { type: Date },
+      category: { type: String }
+    },
+    settings: {
+      tone: { type: String, default: "professional" },
+      maxActionsPerRun: { type: Number, default: 5 },
+      approvalRequired: { type: Boolean, default: false }
+    },
     // Integration names this agent uses (resolved at execution time)
     integrations: {
       type: [String],
@@ -84,7 +125,14 @@ const AgentSchema = new Schema<IAgent>(
     actions: {
       type: [String],
       default: []
-    }
+    },
+    blueprintHistory: [
+      {
+        rules: { type: Schema.Types.Mixed },
+        settings: { type: Schema.Types.Mixed },
+        updatedAt: { type: Date, default: Date.now }
+      }
+    ]
   },
   { 
     timestamps: true,

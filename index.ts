@@ -15,6 +15,7 @@ import { globalRateLimiter } from "./src/middleware/rateLimit";
 import { initQueueScheduler } from "./src/queue/executionQueue";
 import { startWorker } from "./src/worker";
 import { initScheduler } from "./src/triggers/scheduleHandler";
+import { SocketService } from "./src/services/SocketService";
 
 // ============================================
 // AXLE AGENT EXECUTION ENGINE
@@ -66,6 +67,9 @@ const startServer = async () => {
   
   // Create HTTP server
   const server = http.createServer(app);
+  
+  // Initialize WebSocket
+  SocketService.getInstance().init(server);
   
   // Start server
   const PORT = env.PORT || 9000;

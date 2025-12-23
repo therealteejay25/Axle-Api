@@ -3,6 +3,7 @@ import { redis } from "../lib/redis";
 import { ExecutionJobData, ExecutionJobResult } from "../queue/executionQueue";
 import { Execution } from "../models/Execution";
 import { loadAgent } from "./agentLoader";
+import { SocketService } from "../services/SocketService";
 import { buildContext, buildSystemPrompt } from "./contextBuilder";
 import { callAI } from "./aiCaller";
 import { executeActions, toExecutionActions } from "./actionExecutor";
@@ -85,10 +86,25 @@ const processJob = async (
   execution.startedAt = new Date();
   await execution.save();
   
+  // Emit live update
+  SocketService.getInstance().emitToAgent(agentId, "execution:started", {
+    executionId: execution._id,
+    status: "running"
+  });
+  
   try {
     // 2-3. Load agent and integrations
     const loaded = await loadAgent(agentId, ownerId);
     
+    // Check if agent is paused
+    if (loaded.agent.status === "paused") {
+      logger.info("Agent is paused, skipping execution", { agentId });
+      execution.status = "failed";
+      execution.error = "Agent is paused";
+      await execution.save();
+      return { success: false, actionsExecuted: 0, creditsUsed: 0, error: "Agent is paused" };
+    }
+
     // 4. Build execution context
     const context = buildContext(loaded, triggerType, payload);
     const systemPrompt = buildSystemPrompt(loaded, context);
@@ -97,11 +113,14 @@ const processJob = async (
     execution.aiPrompt = systemPrompt;
     
     // 5. Call AI
+    // Ensure sufficient tokens for complex outputs (e.g. HTML emails)
+    const maxTokens = Math.max(loaded.agent.brain.maxTokens || 4096, 4096);
+    
     const aiResponse = await callAI(
       systemPrompt,
       loaded.agent.brain.model,
       loaded.agent.brain.temperature,
-      loaded.agent.brain.maxTokens
+      maxTokens
     );
     
     // Store AI response
@@ -134,6 +153,21 @@ const processJob = async (
       creditsUsed
     };
     
+    // Check for high-risk actions requiring approval
+    if (loaded.agent.settings.approvalRequired) {
+      const highRiskPrefixes = ["delete", "remove", "archive", "un"];
+      const needsApproval = actionResults.some(r => 
+        highRiskPrefixes.some(p => r.type.toLowerCase().includes(p))
+      );
+
+      if (needsApproval) {
+        execution.status = "pending";
+        execution.approvalStatus = "pending";
+        await execution.save();
+        return { success: true, actionsExecuted: actionResults.length, creditsUsed };
+      }
+    }
+
     // Check if any action failed
     const hasErrors = actionResults.some(r => r.error);
     if (hasErrors) {
@@ -142,6 +176,13 @@ const processJob = async (
     }
     
     await execution.save();
+
+    // Emit live update
+    SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
+      executionId: execution._id,
+      status: execution.status,
+      actionsCount: actionResults.length
+    });
     
     return {
       success: !hasErrors,

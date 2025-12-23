@@ -4,7 +4,8 @@
 
 export { githubActions } from "./github";
 export { slackActions } from "./slack";
-export { twitterActions } from "./twitter";
+export { xActions } from "./twitter";
+export { instagramActions } from "./instagram";
 export { emailActions } from "./email";
 export { googleActions } from "./google";
 export { httpActions } from "./http";

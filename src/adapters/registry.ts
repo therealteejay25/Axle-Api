@@ -1,10 +1,14 @@
 import { githubActions } from "./github";
 import { slackActions } from "./slack";
-import { twitterActions } from "./twitter";
+import { xActions } from "./twitter";
+import { instagramActions } from "./instagram";
 import { emailActions } from "./email";
 import { googleActions } from "./google";
 import { httpActions } from "./http";
+import { scraperActions } from "./scraper";
+import { researchActions } from "./research";
 import { logger } from "../services/logger";
+import { env } from "../config/env";
 
 // ============================================
 // ACTION REGISTRY
@@ -27,20 +31,26 @@ type IntegrationMap = Map<string, IntegrationData>;
 const actionIntegrationMap: Record<string, string> = {
   github_: "github",
   slack_: "slack",
-  twitter_: "twitter",
+  x_: "twitter",
+  ig_: "instagram",
   google_: "google",
   email_: "email",
-  http_: "" // HTTP doesn't require integration
+  http_: "", 
+  scraper_: "", 
+  research_: "" 
 };
 
 // Combine all action handlers
 const allActions: Record<string, (params: any, integration: IntegrationData) => Promise<any>> = {
   ...githubActions,
   ...slackActions,
-  ...twitterActions,
+  ...xActions,
+  ...instagramActions,
   ...emailActions,
   ...googleActions,
-  ...httpActions
+  ...httpActions,
+  ...scraperActions,
+  ...researchActions
 };
 
 // Get list of all available actions
@@ -57,6 +67,17 @@ export const getActionsForIntegrations = (integrations: string[]): string[] => {
     if (actionName.startsWith("http_")) {
       available.push(actionName);
       continue;
+    }
+    
+    // Special case: email actions available if google is connected 
+    // OR if env vars are set (Resend/SMTP)
+    if (actionName.startsWith("email_")) {
+      if (integrations.includes("google") || 
+          env.RESEND_API_KEY || 
+          (env.SMTP_HOST && env.SMTP_USER)) {
+        available.push(actionName);
+        continue;
+      }
     }
     
     // Check if required integration is connected
@@ -85,10 +106,30 @@ export const executeAction = async (
   
   // Find required integration
   let requiredProvider = "";
-  for (const [prefix, provider] of Object.entries(actionIntegrationMap)) {
-    if (actionType.startsWith(prefix)) {
-      requiredProvider = provider;
-      break;
+  
+  // Special handling for email fallback to google or env
+  if (actionType.startsWith("email_")) {
+     // Check Env for Resend/SMTP first (Priority!)
+     // If env vars exist, we prioritize this (provider = "") to force usage of env logic in adapter
+     if (env.RESEND_API_KEY || (env.SMTP_HOST && env.SMTP_USER)) {
+        requiredProvider = ""; // No DB integration required, use Env
+     } 
+     // Fallback to Google if connected
+     else if (integrations.has("google")) {
+       requiredProvider = "google";
+     } 
+     // Fallback to Email integration if connected
+     else if (integrations.has("email")) {
+       requiredProvider = "email";
+     } else {
+       requiredProvider = "email"; // Default to email to show missing error
+     }
+  } else {
+    for (const [prefix, provider] of Object.entries(actionIntegrationMap)) {
+      if (actionType.startsWith(prefix)) {
+        requiredProvider = provider;
+        break;
+      }
     }
   }
   
@@ -102,7 +143,7 @@ export const executeAction = async (
     }
     integration = integrationData;
   } else {
-    // For actions that don't need integration (e.g., HTTP)
+    // For actions that don't need integration (e.g., HTTP or Resend/SMTP via env)
     integration = {
       provider: "none",
       accessToken: "",
@@ -149,6 +190,18 @@ export const validateActionParams = (
   
   if (actionType.startsWith("http_")) {
     if (!params.url) errors.push("url is required");
+  }
+
+  // Instagram validation
+  if (actionType.startsWith("ig_")) {
+    if (actionType === "ig_get_profile" || actionType === "ig_get_posts") {
+        if (!params.igUserId) errors.push("igUserId is required");
+    }
+  }
+
+  // X validation
+  if (actionType.startsWith("x_")) {
+    if (actionType === "x_post_tweet" && !params.text) errors.push("text is required");
   }
   
   return { valid: errors.length === 0, errors };

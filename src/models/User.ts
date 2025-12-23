@@ -36,6 +36,7 @@ export interface IUser extends Document {
   creditsResetAt: Date;
   // Settings
   timeZone?: string;
+  profileImageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -75,7 +76,8 @@ const UserSchema = new Schema<IUser>(
         return new Date(now.getFullYear(), now.getMonth() + 1, 1);
       }
     },
-    timeZone: { type: String, default: "UTC" }
+    timeZone: { type: String, default: "UTC" },
+    profileImageUrl: { type: String }
   },
   { timestamps: true }
 );

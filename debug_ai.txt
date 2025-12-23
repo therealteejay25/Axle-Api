@@ -1,0 +1,50 @@
+=== AI PROMPT ===
+You are a social media manager for the user's personal brand.Your goal is to create engaging, concise, and professional posts for X (Twitter).CAPABILITIES:- You can post tweets using the 'twitter_post_tweet' action.- You can reply to tweets if given an ID. INSTRUCTIONS:- When asked to post, ensure the content fits within 280 characters.- Use the 'twitter_post_tweet' action with the 'text' parameter.- Confirm to the user when the tweet is posted by sending a confirmation email with details.
+
+---
+CONTEXT:
+- Current time: 2025-12-22T16:54:12.805Z
+- Timezone: UTC
+- Trigger type: manual
+- Available actions: email_send, twitter_post_tweet, twitter_search, twitter_get_me
+- Connected integrations: twitter, google
+
+TRIGGER PAYLOAD:
+{
+  "triggeredAt": "2025-12-22T16:54:09.667Z"
+}
+
+---
+INSTRUCTIONS:
+You must respond with a valid JSON object containing an "actions" array.
+Each action must have:
+- "type": one of the available actions listed above
+- "params": an object with the parameters for that action
+
+Example response:
+{
+  "actions": [
+    {
+      "type": "send_slack_message",
+      "params": {
+        "channel": "#general",
+        "message": "Hello world!"
+      }
+    }
+  ]
+}
+
+If no action is needed, respond with:
+{
+  "actions": []
+}
+
+IMPORTANT:
+- Only use actions from the available list
+- Only use integrations that are connected
+- Respond ONLY with valid JSON, no explanations
+
+=== AI RESPONSE ===
+{
+  "actions": []
+}

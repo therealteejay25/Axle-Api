@@ -2,12 +2,13 @@ import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { env } from "../config/env";
 import { logger } from "../services/logger";
+import { sendGmail } from "./google";
 
 // ============================================
 // EMAIL ADAPTER
 // ============================================
 // Pure executor for email actions.
-// Supports both SMTP and Resend.
+// Supports SMTP, Resend, and Google (Gmail).
 // ============================================
 
 interface IntegrationData {
@@ -53,17 +54,30 @@ export const sendEmail = async (
 ) => {
   const { to, subject, text, html, from, replyTo } = params;
   const recipients = Array.isArray(to) ? to : [to];
+  
+  // Handle Google Integration (Gmail)
+  if (integration.provider === "google") {
+    // Gmail adapter expects single 'to' usually, or handle array
+    const toAddress = Array.isArray(to) ? to.join(",") : to;
+    
+    return sendGmail({
+      to: toAddress,
+      subject,
+      body: html || text || "",
+      html: !!html
+    }, integration);
+  }
+
   const fromAddress = from || env.RESEND_FROM_EMAIL || env.SMTP_FROM || "noreply@axle.dev";
   
   // Try Resend first
   if (resend) {
       const payload: any = {
-        from: "Axle <onboarding@resend.dev>",
-        to: [to],
+        from: "Axle <onboarding@resend.dev>", // Force this for free tier testing
+        to: recipients, // Resend expects array of strings
         subject,
-        text,
+        // text,
         html,
-        replyTo: replyTo || undefined
       };
 
       const result = await resend.emails.send(payload);
@@ -88,7 +102,7 @@ export const sendEmail = async (
     return { messageId: result.messageId };
   }
   
-  throw new Error("No email provider configured (Resend or SMTP)");
+  throw new Error("No email provider configured (Resend, SMTP, or Google)");
 };
 
 export const sendTemplatedEmail = async (
