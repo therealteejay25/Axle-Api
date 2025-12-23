@@ -78,13 +78,17 @@ ${JSON.stringify(context.trigger.payload, null, 2)}
 
 ---
 INSTRUCTIONS:
-You must respond with a valid JSON object containing an "actions" array.
+You must respond with a valid JSON object containing:
+- "executionName": a concise, human-readable name for this execution (e.g. "Draft social media post", "Resolve GitHub issue")
+- "actions": an array of action objects.
+
 Each action must have:
 - "type": one of the available actions listed above
 - "params": an object with the parameters for that action
 
 Example response:
 {
+  "executionName": "Send welcome message",
   "actions": [
     {
       "type": "send_slack_message",
@@ -98,6 +102,7 @@ Example response:
 
 If no action is needed, respond with:
 {
+  "executionName": "No action required",
   "actions": []
 }
 

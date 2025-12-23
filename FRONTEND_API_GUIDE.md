@@ -62,6 +62,7 @@ Fetch the last 50 execution logs for activity timelines.
     {
       "_id": "exec123",
       "status": "completed",
+      "name": "Analyze market trends for AI",
       "actions": [...],
       "createdAt": "2025-12-23T15:00:00Z"
     }
@@ -96,7 +97,7 @@ socket.emit('subscribe', agentId);
   ```
 - **`execution:completed`**: Broadcasted when a task finishes.
   ```json
-  { "executionId": "...", "status": "completed", "actionsCount": 3 }
+  { "executionId": "...", "status": "completed", "name": "Refactor API logic", "actionsCount": 3 }
   ```
 
 ---

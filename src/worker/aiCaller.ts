@@ -16,6 +16,7 @@ export interface AIAction {
 
 export interface AIResponse {
   actions: AIAction[];
+  executionName?: string; // Human-readable name for the log
   rawResponse: string;
   tokensUsed: number;
 }
@@ -54,7 +55,7 @@ export const callAI = async (
       messages: [
         {
           role: "system",
-          content: `You are an AI assistant that responds ONLY in valid JSON format. Your response must always be a JSON object with an "actions" array containing objects with "type" and "params" fields.`
+          content: `You are an AI assistant that responds ONLY in valid JSON format. Your response must always be a JSON object with an "executionName" (short human-readable summary of the intent) and an "actions" array.`
         },
         {
           role: "user",
@@ -80,6 +81,7 @@ export const callAI = async (
     
     return {
       actions: parsed.actions,
+      executionName: (parsed as any).executionName,
       rawResponse,
       tokensUsed
     };
@@ -94,7 +96,7 @@ export const callAI = async (
 };
 
 // Parse and validate AI response
-const parseAIResponse = (rawResponse: string): { actions: AIAction[] } => {
+const parseAIResponse = (rawResponse: string): { actions: AIAction[], executionName?: string } => {
   try {
     const parsed = JSON.parse(rawResponse);
     
@@ -125,7 +127,10 @@ const parseAIResponse = (rawResponse: string): { actions: AIAction[] } => {
       }
     }
     
-    return { actions: validActions };
+    return { 
+      actions: validActions,
+      executionName: parsed.executionName 
+    };
   } catch (error: any) {
     logger.error("Failed to parse AI response", { 
       error: error.message,

@@ -127,6 +127,11 @@ const processJob = async (
     execution.aiResponse = aiResponse.rawResponse;
     execution.aiTokensUsed = aiResponse.tokensUsed;
     
+    if (aiResponse.executionName) {
+      execution.name = aiResponse.executionName;
+      await execution.save();
+    }
+    
     // 6-7. Execute actions
     const actionResults = await executeActions(
       aiResponse.actions,
@@ -181,6 +186,7 @@ const processJob = async (
     SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
       executionId: execution._id,
       status: execution.status,
+      name: execution.name,
       actionsCount: actionResults.length
     });
     
