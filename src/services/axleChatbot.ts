@@ -1,4 +1,4 @@
-import { callAI } from "../worker/aiCaller";
+import { callChat } from "../worker/aiCaller";
 import { ChatSession } from "../models/ChatSession";
 import { GodAgentService } from "./GodAgentService";
 import { logger } from "./logger";
@@ -33,55 +33,67 @@ export class AxleChatbot {
       3. Explain Data: Answer questions about agent history, logs, or blueprints.
       
       INSTRUCTIONS:
-      - Respond in JSON format.
-      - If you decide to perform an action, include an "action" field with "type" and "params".
-      - "type" for tool execution: the full tool name (e.g., "slack_send_message").
-      - "type" for agent management: "manage_agent" with "params": { "agentId", "action": "pause" | "resume" | "delete" }.
-      - Include a "response" field with a human-friendly message for the user.
-      
-      Example:
-      {
-        "response": "I've paused the GitHub Monitoring agent for you.",
-        "action": { "type": "manage_agent", "params": { "agentId": "...", "action": "pause" } }
-      }
+      - You are chatting with the user. Be helpful, concise, and professional.
+      - If the user asks to perform an action, generate the corresponding action in the "actions" array.
+      - Supported actions: 
+        - Tool execution: { "type": "tool_name", "params": { ... } }
+        - Agent management: { "type": "manage_agent", "params": { "agentId", "action": "pause" | "resume" | "delete" } }
     `;
 
     try {
-      // 4. Call AI
-      const aiResponse = await callAI(systemPrompt, "google/gemini-2.0-flash-001", 0.5);
-      const parsed = JSON.parse(aiResponse.rawResponse);
+      // 4. Prepare Context (Last 20 messages)
+      // Map session messages to OpenAI format
+      const history = session.messages.slice(-20).map(m => ({
+        role: m.role,
+        content: m.content
+      }));
 
+      // 5. Call AI
+      // We pass the system prompt as the first message for context
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...history
+      ];
+      
+      const aiResponse = await callChat(messages, "google/gemini-2.0-flash-001", 0.5);
+      
       let actionResult = null;
 
-      // 5. Execute action if requested
-      if (parsed.action) {
-        if (parsed.action.type === "manage_agent") {
-          actionResult = await GodAgentService.manageAgent(
-            userId,
-            parsed.action.params.agentId,
-            parsed.action.params.action
-          );
-        } else {
-          actionResult = await GodAgentService.executeTool(
-            userId,
-            parsed.action.type,
-            parsed.action.params
-          );
+      // 6. Execute actions if requested
+      if (aiResponse.actions && aiResponse.actions.length > 0) {
+        // Execute sequentially for now
+        for (const action of aiResponse.actions) {
+             if (action.type === "manage_agent") {
+                actionResult = await GodAgentService.manageAgent(
+                    userId,
+                    action.params.agentId,
+                    action.params.action
+                );
+             } else {
+                actionResult = await GodAgentService.executeTool(
+                    userId,
+                    action.type,
+                    action.params
+                );
+             }
         }
       }
 
-      // 6. Add assistant message and save session
+      // 7. Add assistant message and save session
       session.messages.push({
         role: "assistant",
-        content: parsed.response,
+        content: aiResponse.response,
         timestamp: new Date(),
-        metadata: { action: parsed.action, result: actionResult }
+        metadata: { 
+            action: aiResponse.actions?.[0], // Legacy support for single action UI
+            result: actionResult 
+        }
       });
       session.lastInteractionAt = new Date();
       await session.save();
 
       return {
-        response: parsed.response,
+        response: aiResponse.response,
         actionResult,
         sessionId: session._id
       };

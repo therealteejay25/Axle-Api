@@ -148,4 +148,64 @@ const validateAction = (action: any): boolean => {
   return true;
 };
 
-export default { callAI };
+
+export const callChat = async (
+  messages: any[],
+  model: string = "google/gemini-2.0-flash-001",
+  temperature: number = 0.7
+): Promise<{ response: string; actions?: AIAction[] }> => {
+  const startTime = Date.now();
+  
+  try {
+    const openai = getOpenAICallback();
+    
+    // Add system instruction for JSON format if not present
+    const systemInstruction = `
+      You are an AI assistant.
+      RESPONSE FORMAT:
+      You MUST respond with a valid JSON object containing:
+      1. "response": A conversational string response to the user.
+      2. "actions": An optional array of actions to execute (if any).
+    `;
+
+    // Ensure we don't duplicate system prompt if one exists, but effectively we want to enforce JSON
+    // Best practice: Prepend a system message or append to the last user message if needed.
+    // Here we'll just prepend a system message.
+    
+    const finalMessages = [
+      { role: "system", content: systemInstruction },
+      ...messages
+    ];
+
+    logger.debug("Calling Chat AI", { model, messageCount: finalMessages.length });
+
+    const completion = await openai.chat.completions.create({
+      model,
+      messages: finalMessages,
+      temperature,
+      response_format: { type: "json_object" }
+    });
+
+    const rawResponse = completion.choices[0]?.message?.content || "{}";
+    
+    let parsed;
+    try {
+        parsed = JSON.parse(rawResponse);
+    } catch (e) {
+        // Fallback if model fails to return JSON
+        return { response: rawResponse, actions: [] };
+    }
+
+    return {
+        response: parsed.response || "I processed your request.",
+        actions: Array.isArray(parsed.actions) ? parsed.actions : (parsed.action ? [parsed.action] : [])
+    };
+
+  } catch (error: any) {
+     logger.error("Chat AI call failed", { error: error.message });
+     throw error;
+  }
+};
+
+export default { callAI, callChat };
+

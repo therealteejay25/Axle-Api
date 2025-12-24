@@ -77,7 +77,7 @@ export const requestMagicLink = async (req: Request, res: Response) => {
           `
         } as any);
         
-        logger.info("Magic link email sent", { email });
+        logger.info("Magic link email sent", { email, magicLink });
         
         return res.json({
           success: true,

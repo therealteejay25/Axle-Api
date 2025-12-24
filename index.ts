@@ -38,12 +38,12 @@ const startServer = async () => {
   
   // CORS
   app.use(cors({
-    origin: env.ALLOWED_ORIGINS.split(",").map(o => o.trim()),
+    origin: "http://localhost:3000",
     credentials: true
   }));
   
   // Rate limiting
-  app.use(globalRateLimiter);
+  // app.use(globalRateLimiter);
   
   // Routes
   const apiVersion = env.API_VERSION || "v1";
