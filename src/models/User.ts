@@ -34,6 +34,11 @@ export interface IUser extends Document {
   plan: PlanType;
   credits: number;
   creditsResetAt: Date;
+  // Stripe billing
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  subscriptionStatus?: 'active' | 'canceled' | 'past_due' | 'trialing';
+  subscriptionCurrentPeriodEnd?: Date;
   // Settings
   timeZone?: string;
   profileImageUrl?: string;
@@ -76,6 +81,14 @@ const UserSchema = new Schema<IUser>(
         return new Date(now.getFullYear(), now.getMonth() + 1, 1);
       }
     },
+    // Stripe
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
+    subscriptionStatus: { 
+      type: String, 
+      enum: ['active', 'canceled', 'past_due', 'trialing']
+    },
+    subscriptionCurrentPeriodEnd: { type: Date },
     timeZone: { type: String, default: "UTC" },
     profileImageUrl: { type: String }
   },
@@ -83,7 +96,7 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes
-UserSchema.index({ email: 1 }, { unique: true });
+// UserSchema.index({ email: 1 }, { unique: true }); // Redundant
 UserSchema.index({ magicLinkToken: 1 }, { sparse: true });
 
 // Methods

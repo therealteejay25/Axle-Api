@@ -6,7 +6,7 @@ const router = Router();
 router.use(authMiddleware);
 
 // Get user profile
-router.get("/profile", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.user!.id)
       .lean();
@@ -17,7 +17,7 @@ router.get("/profile", async (req: Request, res: Response) => {
 });
 
 // Update user profile
-router.patch("/profile", async (req: Request, res: Response) => {
+router.patch("/", async (req: Request, res: Response) => {
   try {
     const { name, timeZone, profileImageUrl } = req.body;
     const user = await User.findById(req.user!.id);

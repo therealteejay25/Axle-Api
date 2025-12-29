@@ -62,6 +62,7 @@ router.get("/", async (req: Request, res: Response) => {
         .skip(parseInt(offset as string))
         .limit(parseInt(limit as string))
         .populate("agentId", "name")
+        .select("+reasoning")  // Include reasoning field
         .lean(),
       Execution.countDocuments(query)
     ]);
@@ -83,6 +84,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     const execution = await Execution.findById(req.params.id)
       .populate("agentId", "name description")
       .populate("triggerId")
+      .select("+reasoning +aiPrompt +aiResponse")  // Include AI fields
       .lean();
     
     if (!execution) {

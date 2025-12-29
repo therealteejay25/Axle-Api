@@ -55,11 +55,19 @@ export const getUserTweets = async (
 };
 
 export const getHomeTimeline = async (
-  params: { maxResults?: number },
+  params: { maxResults?: number; userId?: string },
   integration: IntegrationData
 ) => {
-  const { maxResults = 10 } = params;
-  return makeRequest(`/tweets/timelines/reverse_chronological?max_results=${maxResults}`, "GET", integration.accessToken);
+  const { maxResults = 10, userId } = params;
+  
+  // Note: The reverse_chronological timeline endpoint requires elevated access
+  // If this fails, the user should use x_get_mentions or x_search_tweets instead
+  
+  if (!userId) {
+    throw new Error("userId is required for timeline access. Use x_get_mentions instead for simpler timeline access.");
+  }
+  
+  return makeRequest(`/users/${userId}/tweets?max_results=${maxResults}`, "GET", integration.accessToken);
 };
 
 export const getMentions = async (

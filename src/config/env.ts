@@ -49,7 +49,7 @@ export const env = {
   // OPENAI_KEY: process.env.OPENAI_KEY!,
   OPENAI_API_BASE: process.env.OPENAI_API_BASE || "https://api.algion.dev/v1",
   // OpenRouter AI
-  OPENROUTER_API_KEY: "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",
+  OPENROUTER_API_KEY: "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",
   MODEL: "google/gemini-2.0-flash-001",
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
@@ -67,7 +67,7 @@ export const env = {
   X_CLIENT_SECRET: process.env.X_CLIENT_SECRET,
   X_REDIRECT_URI: process.env.X_REDIRECT_URI,
   REDIS_URL: process.env.REDIS_URL || "redis://127.0.0.1:6379",
-  // INTEGRATION_ENC_KEY: process.env.INTEGRATION_ENC_KEY!,
+  INTEGRATION_ENC_KEY: process.env.INTEGRATION_ENC_KEY!,
   // SMTP configuration for send_email tool
   // SMTP_HOST: process.env.SMTP_HOST,
   // SMTP_PORT: process.env.SMTP_PORT || "587",

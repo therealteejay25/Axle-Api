@@ -39,8 +39,11 @@ export interface IExecution extends Document {
   aiPrompt?: string;
   aiResponse?: string;
   aiTokensUsed?: number;
+  reasoning?: string; // AI's thought process and decision-making
   // Actions executed
   actionsExecuted: IExecutionAction[];
+  // Persistent memory across executions
+  memory: Map<string, any>;
   // Error tracking
   error?: string;
   errorStack?: string;
@@ -103,9 +106,15 @@ const ExecutionSchema = new Schema<IExecution>(
     aiPrompt: { type: String },
     aiResponse: { type: String },
     aiTokensUsed: { type: Number, default: 0 },
+    reasoning: { type: String },
     actionsExecuted: {
       type: [ExecutionActionSchema],
       default: []
+    },
+    memory: {
+      type: Map,
+      of: Schema.Types.Mixed,
+      default: {}
     },
     error: { type: String },
     errorStack: { type: String },

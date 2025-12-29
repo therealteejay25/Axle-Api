@@ -49,7 +49,7 @@ export const loadAgent = async (
     throw new Error(`User not found: ${ownerId}`);
   }
   
-  // Resolve integrations
+  //  Resolve integrations
   const integrations = new Map<string, {
     provider: string;
     accessToken: string;
@@ -58,23 +58,26 @@ export const loadAgent = async (
     metadata: Record<string, any>;
   }>();
   
-  // Load user's integrations for the providers the agent needs
-  for (const providerName of agent.integrations) {
-    const integration = await Integration.findOne({
+  // SIMPLIFIED UX: If agent.integrations is empty, load ALL user's connected integrations
+  const integrationsToLoad = agent.integrations.length > 0 
+    ? agent.integrations  // Legacy: specific integrations
+    : null;  // New: load all
+  
+  if (integrationsToLoad === null) {
+    // Load ALL user integrations
+    const allUserIntegrations = await Integration.find({
       userId: ownerId,
-      provider: providerName,
       status: "connected"
     });
     
-    if (integration) {
+    for (const integration of allUserIntegrations) {
       try {
-        // Decrypt tokens
         const accessToken = decryptToken(integration.accessToken);
         const refreshToken = integration.refreshToken 
           ? decryptToken(integration.refreshToken)
           : undefined;
         
-        integrations.set(providerName, {
+        integrations.set(integration.provider, {
           provider: integration.provider,
           accessToken,
           refreshToken,
@@ -86,13 +89,49 @@ export const loadAgent = async (
         integration.lastUsedAt = new Date();
         await integration.save();
         
-        logger.debug(`Loaded integration: ${providerName}`);
+        logger.debug(`Loaded integration: ${integration.provider}`);
       } catch (err) {
-        logger.error(`Failed to decrypt integration ${providerName}:`, err);
+        logger.error(`Failed to decrypt integration ${integration.provider}:`, err);
         // Continue without this integration
       }
-    } else {
-      logger.warn(`Agent ${agentId} requires ${providerName} but not connected`);
+    }
+  } else {
+    // Load specific integrations (backward compatibility)
+    for (const providerName of integrationsToLoad) {
+      const integration = await Integration.findOne({
+        userId: ownerId,
+        provider: providerName,
+        status: "connected"
+      });
+      
+      if (integration) {
+        try {
+          // Decrypt tokens
+          const accessToken = decryptToken(integration.accessToken);
+          const refreshToken = integration.refreshToken 
+            ? decryptToken(integration.refreshToken)
+            : undefined;
+          
+          integrations.set(providerName, {
+            provider: integration.provider,
+            accessToken,
+            refreshToken,
+            scopes: integration.scopes,
+            metadata: integration.metadata
+          });
+          
+          // Update last used
+          integration.lastUsedAt = new Date();
+          await integration.save();
+          
+          logger.debug(`Loaded integration: ${providerName}`);
+        } catch (err) {
+          logger.error(`Failed to decrypt integration ${providerName}:`, err);
+          // Continue without this integration
+        }
+      } else {
+        logger.warn(`Agent ${agentId} requires ${providerName} but not connected`);
+      }
     }
   }
   

@@ -149,19 +149,62 @@ export const createDoc = async (
 ) => {
   const auth = getOAuth2Client(integration);
   const docs = google.docs({ version: "v1", auth });
+  const drive = google.drive({ version: "v3", auth });
+  
   const result = await docs.documents.create({ requestBody: { title: params.title } });
-  return result.data;
+  const documentId = result.data.documentId;
+
+  // Get webViewLink from Drive API (Optional - might fail if API is disabled)
+  let webViewLink: string | undefined;
+  try {
+    const file = await drive.files.get({
+      fileId: documentId!,
+      fields: "webViewLink"
+    });
+    webViewLink = file.data.webViewLink as string;
+  } catch (e) {
+    logger.warn("Could not fetch webViewLink from Drive API. Using fallback URL.", { error: e });
+    // Fallback to standard URL construction
+    if (documentId) {
+      webViewLink = `https://docs.google.com/document/d/${documentId}`;
+    }
+  }
+
+  return {
+    ...result.data,
+    webViewLink
+  };
 };
 
 export const editDoc = async (
-  params: { documentId: string; requests: any[] },
+  params: { documentId?: string; document_id?: string; requests?: any[]; edits?: any[]; text?: string; index?: number },
   integration: IntegrationData
 ) => {
   const auth = getOAuth2Client(integration);
   const docs = google.docs({ version: "v1", auth });
+  
+  const docId = params.documentId || params.document_id;
+  if (!docId) {
+    throw new Error("Missing required parameter: documentId");
+  }
+
+  const requests = params.requests || params.edits || [];
+  if (params.text) {
+    requests.push({
+      insertText: {
+        text: params.text,
+        location: { index: params.index || 1 }
+      }
+    });
+  }
+
+  if (requests.length === 0) {
+    throw new Error("Must specify at least one request or provide 'text'.");
+  }
+
   const result = await docs.documents.batchUpdate({
-    documentId: params.documentId,
-    requestBody: { requests: params.requests }
+    documentId: docId,
+    requestBody: { requests }
   });
   return result.data;
 };
@@ -249,24 +292,41 @@ export const createCalendarEvent = async (
   const auth = getOAuth2Client(integration);
   const calendar = google.calendar({ version: "v3", auth });
   
-  const { calendarId = "primary", summary, description, startTime, endTime, attendees, location } = params;
+  const { 
+    calendarId = "primary", 
+    summary, 
+    description, 
+    startTime, 
+    endTime, 
+    start_time, // Robust fallback
+    end_time,   // Robust fallback
+    attendees, 
+    location 
+  } = params as any;
+  
+  const finalStartTime = startTime || start_time;
+  const finalEndTime = endTime || end_time;
+
+  if (!finalStartTime || !finalEndTime) {
+    throw new Error("Missing required parameters: startTime and endTime");
+  }
   
   const event: any = {
     summary,
     description,
     location,
     start: {
-      dateTime: startTime,
+      dateTime: finalStartTime,
       timeZone: "UTC"
     },
     end: {
-      dateTime: endTime,
+      dateTime: finalEndTime,
       timeZone: "UTC"
     }
   };
   
   if (attendees?.length) {
-    event.attendees = attendees.map(email => ({ email }));
+    event.attendees = attendees.map((email: string) => ({ email }));
   }
   
   const result = await calendar.events.insert({
@@ -343,10 +403,13 @@ export const googleActions: Record<string, (params: any, integration: Integratio
   google_docs_get_doc: getDoc,
   google_docs_create_doc: createDoc,
   google_docs_edit_doc: editDoc,
-  google_docs_insert_text: (params, integration) => editDoc({
-    documentId: params.documentId,
-    requests: [{ insertText: { text: params.text, location: { index: params.index || 1 } } }]
-  }, integration),
+  google_docs_insert_text: (params, integration) => {
+    if (!params.documentId && params.document_id) params.documentId = params.document_id;
+    return editDoc({
+      documentId: params.documentId,
+      requests: [{ insertText: { text: params.text, location: { index: params.index || 1 } } }]
+    }, integration);
+  },
 
   // Sheets
   google_sheets_get_sheet: getSheet,

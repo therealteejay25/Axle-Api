@@ -18,14 +18,16 @@ export interface IAgent extends Document {
   ownerId: Types.ObjectId;
   name: string;
   description?: string;
+  // Simple plain-English instructions (NEW - user-friendly)
+  instructions?: string;
   status: "active" | "paused";
   brain: {
     model: string;
-    systemPrompt: string;
+    systemPrompt?: string; // Made optional for backward compatibility
     temperature: number;
     maxTokens: number;
   };
-  // Structured rules (IF -> THEN)
+  // Structured rules (IF -> THEN) - kept for backward compatibility
   rules: IAgentRule[];
   // Metadata about how the agent was generated
   blueprint?: {
@@ -40,8 +42,10 @@ export interface IAgent extends Document {
     approvalRequired: boolean;
   };
   // Names of integrations this agent can use (e.g., "github", "slack")
+  // NOTE: Empty array means ALL user integrations available at runtime
   integrations: string[];
   // Allowed action types this agent can execute
+  // NOTE: Empty array means ALL actions available at runtime
   actions: string[];
   blueprintHistory: {
     rules: IAgentRule[];
@@ -71,6 +75,12 @@ const AgentSchema = new Schema<IAgent>(
       trim: true,
       maxlength: 500
     },
+    // Simple plain-English instructions for user-friendly agent creation
+    instructions: {
+      type: String,
+      trim: true,
+      maxlength: 2000
+    },
     status: { 
       type: String, 
       enum: ["active", "paused"], 
@@ -84,7 +94,7 @@ const AgentSchema = new Schema<IAgent>(
       },
       systemPrompt: { 
         type: String, 
-        required: true 
+        required: false  // Made optional - can use instructions instead
       },
       temperature: { 
         type: Number, 

@@ -52,8 +52,11 @@ export const sendEmail = async (
   },
   integration: IntegrationData
 ) => {
-  const { to, subject, text, html, from, replyTo } = params;
+  const { to, subject, text, html, body, from, replyTo } = params as any;
   const recipients = Array.isArray(to) ? to : [to];
+  
+  const finalHtml = html || body;
+  const finalText = text || body || "";
   
   // // Handle Google Integration (Gmail)
   // if (integration.provider === "google") {
@@ -74,10 +77,10 @@ export const sendEmail = async (
   if (resend) {
       const payload: any = {
         from: "Axle <onboarding@resend.dev>", // Force this for free tier testing
-        to: recipients, // Resend expects array of strings
+        to: recipients,
         subject,
-        // text,
-        html,
+        text: finalText,
+        html: finalHtml,
       };
 
       const result = await resend.emails.send(payload);

@@ -1,14 +1,19 @@
 import { Router } from "express";
-import agentsRouter from "./agents";
-import triggersRouter from "./triggers";
-import integrationsRouter from "./integrations";
-import executionsRouter from "./executions";
-import webhooksRouter from "./webhooks";
-import billingRouter from "./billing";
-import authRouter from "./auth";
-import chatbotRouter from "./chatbot";
-import profileRouter from "./profile";
-import platformRouter from "./platform";
+import healthRoutes from "./health";
+import agentsRoutes from "./agents";
+import triggersRoutes from "./triggers";
+import executionsRoutes from "./executions";
+import integrationsRoutes from "./integrations";
+import webhooksRoutes from "./webhooks";
+import authRoutes from "./auth";
+import billingRoutes from "./billing";
+import profileRoutes from "./profile";
+import chatbotRoutes from "./chatbot";
+import platformRoutes from "./platform";
+import previewRoutes from "./preview";
+import integrationHealthRoutes from "./integrationHealth";
+import stripeWebhooksRoutes from "./stripeWebhooks";
+import dashboardRoutes from "./dashboard";
 import { handleCallback } from "../controllers/oauth";
 
 // ============================================
@@ -17,23 +22,31 @@ import { handleCallback } from "../controllers/oauth";
 
 const router = Router();
 
-// Auth routes (no prefix)
-router.use("/auth", authRouter);
+// Health checks (public)
+router.use("/health", healthRoutes);
 
-// API v1 routes
-router.use("/agents", agentsRouter);
-router.use("/triggers", triggersRouter);
-router.use("/integrations", integrationsRouter);
-router.use("/executions", executionsRouter);
-router.use("/billing", billingRouter);
-router.use("/chatbot", chatbotRouter);
-router.use("/user", profileRouter);
-router.use("/platforms", platformRouter);
+// Authentication (public)
+router.use("/auth", authRoutes);
+
+// Stripe webhooks (public - Stripe calls this)
+router.use("/webhooks/stripe", stripeWebhooksRoutes);
+
+// API v1 routes (protected)
+// API v1 routes (protected)
+router.use("/agents", agentsRoutes);
+router.use("/agents/:id/preview", previewRoutes);
+router.use("/triggers", triggersRoutes);
+router.use("/executions", executionsRoutes);
+router.use("/integrations", integrationsRoutes);
+router.use("/integrations/health", integrationHealthRoutes);
+router.use("/webhooks", webhooksRoutes);
+router.use("/billing", billingRoutes);
+router.use("/dashboard", dashboardRoutes);
+router.use("/profile", profileRoutes);
+router.use("/chatbot", chatbotRoutes);
+router.use("/platform", platformRoutes);
 
 // OAuth callbacks (public - provider redirects here)
 router.get("/oauth/:provider/callback", handleCallback);
-
-// Webhooks (outside main API, no auth)
-router.use("/webhooks", webhooksRouter);
 
 export default router;

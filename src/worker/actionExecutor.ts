@@ -3,6 +3,7 @@ import { LoadedAgent } from "./agentLoader";
 import { executeAction } from "../adapters/registry";
 import { logger } from "../services/logger";
 import { IExecutionAction } from "../models/Execution";
+import { SocketService } from "../services/SocketService";
 
 // ============================================
 // ACTION EXECUTOR
@@ -20,32 +21,62 @@ export interface ActionResult {
   error?: string;
   startedAt: Date;
   finishedAt: Date;
+  durationMs?: number;
 }
 
 export const executeActions = async (
   actions: AIAction[],
   loaded: LoadedAgent,
-  allowedActions: string[]
+  allowedActions: string[],
+  executionId?: string,
+  agentId?: string
 ): Promise<ActionResult[]> => {
   const results: ActionResult[] = [];
   
-  for (const action of actions) {
+  // SIMPLIFIED UX: If allowedActions is empty, allow ALL actions
+  const checkActionAllowed = allowedActions.length > 0;
+  
+  for (let i = 0; i < actions.length; i++) {
+    const action = actions[i];
     const startedAt = new Date();
     
-    // Validate action is allowed
-    if (!allowedActions.includes(action.type)) {
+    // Emit progress event - action started
+    if (executionId && agentId) {
+      SocketService.getInstance().emitToAgent(agentId, "execution:action_started", {
+        executionId,
+        actionType: action.type,
+        actionIndex: i,
+        totalActions: actions.length
+      });
+    }
+    
+    // Validate action is allowed (only if specific actions are configured)
+    if (checkActionAllowed && !allowedActions.includes(action.type)) {
       logger.warn("Action not allowed", { 
         type: action.type, 
         allowed: allowedActions 
       });
       
-      results.push({
+      const result = {
         type: action.type,
         params: action.params,
         error: `Action "${action.type}" is not allowed for this agent`,
         startedAt,
         finishedAt: new Date()
-      });
+      };
+      
+      results.push(result);
+      
+      // Emit progress event - action failed
+      if (executionId && agentId) {
+        SocketService.getInstance().emitToAgent(agentId, "execution:action_completed", {
+          executionId,
+          actionType: action.type,
+          success: false,
+          error: result.error
+        });
+      }
+      
       continue;
     }
     
@@ -53,48 +84,179 @@ export const executeActions = async (
       // Resolve params using results from previous actions
       const resolvedParams = resolveParams(action.params, results, loaded);
 
-      logger.info("Executing action", { 
-        type: action.type,
-        params: sanitizeParams(resolvedParams)
-      });
+      // ============================================
+      // CAPABILITY LAYER INTERCEPTION
+      // ============================================
+      // Check if this is a new capability-based action
+      const capabilityExecutor = require('../capabilities/executor');
+      const capabilityAction = capabilityExecutor.getAction(action.type);
       
-      // Execute the action via adapter registry
-      const result = await executeAction(
-        action.type,
-        resolvedParams,
-        loaded.integrations
-      );
+      let result: any;
+      let toolsCalled: string[] = [];
+      let verified: boolean | undefined = undefined;
       
-      results.push({
+      if (capabilityAction) {
+        // Execute via capability layer
+        logger.info("Routing to capability layer", { 
+          type: action.type, 
+          capability: capabilityAction.capability 
+        });
+        
+        const execContext = {
+          integrations: loaded.integrations,
+          executionId,
+          agentId,
+          previousResults: results.reduce((acc, r) => ({ ...acc, [r.type]: r.result }), {})
+        };
+        
+        const execResult = await capabilityExecutor.executeAction(
+          action.type,
+          resolvedParams,
+          execContext
+        );
+        
+        if (!execResult.success) {
+          throw new Error(execResult.error || 'Action failed in capability layer');
+        }
+        
+        result = execResult.data;
+        toolsCalled = execResult.metadata?.toolsCalled || [];
+        verified = execResult.metadata?.verified;
+        
+      } else {
+        // Fallback to legacy registry
+        // Execute the action via adapter registry
+        result = await executeAction(
+          action.type,
+          resolvedParams,
+          loaded.integrations
+        );
+      }
+      
+      // ============================================
+      // VALIDATE OUTPUT
+      // ============================================
+      const { validateActionOutput } = require('./dataIntegrity');
+      const { getOutputContract } = require('./outputContracts');
+      
+      const contract = getOutputContract(action.type);
+      let outputValidation = null;
+      
+      if (contract.length > 0) {
+        outputValidation = validateActionOutput(action.type, result, contract);
+        
+        if (!outputValidation.valid) {
+          logger.warn('Output validation failed', {
+            action: action.type,
+            errors: outputValidation.errors,
+            warnings: outputValidation.warnings
+          });
+        }
+      }
+      // ============================================
+      
+      const finishedAt = new Date();
+      const durationMs = finishedAt.getTime() - startedAt.getTime();
+      
+      const actionResult = {
         type: action.type,
         params: resolvedParams,
         result,
+        outputValidation,  // NEW: Include validation results
         startedAt,
-        finishedAt: new Date()
-      });
+        finishedAt,
+        durationMs
+      };
+      
+      results.push(actionResult);
       
       logger.info("Action completed", { 
         type: action.type,
-        success: true
+        success: true,
+        durationMs,
+        outputValid: outputValidation?.valid ?? true
       });
+      
+      // Emit progress event - action completed successfully
+      if (executionId && agentId) {
+        SocketService.getInstance().emitToAgent(agentId, "execution:action_completed", {
+          executionId,
+          actionType: action.type,
+          success: true,
+          durationMs,
+          outputValidation: outputValidation?.valid ?? true
+        });
+      }
       
     } catch (error: any) {
-      logger.error("Action failed", {
+      // Get smart suggestion for this error
+      const { getSuggestion } = await import("../lib/errorSuggestions");
+      const errorSuggestion = getSuggestion(error, action.type);
+      
+      const enhancedError = {
+        message: error.message,
+        suggestion: errorSuggestion.suggestion,
+        category: errorSuggestion.category,
+        actionable: errorSuggestion.actionable
+      };
+      
+      logger.error("Action failed with context", {
         type: action.type,
-        error: error.message
+        error: error.message,
+        suggestion: errorSuggestion.suggestion,
+        category: errorSuggestion.category
       });
       
-      results.push({
+      const actionResult = {
         type: action.type,
         params: action.params,
-        error: error.message,
+        error: `${error.message}\n\n💡 ${errorSuggestion.suggestion}`,
         startedAt,
         finishedAt: new Date()
-      });
+      };
+      
+      results.push(actionResult);
+      
+      // Emit progress event - action failed
+      if (executionId && agentId) {
+        SocketService.getInstance().emitToAgent(agentId, "execution:action_completed", {
+          executionId,
+          actionType: action.type,
+          success: false,
+          error: enhancedError.message,
+          suggestion: enhancedError.suggestion
+        });
+      }
     }
   }
   
   return results;
+};
+
+// ============================================
+// SINGLE ACTION EXECUTOR (for iterative mode)
+// ============================================
+// Executes ONE action and returns result.
+// Reuses executeActions logic for consistency.
+// Used in THINK→DECIDE→ACT→OBSERVE loop.
+// ============================================
+export const executeSingleAction = async (
+  action: AIAction,
+  loaded: LoadedAgent,
+  allowedActions: string[],
+  executionId?: string,
+  agentId?: string
+): Promise<ActionResult> => {
+  // Reuse existing multi-action executor with single-item array
+  const results = await executeActions(
+    [action],
+    loaded,
+    allowedActions,
+    executionId,
+    agentId
+  );
+  
+  return results[0];
 };
 
 // Resolve templates in params using Nunjucks
@@ -105,8 +267,8 @@ const resolveParams = (
 ): Record<string, any> => {
   // Create context from results
   const context: Record<string, any> = {
-    user: loaded.user,
-    agent: loaded.agent
+    user: loaded.user.toObject ? loaded.user.toObject() : loaded.user,
+    agent: loaded.agent.toObject ? loaded.agent.toObject() : loaded.agent
   };
   
   for (const r of previousResults) {
@@ -115,16 +277,16 @@ const resolveParams = (
     }
   }
 
-  // Use Nunjucks for rendering
-  const nunjucks = require("nunjucks");
-  nunjucks.configure({ autoescape: false });
+  // Use Handlebars for rendering
+  const Handlebars = require("handlebars");
 
   const processValue = (value: any): any => {
     if (typeof value === "string") {
       // Check if it looks like a template
       if (value.includes("{{") || value.includes("{%")) {
         try {
-          return nunjucks.renderString(value, context);
+          const template = Handlebars.compile(value);
+          return template(context);
         } catch (e) {
           logger.warn("Template render failed", { value, error: e });
           return value;

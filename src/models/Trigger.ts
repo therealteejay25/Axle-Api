@@ -59,10 +59,10 @@ const TriggerSchema = new Schema<ITrigger>(
 TriggerSchema.index({ agentId: 1, enabled: 1 });
 TriggerSchema.index({ type: 1, enabled: 1 });
 
-// Unique webhook paths
-TriggerSchema.index(
-  { "config.webhookPath": 1 }, 
-  { unique: true, sparse: true }
-);
+// Unique webhook paths - Redundant
+// TriggerSchema.index(
+//   { "config.webhookPath": 1 }, 
+//   { unique: true, sparse: true }
+// );
 
 export const Trigger = model<ITrigger>("Trigger", TriggerSchema);

@@ -47,7 +47,9 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         scopes: [
           "https://www.googleapis.com/auth/gmail.send",
           "https://www.googleapis.com/auth/calendar",
-          "https://www.googleapis.com/auth/userinfo.email"
+          "https://www.googleapis.com/auth/userinfo.email",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/drive.file"
         ],
         userInfoUrl: "https://www.googleapis.com/oauth2/v2/userinfo"
       } : null;

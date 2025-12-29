@@ -98,6 +98,27 @@ export const executeAction = async (
   params: Record<string, any>,
   integrations: IntegrationMap
 ): Promise<any> => {
+  // ============================================
+  // VALIDATE PARAMETERS FIRST
+  // ============================================
+  // Use tool validator to check schema and detect hallucinations
+  const { validateToolParams, generateErrorMessage } = require('./toolValidator');
+  
+  const validation = validateToolParams(actionType, params);
+  
+  if (!validation.valid) {
+    const errorMessage = generateErrorMessage(actionType, validation);
+    logger.warn('Tool validation failed', {
+      actionType,
+      errors: validation.errors,
+      hallucinated: validation.hallucinated
+    });
+    throw new Error(errorMessage);
+  }
+  
+  // ============================================
+  // EXECUTE ACTION
+  // ============================================
   const handler = allActions[actionType];
   
   if (!handler) {

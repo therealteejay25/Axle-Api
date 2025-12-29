@@ -73,6 +73,7 @@ export const requestMagicLink = async (req: Request, res: Response) => {
               </a>
               <p style="color: #666; font-size: 14px;">This link expires in 15 minutes.</p>
               <p style="color: #666; font-size: 12px;">If you didn't request this, you can safely ignore this email.</p>
+              <p style="color: #666; font-size: 12px;">If you can't login with the button, use this: ${magicLink}</p>
             </div>
           `
         } as any);
@@ -141,13 +142,13 @@ export const verifyMagicLink = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { id: user._id, email: user.email, plan: user.plan },
       env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
     
     const refreshToken = jwt.sign(
       { id: user._id },
       env.REFRESH_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "30d" }
     );
     
     user.accessToken = accessToken;
@@ -157,7 +158,7 @@ export const verifyMagicLink = async (req: Request, res: Response) => {
     // Set cookies
     res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 60 * 60 * 1000 // 1 hour
+      maxAge: 60 * 60 * 24 * 7 * 1000 // 7 days
     });
     res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, COOKIE_OPTIONS);
     

@@ -94,83 +94,13 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Generate Agent Blueprint
-router.post("/generate", async (req: Request, res: Response) => {
-  try {
-    const { prompt } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: "prompt is required" });
-    }
-    
-    const blueprint = await AgentBlueprintGenerator.generateFromPrompt(prompt);
-    res.json({ blueprint });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// REMOVED: /generate and /confirm endpoints
+// Users now create agents directly with simple instructions
 
-// Confirm and Create Agent from Blueprint
-router.post("/confirm", async (req: Request, res: Response) => {
-  try {
-    const { blueprint, triggers } = req.body;
-    
-    if (!blueprint || !blueprint.name) {
-      return res.status(400).json({ error: "Invalid blueprint" });
-    }
-
-    // Check agent limit
-    const canCreate = await canCreateAgent(req.user!.id);
-    if (!canCreate.allowed) {
-      return res.status(403).json({ error: canCreate.reason });
-    }
-
-    // Compile system prompt from rules
-    const systemPrompt = RuleEngine.generateSystemPrompt(blueprint.rules, blueprint.settings);
-
-    const agent = await Agent.create({
-      ownerId: req.user!.id,
-      name: blueprint.name,
-      description: blueprint.description,
-      status: "active",
-      brain: {
-        model: "google/gemini-2.0-flash-001",
-        systemPrompt: systemPrompt,
-        temperature: 0.7,
-        maxTokens: 2048
-      },
-      rules: blueprint.rules,
-      settings: blueprint.settings,
-      integrations: blueprint.integrations,
-      actions: blueprint.actions,
-      blueprint: {
-        originalPrompt: blueprint.originalPrompt || "Generated from UI",
-        generatedAt: new Date(),
-        category: blueprint.category
-      }
-    });
-
-    // Handle triggers if provided
-    if (triggers && Array.isArray(triggers)) {
-      const { Trigger } = await import("../models/Trigger");
-      for (const t of triggers) {
-        await Trigger.create({
-          agentId: agent._id,
-          type: t.type,
-          config: t.config
-        });
-      }
-    }
-
-    res.status(201).json({ agent });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Create agent
+// Create agent - Simplified UX
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const { name, description, brain, integrations, actions } = req.body;
+    const { name, instructions, description } = req.body;
     
     // Check agent limit
     const canCreate = await canCreateAgent(req.user!.id);
@@ -182,25 +112,33 @@ router.post("/", async (req: Request, res: Response) => {
       });
     }
     
-    // Validate
-    if (!name || !brain?.systemPrompt) {
-      return res.status(400).json({ error: "name and brain.systemPrompt are required" });
+    // Simple validation: just need name and instructions
+    if (!name || !instructions) {
+      return res.status(400).json({ error: "name and instructions are required" });
     }
     
+    // Create agent with simplified configuration
     const agent = await Agent.create({
       ownerId: req.user!.id,
       name,
       description,
+      instructions,  // Plain English instructions
+      status: "active",
       brain: {
-        model: brain.model || "google/gemini-2.0-flash-001",
-        systemPrompt: brain.systemPrompt,
-        temperature: brain.temperature ?? 0.7,
-        maxTokens: brain.maxTokens ?? 1024
+        model: "google/gemini-2.0-flash-001",
+        // systemPrompt will be generated at runtime from instructions
+        temperature: 0.7,
+        maxTokens: 2048
       },
-      rules: req.body.rules || [],
-      settings: req.body.settings || { tone: "professional", maxActionsPerRun: 5, approvalRequired: false },
-      integrations: integrations || [],
-      actions: actions || []
+      rules: [],
+      settings: { 
+        tone: "professional", 
+        maxActionsPerRun: 10, 
+        approvalRequired: false 
+      },
+      // Empty arrays = ALL user's integrations and ALL tools available at runtime
+      integrations: [],
+      actions: []
     });
     
     res.status(201).json({ agent });
@@ -212,7 +150,7 @@ router.post("/", async (req: Request, res: Response) => {
 // Update agent
 router.patch("/:id", async (req: Request, res: Response) => {
   try {
-    const { name, description, status, brain, integrations, actions } = req.body;
+    const { name, description, status, instructions, brain, integrations, actions } = req.body;
     
     const agent = await Agent.findOne({
       _id: req.params.id,
@@ -227,6 +165,7 @@ router.patch("/:id", async (req: Request, res: Response) => {
     if (name !== undefined) agent.name = name;
     if (description !== undefined) agent.description = description;
     if (status !== undefined) agent.status = status;
+    if (instructions !== undefined) agent.instructions = instructions;  // Support updating instructions
     if (integrations !== undefined) agent.integrations = integrations;
     if (actions !== undefined) agent.actions = actions;
     

@@ -9,14 +9,63 @@ import { logger } from "../services/logger";
 // Validates structured JSON response.
 // ============================================
 
+// ============================================
+// STRUCTURED MEMORY ENTRY
+// ============================================
+// Append-only memory entries for tracking facts,
+// errors, decisions, and constraints within execution.
+// ============================================
+export interface MemoryEntry {
+  source: 'ai' | 'system' | 'action' | 'user';
+  timestamp: string;  // ISO 8601 format
+  type: 'fact' | 'error' | 'decision' | 'constraint';
+  payload: Record<string, any>;
+}
+
+// ============================================
+// DYNAMIC REPLANNING
+// ============================================
+// AI must explicitly choose a decision after each action
+// ============================================
+export enum ReplanDecision {
+  CONTINUE = 'CONTINUE',   // Goal on track, proceed with plan
+  ADJUST = 'ADJUST',       // Minor adjustment needed, modify approach
+  RECOVER = 'RECOVER',     // Error occurred, attempt recovery
+  ABORT = 'ABORT'          // Unrecoverable, stop execution
+}
+
 export interface AIAction {
   type: string;
   params: Record<string, any>;
 }
 
+// ============================================
+// DUAL-MODE AI RESPONSE
+// ============================================
+// Supports both one-shot and iterative execution:
+// - ONE-SHOT: AI returns actions[] array, all executed at once
+// - ITERATIVE: AI returns single action + continue flag for loop
+// ============================================
 export interface AIResponse {
-  actions: AIAction[];
-  executionName?: string; // Human-readable name for the log
+  // ONE-SHOT MODE (backward compatible)
+  actions?: AIAction[];
+  
+  // ITERATIVE MODE fields (single action per iteration)
+  action?: AIAction;           // Single action to execute
+  observation?: string;        // AI's observation about previous result
+  continue?: boolean;          // Should loop continue?
+  goalAchieved?: boolean;      // Is the goal achieved?
+  
+  // DYNAMIC REPLANNING fields (new)
+  replanDecision?: ReplanDecision;  // Explicit decision: CONTINUE/ADJUST/RECOVER/ABORT
+  replanReason?: string;            // Why this decision was made
+  recoveryStrategy?: string;        // If RECOVER, what's the plan
+  adjustments?: string[];           // If ADJUST, what changes
+  
+  // COMMON FIELDS (both modes)
+  executionName?: string;
+  reasoning?: string;          // AI's decision-making explanation
+  memory?: MemoryEntry[];      // Structured memory entries (append-only)
   rawResponse: string;
   tokensUsed: number;
 }
@@ -80,8 +129,17 @@ export const callAI = async (
     const parsed = parseAIResponse(rawResponse);
     
     return {
+      // One-shot mode fields
       actions: parsed.actions,
-      executionName: (parsed as any).executionName,
+      // Iterative mode fields
+      action: parsed.action,
+      observation: parsed.observation,
+      continue: parsed.continue,
+      goalAchieved: parsed.goalAchieved,
+      // Common fields
+      executionName: parsed.executionName,
+      reasoning: parsed.reasoning,
+      memory: parsed.memory,
       rawResponse,
       tokensUsed
     };
@@ -95,8 +153,62 @@ export const callAI = async (
   }
 };
 
+// ============================================
+// MEMORY VALIDATION
+// ============================================
+// Validates structured memory entries from AI response
+// ============================================
+
+// Validate a single memory entry
+const validateMemoryEntry = (entry: any): entry is MemoryEntry => {
+  return (
+    entry &&
+    typeof entry === 'object' &&
+    ['ai', 'system', 'action', 'user'].includes(entry.source) &&
+    typeof entry.timestamp === 'string' &&
+    ['fact', 'error', 'decision', 'constraint'].includes(entry.type) &&
+    entry.payload &&
+    typeof entry.payload === 'object'
+  );
+};
+
+// Validate and parse memory array from AI response
+const validateAndParseMemory = (memory: any): MemoryEntry[] | undefined => {
+  if (!Array.isArray(memory)) {
+    logger.warn("Memory is not an array, ignoring", { memory });
+    return undefined;
+  }
+  
+  const validEntries: MemoryEntry[] = [];
+  for (const entry of memory) {
+    if (validateMemoryEntry(entry)) {
+      validEntries.push(entry);
+    } else {
+      logger.warn("Invalid memory entry, skipping", { entry });
+    }
+  }
+  
+  return validEntries.length > 0 ? validEntries : undefined;
+};
+
 // Parse and validate AI response
-const parseAIResponse = (rawResponse: string): { actions: AIAction[], executionName?: string } => {
+// Supports DUAL-MODE execution:
+// 1. ONE-SHOT: { actions: [...] } - Execute all at once
+// 2. ITERATIVE: { action: {...}, continue: true } - Execute one, loop back
+const parseAIResponse = (rawResponse: string): { 
+  actions: AIAction[], 
+  executionName?: string, 
+  reasoning?: string, 
+  memory?: MemoryEntry[],
+  action?: AIAction, 
+  observation?: string, 
+  continue?: boolean, 
+  goalAchieved?: boolean,
+  replanDecision?: ReplanDecision,
+  replanReason?: string,
+  recoveryStrategy?: string,
+  adjustments?: string[]
+} => {
   try {
     const parsed = JSON.parse(rawResponse);
     
@@ -105,16 +217,55 @@ const parseAIResponse = (rawResponse: string): { actions: AIAction[], executionN
       throw new Error("Response is not an object");
     }
     
-    // Ensure actions array exists
+    // Validate and parse memory if present
+    const validatedMemory = parsed.memory ? validateAndParseMemory(parsed.memory) : undefined;
+    
+    // DETECT MODE: Check for iterative mode first (single action)
+    if (parsed.action && typeof parsed.action === "object") {
+      // ITERATIVE MODE: Single action with continuation control
+      if (!validateAction(parsed.action)) {
+        throw new Error("Invalid action in iterative mode");
+      }
+      
+      // Validate replan decision
+      let replanDecision = parsed.replanDecision;
+      if (replanDecision) {
+        const validDecisions = ['CONTINUE', 'ADJUST', 'RECOVER', 'ABORT'];
+        if (!validDecisions.includes(replanDecision)) {
+          logger.warn('Invalid replan decision, defaulting to CONTINUE', { decision: replanDecision });
+          replanDecision = 'CONTINUE';
+        }
+      }
+      
+      return {
+        actions: [], // Empty for iterative mode
+        action: {
+          type: parsed.action.type,
+          params: parsed.action.params || {}
+        },
+        observation: parsed.observation,
+        continue: parsed.continue ?? false,  // Default to false (stop after one iteration)
+        goalAchieved: parsed.goalAchieved ?? false,
+        replanDecision: replanDecision as ReplanDecision,
+        replanReason: parsed.replanReason,
+        recoveryStrategy: parsed.recoveryStrategy,
+        adjustments: parsed.adjustments,
+        executionName: parsed.executionName,
+        reasoning: parsed.reasoning,
+        memory: validatedMemory
+      };
+    }
+    
+    // ONE-SHOT MODE: Multiple actions (backward compatible)
     if (!Array.isArray(parsed.actions)) {
       // If no actions array but has action-like properties, wrap it
       if (parsed.type && parsed.params) {
-        return { actions: [parsed] };
+        return { actions: [parsed], executionName: parsed.executionName, reasoning: parsed.reasoning, memory: validatedMemory };
       }
-      return { actions: [] };
+      return { actions: [], executionName: parsed.executionName, reasoning: parsed.reasoning, memory: validatedMemory };
     }
     
-    // Validate each action
+    // Validate each action in one-shot mode
     const validActions: AIAction[] = [];
     for (const action of parsed.actions) {
       if (validateAction(action)) {
@@ -129,7 +280,9 @@ const parseAIResponse = (rawResponse: string): { actions: AIAction[], executionN
     
     return { 
       actions: validActions,
-      executionName: parsed.executionName 
+      executionName: parsed.executionName,
+      reasoning: parsed.reasoning,
+      memory: validatedMemory
     };
   } catch (error: any) {
     logger.error("Failed to parse AI response", { 
@@ -207,5 +360,34 @@ export const callChat = async (
   }
 };
 
-export default { callAI, callChat };
+export const callChatStream = async function* (
+  messages: any[],
+  model: string = "google/gemini-2.0-flash-001",
+  temperature: number = 0.7
+): AsyncGenerator<string, void, unknown> {
+  try {
+    const openai = getOpenAICallback();
+    
+    logger.debug("Calling Chat AI (Stream)", { model, messageCount: messages.length });
+
+    const stream = await openai.chat.completions.create({
+      model,
+      messages,
+      temperature,
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content || "";
+      if (content) {
+        yield content;
+      }
+    }
+  } catch (error: any) {
+    logger.error("Chat AI stream failed", { error: error.message });
+    throw error;
+  }
+};
+
+export default { callAI, callChat, callChatStream };
 

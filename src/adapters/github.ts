@@ -358,6 +358,11 @@ export const listCommits = async (
   integration: IntegrationData
 ) => {
   const { owner, repo, ...rest } = params;
+  
+  if (!owner || !repo) {
+    throw new Error("Missing required parameters: owner and repo");
+  }
+
   let url = `/repos/${owner}/${repo}/commits?`;
   Object.entries(rest).forEach(([key, value]) => {
     if (value) url += `${key}=${encodeURIComponent(value as string)}&`;
