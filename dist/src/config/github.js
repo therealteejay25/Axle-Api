@@ -1,0 +1,24 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GITHUB_SCOPES = void 0;
+exports.GITHUB_SCOPES = [
+    "repo",
+    "user",
+    "read:org",
+    "workflow",
+    "write:packages",
+    "read:packages",
+    "delete:packages",
+    "admin:org",
+    "admin:public_key",
+    "admin:repo_hook",
+    "admin:org_hook",
+    "gist",
+    "notifications",
+    "write:discussion",
+    "read:discussion",
+    "write:packages",
+    "read:packages",
+    "delete:packages",
+    "admin:gpg_key",
+];
