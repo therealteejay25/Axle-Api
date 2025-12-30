@@ -55,7 +55,7 @@ export const requestMagicLink = async (req: Request, res: Response) => {
     
     // Build magic link URL
     const baseUrl = env.ALLOWED_ORIGINS.split(",")[0].trim();
-    const magicLink = `${baseUrl}/auth/verify?token=${token}`;
+    const magicLink = `https://heyaxle.vercel.app/auth/verify?token=${token}`;
     
     // Send email via Resend
     if (resend) {
