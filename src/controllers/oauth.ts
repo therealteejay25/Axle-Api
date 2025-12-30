@@ -243,11 +243,11 @@ export const handleCallback = async (req: Request, res: Response) => {
     
     // Redirect to frontend success page
     const frontendUrl = env.ALLOWED_ORIGINS.split(",")[0].trim();
-    res.redirect(`${frontendUrl}/integrations/${provider}/success`);
+    res.redirect(`${frontendUrl}/integrations`);
   } catch (err: any) {
     logger.error("OAuth callback failed", { error: err.message });
     const frontendUrl = env.ALLOWED_ORIGINS.split(",")[0].trim();
-    res.redirect(`${frontendUrl}/integrations/error?message=${encodeURIComponent(err.message)}`);
+    res.redirect(`${frontendUrl}/integrations`);
   }
 };
 
