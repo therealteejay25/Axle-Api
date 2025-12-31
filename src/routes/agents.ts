@@ -8,6 +8,7 @@ import { getAvailableActions, getActionsForIntegrations } from "../adapters/regi
 import { authMiddleware } from "../middleware/auth";
 import { AgentBlueprintGenerator } from "../services/AgentBlueprintGenerator";
 import { RuleEngine } from "../services/RuleEngine";
+import { removeScheduleTrigger } from "../triggers/scheduleHandler";
 
 // ============================================
 // AGENTS ROUTES
@@ -186,7 +187,7 @@ router.patch("/:id", async (req: Request, res: Response) => {
 // Delete agent
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
-    const agent = await Agent.findOneAndDelete({
+    const agent = await Agent.findOne({
       _id: req.params.id,
       ownerId: req.user!.id
     });
@@ -194,9 +195,21 @@ router.delete("/:id", async (req: Request, res: Response) => {
     if (!agent) {
       return res.status(404).json({ error: "Agent not found" });
     }
-    
-    // Delete associated triggers
-    await Trigger.deleteMany({ agentId: agent._id });
+
+    // Unregister schedule triggers before deletion
+    const agentTriggers = await Trigger.find({ agentId: agent._id }).select("_id type").lean();
+    const scheduleTriggerIds = agentTriggers
+      .filter((t: any) => t.type === "schedule")
+      .map((t: any) => String(t._id));
+
+    await Promise.allSettled(scheduleTriggerIds.map((id) => removeScheduleTrigger(id)));
+
+    // Delete associated data
+    await Promise.all([
+      Trigger.deleteMany({ agentId: agent._id }),
+      Execution.deleteMany({ agentId: agent._id }),
+      agent.deleteOne()
+    ]);
     
     res.json({ deleted: true, id: req.params.id });
   } catch (err: any) {

@@ -8,6 +8,8 @@ import { getRecentActivity } from "../services/analytics";
 import { getNextScheduledRuns } from "../services/triggers";
 import { generateSmartNotifications } from "../services/smartNotifications";
 import { Execution } from "../models/Execution";
+import os from "os";
+import { getAllTemplates, getTemplateCategories } from "../lib/actionTemplates";
 
 // ============================================
 // DASHBOARD ROUTES
@@ -148,23 +150,38 @@ router.get("/quick-stats", async (req: Request, res: Response) => {
 router.get("/live", async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
+
+    const AgentModel = await import("../models/Agent").then((m) => m.Agent);
+    const agentDocs = await AgentModel.find({ ownerId: userId }).select("_id").lean();
+    const agentIds = agentDocs.map((a: any) => a._id);
     
     // Parallel fetch for potential performance, live dashboard needs to be snappy
     const [
         user,
         agents,
         activeExecutions, 
+        recentExecutions,
         recentActivityRaw, 
         nextTriggers,
         metrics,
         integrations
     ] = await Promise.all([
       User.findById(userId).lean(),
-      import("../models/Agent").then(m => m.Agent.find({ ownerId: userId }).sort({ updatedAt: -1 }).lean()),
-      Execution.find({ 
-        userId, 
-        status: { $in: ['running', 'pending'] } 
-      }).limit(5).populate('agentId', 'name').select('agentId status startedAt name').lean(),
+      AgentModel.find({ ownerId: userId }).sort({ updatedAt: -1 }).lean(),
+      Execution.find({
+        agentId: { $in: agentIds },
+        status: { $in: ['running', 'pending'] }
+      })
+        .limit(5)
+        .populate('agentId', 'name')
+        .select('agentId status startedAt name triggerType inputPayload')
+        .lean(),
+      Execution.find({ agentId: { $in: agentIds } })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .populate('agentId', 'name')
+        .select('agentId status triggerType createdAt startedAt finishedAt creditsUsed outputPayload error')
+        .lean(),
       getRecentActivity(userId, 20), // Increased limit for detailed audit
       getNextScheduledRuns(userId, 5),
       getUserMetrics(userId, 30),
@@ -234,15 +251,39 @@ router.get("/live", async (req: Request, res: Response) => {
       activeExecutions: activeExecutions.map(e => ({
         ...e,
         agentName: (e.agentId as any)?.name || 'Unknown Agent',
-        duration: e.startedAt ? Math.round((Date.now() - new Date(e.startedAt).getTime()) / 1000) : 0
+        duration: e.startedAt ? Math.round((Date.now() - new Date(e.startedAt).getTime()) / 1000) : 0,
+        triggerType: (e as any).triggerType || 'manual',
+        triggerSource: (e as any)?.inputPayload?.source
       })),
+      recentExecutions: (recentExecutions || []).map((e: any) => {
+        const startedAt = e.startedAt || e.createdAt;
+        const finishedAt = e.finishedAt;
+        const durationMs = startedAt && finishedAt
+          ? new Date(finishedAt).getTime() - new Date(startedAt).getTime()
+          : undefined;
+        return {
+          _id: e._id,
+          agentId: e.agentId,
+          agentName: (e.agentId as any)?.name || 'Unknown Agent',
+          status: e.status,
+          triggerType: e.triggerType,
+          createdAt: e.createdAt,
+          startedAt: e.startedAt,
+          finishedAt: e.finishedAt,
+          durationMs,
+          creditsUsed: e.creditsUsed,
+          summary: e?.outputPayload?.summary || e?.error || ''
+        };
+      }),
       recentActivity: enhancedActivity,
       nextTriggers: nextTriggers,
       
-      // 6. System Health (Real Data Placeholder)
+      // 6. System Health
       systemHealth: {
-          cpu: Math.round(Math.random() * 30 + 10), 
-          memory: Math.round(Math.random() * 40 + 20),
+          cpuLoad1m: os.loadavg()[0] || 0,
+          memoryRssBytes: process.memoryUsage().rss,
+          memoryHeapUsedBytes: process.memoryUsage().heapUsed,
+          memoryHeapTotalBytes: process.memoryUsage().heapTotal,
           uptime: process.uptime(),
           status: 'operational'
       }
@@ -259,6 +300,17 @@ router.get("/notifications", async (req: Request, res: Response) => {
     // For now, we generate fresh ones for the "Live" feel
     const notifications = await generateSmartNotifications(req.user!.id);
     res.json({ notifications });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Templates
+router.get("/templates", async (_req: Request, res: Response) => {
+  try {
+    const templates = getAllTemplates();
+    const categories = getTemplateCategories();
+    res.json({ templates, categories });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

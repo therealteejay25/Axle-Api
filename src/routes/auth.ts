@@ -9,6 +9,8 @@ import { authMiddleware } from "../middleware/auth";
 const router = Router();
 
 // Public routes
+router.post("/register", authController.register);
+router.post("/login", authController.login);
 router.post("/magic-link", authController.requestMagicLink);
 router.post("/verify", authController.verifyMagicLink);
 router.post("/refresh", authController.refreshTokens);

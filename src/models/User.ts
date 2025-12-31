@@ -26,6 +26,7 @@ export interface IUser extends Document {
   email: string;
   name?: string;
   // Auth tokens
+  passwordHash?: string;
   accessToken?: string;
   refreshToken?: string;
   magicLinkToken?: string;
@@ -42,6 +43,8 @@ export interface IUser extends Document {
   // Settings
   timeZone?: string;
   profileImageUrl?: string;
+  automaticBackupsEnabled?: boolean;
+  notificationEmailsEnabled?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,6 +62,7 @@ const UserSchema = new Schema<IUser>(
       type: String,
       trim: true
     },
+    passwordHash: { type: String },
     accessToken: { type: String },
     refreshToken: { type: String },
     magicLinkToken: { type: String },
@@ -90,7 +94,9 @@ const UserSchema = new Schema<IUser>(
     },
     subscriptionCurrentPeriodEnd: { type: Date },
     timeZone: { type: String, default: "UTC" },
-    profileImageUrl: { type: String }
+    profileImageUrl: { type: String },
+    automaticBackupsEnabled: { type: Boolean, default: true },
+    notificationEmailsEnabled: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

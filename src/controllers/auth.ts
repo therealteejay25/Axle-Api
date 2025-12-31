@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import { User } from "../models/User";
@@ -24,6 +25,189 @@ const COOKIE_OPTIONS = {
 
 const ACCESS_TOKEN_COOKIE = "axle_access_token";
 const REFRESH_TOKEN_COOKIE = "axle_refresh_token";
+
+const PASSWORD_HASH_ITERATIONS = 120_000;
+const PASSWORD_HASH_KEYLEN = 32;
+const PASSWORD_HASH_DIGEST = "sha256";
+
+const hashPassword = (password: string, saltHex?: string) => {
+  const salt = saltHex ? Buffer.from(saltHex, "hex") : crypto.randomBytes(16);
+  const hash = crypto.pbkdf2Sync(
+    password,
+    salt,
+    PASSWORD_HASH_ITERATIONS,
+    PASSWORD_HASH_KEYLEN,
+    PASSWORD_HASH_DIGEST
+  );
+  return {
+    saltHex: salt.toString("hex"),
+    hashHex: hash.toString("hex")
+  };
+};
+
+const encodePasswordHash = (saltHex: string, hashHex: string) => {
+  return `pbkdf2$${PASSWORD_HASH_ITERATIONS}$${PASSWORD_HASH_DIGEST}$${saltHex}$${hashHex}`;
+};
+
+const verifyPassword = (password: string, passwordHash: string) => {
+  const parts = passwordHash.split("$");
+  if (parts.length !== 5) return false;
+  const [algo, iterRaw, digest, saltHex, hashHex] = parts;
+  if (algo !== "pbkdf2") return false;
+  const iterations = Number(iterRaw);
+  if (!Number.isFinite(iterations) || iterations <= 0) return false;
+
+  const computed = crypto.pbkdf2Sync(
+    password,
+    Buffer.from(saltHex, "hex"),
+    iterations,
+    Buffer.from(hashHex, "hex").length,
+    digest as any
+  );
+
+  const expected = Buffer.from(hashHex, "hex");
+  if (computed.length !== expected.length) return false;
+  return crypto.timingSafeEqual(computed, expected);
+};
+
+const issueTokens = (user: any) => {
+  const accessToken = jwt.sign(
+    { id: user._id, email: user.email, plan: user.plan },
+    env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  const refreshToken = jwt.sign({ id: user._id }, env.REFRESH_SECRET, {
+    expiresIn: "30d"
+  });
+
+  return { accessToken, refreshToken };
+};
+
+// Register with email + password
+export const register = async (req: Request, res: Response) => {
+  try {
+    const { email, password, name } = req.body as {
+      email?: string;
+      password?: string;
+      name?: string;
+    };
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    if (typeof password !== "string" || password.length < 8) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 8 characters" });
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+    let user = await User.findOne({ email: normalizedEmail });
+
+    // If the user exists from previous magic-link usage but has no password yet,
+    // allow them to set one (claim account).
+    if (user && user.passwordHash) {
+      return res.status(409).json({ error: "Account already exists" });
+    }
+
+    const { saltHex, hashHex } = hashPassword(password);
+    const passwordHash = encodePasswordHash(saltHex, hashHex);
+
+    if (!user) {
+      user = await User.create({
+        email: normalizedEmail,
+        name,
+        passwordHash,
+        credits: 100,
+        plan: "free"
+      });
+    } else {
+      user.passwordHash = passwordHash;
+      if (name !== undefined && name !== null) user.name = name;
+      await user.save();
+    }
+
+    const { accessToken, refreshToken } = issueTokens(user);
+
+    user.accessToken = accessToken;
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 60 * 60 * 24 * 7 * 1000
+    });
+    res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, COOKIE_OPTIONS);
+
+    return res.json({
+      success: true,
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        plan: user.plan,
+        credits: user.credits
+      }
+    });
+  } catch (err: any) {
+    logger.error("Register failed", { error: err.message });
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// Login with email + password
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body as { email?: string; password?: string };
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user || !user.passwordHash) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const ok = verifyPassword(String(password), user.passwordHash);
+    if (!ok) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const { accessToken, refreshToken } = issueTokens(user);
+    user.accessToken = accessToken;
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 60 * 60 * 24 * 7 * 1000
+    });
+    res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, COOKIE_OPTIONS);
+
+    return res.json({
+      success: true,
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        plan: user.plan,
+        credits: user.credits
+      }
+    });
+  } catch (err: any) {
+    logger.error("Login failed", { error: err.message });
+    return res.status(500).json({ error: err.message });
+  }
+};
 
 // Request magic link
 export const requestMagicLink = async (req: Request, res: Response) => {
@@ -328,6 +512,8 @@ export const updateProfile = async (req: Request, res: Response) => {
 };
 
 export default {
+  register,
+  login,
   requestMagicLink,
   verifyMagicLink,
   refreshTokens,
