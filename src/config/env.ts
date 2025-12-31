@@ -50,7 +50,7 @@ export const env = {
   OPENAI_API_BASE: process.env.OPENAI_API_BASE || "https://api.algion.dev/v1",
   // OpenRouter AI
   OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
-  GEMINI_API_KEY: "AIzaSyDSxbCjMOG8dNSrvoiQR0B9qeA9unEX8kY",
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   MODEL: process.env.MODEL || "gemini-1.5-pro-latest",
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
