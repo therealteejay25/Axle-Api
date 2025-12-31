@@ -49,8 +49,9 @@ export const env = {
   // OPENAI_KEY: process.env.OPENAI_KEY!,
   OPENAI_API_BASE: process.env.OPENAI_API_BASE || "https://api.algion.dev/v1",
   // OpenRouter AI
-  OPENROUTER_API_KEY: "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",
-  MODEL: "google/gemini-2.0-flash-001",
+  OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+  GEMINI_API_KEY: "AIzaSyDSxbCjMOG8dNSrvoiQR0B9qeA9unEX8kY",
+  MODEL: process.env.MODEL || "gemini-1.5-pro-latest",
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
   GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!,

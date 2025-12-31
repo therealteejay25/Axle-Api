@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { env } from "../config/env";
 import { logger } from "../services/logger";
 
@@ -70,57 +70,74 @@ export interface AIResponse {
   tokensUsed: number;
 }
 
-let _openai: OpenAI | null = null;
+let _gemini: GoogleGenerativeAI | null = null;
 
-const getOpenAICallback = (): OpenAI => {
-  if (!_openai) {
-    const apiKey = env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      throw new Error("OPENROUTER_API_KEY environment variable is not set");
-    }
-    _openai = new OpenAI({
-      baseURL: "https://openrouter.ai/api/v1",
-      apiKey: apiKey
-    });
+const normalizeGeminiModel = (model?: string) => {
+  const raw = (model || env.MODEL || "gemini-1.5-pro-latest").trim();
+  if (!raw) return "gemini-1.5-pro-latest";
+  // Backward compatibility: some call sites used OpenRouter-style ids like "google/gemini-2.0-flash-001"
+  if (raw.includes("/")) {
+    const last = raw.split("/").filter(Boolean).pop();
+    return last || "gemini-1.5-pro-latest";
   }
-  return _openai;
+  return raw;
+};
+
+const getGeminiClient = (): GoogleGenerativeAI => {
+  if (!_gemini) {
+    const apiKey = env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY environment variable is not set");
+    }
+    _gemini = new GoogleGenerativeAI(apiKey);
+  }
+  return _gemini;
+};
+
+const messagesToPrompt = (messages: any[]) => {
+  return (messages || [])
+    .map((m) => {
+      const role = m?.role || "user";
+      const content = typeof m?.content === "string" ? m.content : JSON.stringify(m?.content ?? "");
+      return `${role.toUpperCase()}: ${content}`;
+    })
+    .join("\n\n");
 };
 
 export const callAI = async (
   systemPrompt: string,
-  model: string = "google/gemini-2.0-flash-001",
+  model: string = env.MODEL || "gemini-1.5-pro-latest",
   temperature: number = 0.7,
   maxTokens: number = 4096
 ): Promise<AIResponse> => {
   const startTime = Date.now();
   
   try {
-    const openai = getOpenAICallback();
-    
-    logger.debug("Calling AI via OpenRouter", { model });
+    const gemini = getGeminiClient();
+    const modelId = normalizeGeminiModel(model);
 
-    const response = await openai.chat.completions.create({
-      model,
-      messages: [
-        {
-          role: "system",
-          content: `You are an AI assistant that responds ONLY in valid JSON format. Your response must always be a JSON object with an "executionName" (short human-readable summary of the intent) and an "actions" array.`
-        },
-        {
-          role: "user",
-          content: systemPrompt
-        }
-      ],
-      temperature,
-      max_tokens: maxTokens,
-      response_format: { type: "json_object" }
+    logger.debug("Calling AI via Gemini", { model: modelId });
+
+    const gModel = gemini.getGenerativeModel({
+      model: modelId,
+      systemInstruction:
+        'You are an AI assistant that responds ONLY in valid JSON format. Your response must always be a JSON object with an "executionName" (short human-readable summary of the intent) and an "actions" array.',
     });
-    
-    const rawResponse = response.choices[0]?.message?.content || "{}";
-    const tokensUsed = response.usage?.total_tokens || 0;
+
+    const response = await gModel.generateContent({
+      contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+      generationConfig: {
+        temperature,
+        maxOutputTokens: maxTokens,
+        responseMimeType: "application/json",
+      },
+    });
+
+    const rawResponse = response.response.text() || "{}";
+    const tokensUsed = response.response.usageMetadata?.totalTokenCount || 0;
     
     logger.debug("AI response received", {
-      model,
+      model: modelId,
       tokensUsed,
       latencyMs: Date.now() - startTime
     });
@@ -304,13 +321,14 @@ const validateAction = (action: any): boolean => {
 
 export const callChat = async (
   messages: any[],
-  model: string = "google/gemini-2.0-flash-001",
+  model: string = env.MODEL || "gemini-1.5-pro-latest",
   temperature: number = 0.7
 ): Promise<{ response: string; actions?: AIAction[] }> => {
   const startTime = Date.now();
   
   try {
-    const openai = getOpenAICallback();
+    const gemini = getGeminiClient();
+    const modelId = normalizeGeminiModel(model);
     
     // Add system instruction for JSON format if not present
     const systemInstruction = `
@@ -325,21 +343,24 @@ export const callChat = async (
     // Best practice: Prepend a system message or append to the last user message if needed.
     // Here we'll just prepend a system message.
     
-    const finalMessages = [
-      { role: "system", content: systemInstruction },
-      ...messages
-    ];
+    const prompt = `${systemInstruction}\n\n${messagesToPrompt(messages)}`;
 
-    logger.debug("Calling Chat AI", { model, messageCount: finalMessages.length });
+    logger.debug("Calling Chat AI", { model: modelId, messageCount: (messages || []).length });
 
-    const completion = await openai.chat.completions.create({
-      model,
-      messages: finalMessages,
-      temperature,
-      response_format: { type: "json_object" }
+    const gModel = gemini.getGenerativeModel({
+      model: modelId,
+      systemInstruction,
     });
 
-    const rawResponse = completion.choices[0]?.message?.content || "{}";
+    const completion = await gModel.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature,
+        responseMimeType: "application/json",
+      },
+    });
+
+    const rawResponse = completion.response.text() || "{}";
     
     let parsed;
     try {
@@ -355,33 +376,32 @@ export const callChat = async (
     };
 
   } catch (error: any) {
-     logger.error("Chat AI call failed", { error: error.message });
-     throw error;
+    logger.error("Chat AI call failed", { error: error.message, latencyMs: Date.now() - startTime });
+    throw error;
   }
 };
 
 export const callChatStream = async function* (
   messages: any[],
-  model: string = "google/gemini-2.0-flash-001",
+  model: string = env.MODEL || "gemini-1.5-pro-latest",
   temperature: number = 0.7
 ): AsyncGenerator<string, void, unknown> {
   try {
-    const openai = getOpenAICallback();
-    
-    logger.debug("Calling Chat AI (Stream)", { model, messageCount: messages.length });
+    const gemini = getGeminiClient();
+    const modelId = normalizeGeminiModel(model);
 
-    const stream = await openai.chat.completions.create({
-      model,
-      messages,
-      temperature,
-      stream: true,
+    logger.debug("Calling Chat AI (Stream)", { model: modelId, messageCount: messages.length });
+
+    const prompt = messagesToPrompt(messages);
+    const gModel = gemini.getGenerativeModel({ model: modelId });
+    const stream = await gModel.generateContentStream({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature },
     });
 
-    for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content || "";
-      if (content) {
-        yield content;
-      }
+    for await (const chunk of stream.stream) {
+      const text = chunk.text();
+      if (text) yield text;
     }
   } catch (error: any) {
     logger.error("Chat AI stream failed", { error: error.message });
