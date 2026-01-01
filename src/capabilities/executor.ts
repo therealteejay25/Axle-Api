@@ -97,6 +97,28 @@ function checkRateLimit(action: ActionDefinition): void {
 
 function validateInputs(action: ActionDefinition, inputs: ActionInputs): void {
   const schema = action.inputSchema;
+
+  if (action.actionId === 'write_post') {
+    const rawPlatform = (inputs as any).platform;
+    if (typeof rawPlatform === 'string') {
+      const normalized = rawPlatform.trim().toLowerCase();
+      if (normalized === 'twitter') {
+        (inputs as any).platform = 'x';
+      } else {
+        (inputs as any).platform = normalized;
+      }
+    }
+  }
+
+  if (action.actionId === 'write_document') {
+    const hasTitle = (inputs as any).title !== undefined && (inputs as any).title !== null && String((inputs as any).title).trim() !== '';
+    if (!hasTitle) {
+      const content = typeof (inputs as any).content === 'string' ? (inputs as any).content.trim() : '';
+      const derived = content ? content.split('\n')[0].trim() : '';
+      const safeDerived = derived ? derived.slice(0, 80) : '';
+      (inputs as any).title = safeDerived || `Untitled document (${new Date().toISOString().slice(0, 10)})`;
+    }
+  }
   
   for (const [fieldName, fieldDef] of Object.entries(schema)) {
     const value = inputs[fieldName];
