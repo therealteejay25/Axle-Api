@@ -7,21 +7,37 @@ import { getAllGodAgentTools } from "./god-agent-tools";
 import { ToolRegistry } from "../capabilities/registry";
 import { FunctionTool } from "@google/adk";
 
+import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from "zod";
+
 // Helpers for tool conversion
 // We need to convert ADK FunctionTools to Gemini API Tool Declarations
 function toGeminiTools(tools: FunctionTool[]) {
   // Map FunctionTools to functionDeclarations
   const functionDeclarations = tools.map((t: any) => {
-    // ADK FunctionTool usually exposes definition/schema
-    // If not directly compatible, we might need a bridge, 
-    // but assuming for now we can extract the schema.
-    // BaseTool's inputs are Zod, transformed to JSON schema.
+    // ADK FunctionTool keeps the Zod schema in definition.parameters or parameters
+    const zodSchema = t.definition ? t.definition.parameters : t.parameters;
     
-    // Check if it has a `declaration` property or we need to construct it
+    let jsonSchema: any = {};
+    if (zodSchema) {
+        // Check if it's already a JSON schema-like object (simple check)
+        // or a Zod schema. Zod schemas have a parse method.
+        if (typeof zodSchema.parse === 'function') {
+             // Convert Zod to JSON Schema
+             jsonSchema = zodToJsonSchema(zodSchema, { target: "openApi3" });
+             // zod-to-json-schema wraps it, we usually need the properties/type
+             // But Gemini expects the root object schema.
+             // Remove $schema if present as Gemini might complain or ignore
+             delete jsonSchema.$schema;
+        } else {
+            jsonSchema = zodSchema;
+        }
+    }
+
     return {
       name: t.definition ? t.definition.name : t.name,
       description: t.definition ? t.definition.description : t.description,
-      parameters: t.definition ? t.definition.parameters : (t.parameters || {}) // fallback
+      parameters: jsonSchema
     };
   });
   return [{ functionDeclarations }];
