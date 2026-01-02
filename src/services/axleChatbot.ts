@@ -10,6 +10,9 @@ import { FunctionTool } from "@google/adk";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
 
+import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from "zod";
+
 // Helpers for tool conversion
 // We need to convert ADK FunctionTools to Gemini API Tool Declarations
 function toGeminiTools(tools: FunctionTool[]) {
@@ -18,20 +21,36 @@ function toGeminiTools(tools: FunctionTool[]) {
     // ADK FunctionTool keeps the Zod schema in definition.parameters or parameters
     const zodSchema = t.definition ? t.definition.parameters : t.parameters;
     
-    let jsonSchema: any = {};
+    let jsonSchema: any = { type: "object", properties: {} }; // Default safe empty object
+    
     if (zodSchema) {
         // Check if it's already a JSON schema-like object (simple check)
         // or a Zod schema. Zod schemas have a parse method.
         if (typeof zodSchema.parse === 'function') {
              // Convert Zod to JSON Schema
-             jsonSchema = zodToJsonSchema(zodSchema, { target: "openApi3" });
+             const converted = zodToJsonSchema(zodSchema, { target: "openApi3" });
+             jsonSchema = converted;
+             
              // zod-to-json-schema wraps it, we usually need the properties/type
              // But Gemini expects the root object schema.
              // Remove $schema if present as Gemini might complain or ignore
-             delete jsonSchema.$schema;
+             if (jsonSchema.$schema) delete jsonSchema.$schema;
+             
+             // Log for debugging
+             // console.log(`[Tool: ${t.name || t.definition?.name}] Schema:`, JSON.stringify(jsonSchema));
         } else {
             jsonSchema = zodSchema;
         }
+    }
+    
+    // STRICT FIX: Ensure root has type: "object"
+    if (!jsonSchema.type) {
+        jsonSchema.type = "object";
+    }
+    
+    // For tools with no parameters (z.object({})), ensure properties exists
+    if (!jsonSchema.properties) {
+        jsonSchema.properties = {};
     }
 
     return {
