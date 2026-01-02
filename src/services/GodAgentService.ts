@@ -147,8 +147,6 @@ export class GodAgentService {
         break;
     }
 
-    });
-
     return { success: true, action, agentId };
   }
 
