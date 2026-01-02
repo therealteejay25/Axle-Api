@@ -58,20 +58,41 @@ router.post("/message", async (req: Request, res: Response) => {
     const tools: any[] = [];
 
     for await (const event of stream) {
-      if (event.type === "text") {
+      if (event.type === "text_delta") {
         content += event.data;
+      } else if (event.type === "tool_call") {
+        // Just track that a tool was called, results come in tool_result
+        // For legacy response, we might want to show the tool call details
+        tools.push({
+            tool: event.data.tool,
+            params: event.data.params,
+            status: "pending"
+        });
       } else if (event.type === "tool_result") {
-        tools.push({
-          tool: event.data.tool,
-          result: event.data.result,
-          status: "success"
-        });
+        // Find the pending tool (or just push result)
+        const toolIdx = tools.findIndex(t => t.tool === event.data.tool && t.status === "pending");
+        if (toolIdx !== -1) {
+            tools[toolIdx].result = event.data.result;
+            tools[toolIdx].status = "success";
+        } else {
+             tools.push({
+                tool: event.data.tool,
+                result: event.data.result,
+                status: "success"
+            });
+        }
       } else if (event.type === "tool_error") {
-        tools.push({
-          tool: "unknown",
-          error: event.data.error,
-          status: "error"
-        });
+         const toolIdx = tools.findIndex(t => t.tool === event.data.tool && t.status === "pending");
+         if (toolIdx !== -1) {
+            tools[toolIdx].error = event.data.error;
+            tools[toolIdx].status = "error";
+         } else {
+             tools.push({
+                tool: event.data.tool,
+                error: event.data.error,
+                status: "error"
+             });
+         }
       }
     }
 
