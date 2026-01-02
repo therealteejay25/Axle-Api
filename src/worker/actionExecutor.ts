@@ -4,6 +4,7 @@ import { executeAction } from "../adapters/registry";
 import { logger } from "../services/logger";
 import { IExecutionAction } from "../models/Execution";
 import { SocketService } from "../services/SocketService";
+import { ExecutionEventService } from "../services/ExecutionEventService";
 
 // ============================================
 // ACTION EXECUTOR
@@ -39,6 +40,20 @@ export const executeActions = async (
   for (let i = 0; i < actions.length; i++) {
     const action = actions[i];
     const startedAt = new Date();
+
+    if (executionId) {
+      await ExecutionEventService.log({
+        executionId,
+        agentId,
+        userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
+        type: "action_started",
+        level: "info",
+        message: action.type,
+        actionType: action.type,
+        actionIndex: i,
+        data: { params: action.params }
+      });
+    }
     
     // Emit progress event - action started
     if (executionId && agentId) {
@@ -101,6 +116,20 @@ export const executeActions = async (
           type: action.type, 
           capability: capabilityAction.capability 
         });
+
+        if (executionId) {
+          await ExecutionEventService.log({
+            executionId,
+            agentId,
+            userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
+            type: "action_routed_capability",
+            level: "debug",
+            message: action.type,
+            actionType: action.type,
+            actionIndex: i,
+            data: { capability: capabilityAction.capability }
+          });
+        }
         
         const execContext = {
           integrations: loaded.integrations,
@@ -187,6 +216,26 @@ export const executeActions = async (
           outputValidation: outputValidation?.valid ?? true
         });
       }
+
+      if (executionId) {
+        await ExecutionEventService.log({
+          executionId,
+          agentId,
+          userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
+          type: "action_completed",
+          level: outputValidation?.valid === false ? "warn" : "info",
+          message: action.type,
+          actionType: action.type,
+          actionIndex: i,
+          data: {
+            durationMs,
+            outputValidation,
+            toolsCalled,
+            verified,
+            result
+          }
+        });
+      }
       
     } catch (error: any) {
       // Get smart suggestion for this error
@@ -227,6 +276,25 @@ export const executeActions = async (
           suggestion: enhancedError.suggestion
         });
       }
+
+      if (executionId) {
+        await ExecutionEventService.log({
+          executionId,
+          agentId,
+          userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
+          type: "action_failed",
+          level: "error",
+          message: action.type,
+          actionType: action.type,
+          actionIndex: i,
+          data: {
+            error: error.message,
+            suggestion: errorSuggestion.suggestion,
+            category: errorSuggestion.category,
+            actionable: errorSuggestion.actionable
+          }
+        });
+      }
     }
   }
   
@@ -265,6 +333,49 @@ const resolveParams = (
   previousResults: ActionResult[],
   loaded: LoadedAgent
 ): Record<string, any> => {
+  const safeStringify = (value: any, maxLen = 2000): string => {
+    try {
+      const str = JSON.stringify(value, null, 2);
+      if (typeof str !== "string") return String(value);
+      return str.length > maxLen ? `${str.slice(0, maxLen)}\n...` : str;
+    } catch {
+      return String(value);
+    }
+  };
+
+  const decorateForTemplate = (value: any): any => {
+    if (!value || typeof value !== "object") return value;
+
+    const summaryText = (value as any)?.summaryText;
+    const hasSummaryText = typeof summaryText === "string" && summaryText.trim().length > 0;
+
+    if (Array.isArray(value)) {
+      try {
+        Object.defineProperty(value, "toString", {
+          value: () => safeStringify(value),
+          enumerable: false
+        });
+      } catch {
+        // ignore
+      }
+      return value.map(v => decorateForTemplate(v));
+    }
+
+    try {
+      Object.defineProperty(value, "toString", {
+        value: () => (hasSummaryText ? summaryText : safeStringify(value)),
+        enumerable: false
+      });
+    } catch {
+      // ignore
+    }
+
+    for (const [k, v] of Object.entries(value)) {
+      (value as any)[k] = decorateForTemplate(v);
+    }
+    return value;
+  };
+
   // Create context from results
   const context: Record<string, any> = {
     user: loaded.user.toObject ? loaded.user.toObject() : loaded.user,
@@ -273,19 +384,22 @@ const resolveParams = (
   
   for (const r of previousResults) {
     if (r.result) {
-      context[r.type] = r.result;
+      context[r.type] = decorateForTemplate(r.result);
     }
   }
 
   // Use Handlebars for rendering
   const Handlebars = require("handlebars");
 
+  Handlebars.registerHelper("json", (value: any) => safeStringify(value, 4000));
+  Handlebars.registerHelper("pretty", (value: any) => safeStringify(value, 4000));
+
   const processValue = (value: any): any => {
     if (typeof value === "string") {
       // Check if it looks like a template
       if (value.includes("{{") || value.includes("{%")) {
         try {
-          const template = Handlebars.compile(value);
+          const template = Handlebars.compile(value, { noEscape: true });
           return template(context);
         } catch (e) {
           logger.warn("Template render failed", { value, error: e });

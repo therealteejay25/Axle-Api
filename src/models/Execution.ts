@@ -58,6 +58,8 @@ export interface IExecution extends Document {
   error?: string;
   errorStack?: string;
   retryCount: number;
+  thoughtSignature?: string;
+  state?: Record<string, any>;
   // Approval
   approvalStatus?: "pending" | "approved" | "rejected";
   // Billing
@@ -139,6 +141,8 @@ const ExecutionSchema = new Schema<IExecution>(
       type: Number,
       default: 0
     },
+    thoughtSignature: { type: String },
+    state: { type: Schema.Types.Mixed, default: {} },
     approvalStatus: {
       type: String,
       enum: ["pending", "approved", "rejected"],

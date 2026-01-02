@@ -3,6 +3,7 @@ import { Integration, IIntegration } from "../models/Integration";
 import { User, IUser } from "../models/User";
 import { decryptToken } from "../services/crypto";
 import { logger } from "../services/logger";
+import { IntegrationIdentityService } from "../services/IntegrationIdentityService";
 
 // ============================================
 // AGENT LOADER
@@ -76,13 +77,21 @@ export const loadAgent = async (
         const refreshToken = integration.refreshToken 
           ? decryptToken(integration.refreshToken)
           : undefined;
-        
-        integrations.set(integration.provider, {
+
+        const hydrated = await IntegrationIdentityService.hydrateIfNeeded(integration, {
           provider: integration.provider,
           accessToken,
           refreshToken,
           scopes: integration.scopes,
           metadata: integration.metadata
+        });
+
+        integrations.set(integration.provider, {
+          provider: integration.provider,
+          accessToken: hydrated.accessToken,
+          refreshToken: hydrated.refreshToken,
+          scopes: hydrated.scopes,
+          metadata: hydrated.metadata
         });
         
         // Update last used
@@ -111,13 +120,21 @@ export const loadAgent = async (
           const refreshToken = integration.refreshToken 
             ? decryptToken(integration.refreshToken)
             : undefined;
-          
-          integrations.set(providerName, {
+
+          const hydrated = await IntegrationIdentityService.hydrateIfNeeded(integration, {
             provider: integration.provider,
             accessToken,
             refreshToken,
             scopes: integration.scopes,
             metadata: integration.metadata
+          });
+
+          integrations.set(providerName, {
+            provider: integration.provider,
+            accessToken: hydrated.accessToken,
+            refreshToken: hydrated.refreshToken,
+            scopes: hydrated.scopes,
+            metadata: hydrated.metadata
           });
           
           // Update last used

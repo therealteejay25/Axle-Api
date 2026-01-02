@@ -18,6 +18,12 @@ interface IntegrationData {
   metadata: Record<string, any>;
 }
 
+const getCachedIgUserId = (integration: IntegrationData): string => {
+  const cached = integration?.metadata?.igUserId;
+  if (cached && typeof cached === "string") return cached;
+  throw new Error("igUserId is required for Instagram access. Connect Instagram Business/Creator account and ensure metadata is hydrated.");
+};
+
 const makeRequest = async (
   endpoint: string,
   method: string,
@@ -46,7 +52,8 @@ export const getProfile = async (
   params: { igUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/${params.igUserId}`, "GET", integration.accessToken, null, {
+  const igUserId = params.igUserId || getCachedIgUserId(integration);
+  return makeRequest(`/${igUserId}`, "GET", integration.accessToken, null, {
     fields: "id,username,name,biography,followers_count,follows_count,media_count,profile_picture_url"
   });
 };
@@ -55,7 +62,8 @@ export const getPosts = async (
   params: { igUserId: string; limit?: number },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/${params.igUserId}/media`, "GET", integration.accessToken, null, {
+  const igUserId = params.igUserId || getCachedIgUserId(integration);
+  return makeRequest(`/${igUserId}/media`, "GET", integration.accessToken, null, {
     limit: params.limit || 10,
     fields: "id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count"
   });
@@ -75,7 +83,8 @@ export const getMentions = async (
   params: { igUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/${params.igUserId}/tags`, "GET", integration.accessToken, null, {
+  const igUserId = params.igUserId || getCachedIgUserId(integration);
+  return makeRequest(`/${igUserId}/tags`, "GET", integration.accessToken, null, {
     fields: "id,caption,media_type,media_url,permalink,timestamp"
   });
 };
@@ -84,14 +93,15 @@ export const searchHashtags = async (
   params: { igUserId: string; hashtag: string },
   integration: IntegrationData
 ) => {
+  const igUserId = params.igUserId || getCachedIgUserId(integration);
   const search = await makeRequest("/ig_hashtag_search", "GET", integration.accessToken, null, {
-    user_id: params.igUserId,
+    user_id: igUserId,
     q: params.hashtag
   });
   if (search.data && search.data.length > 0) {
     const hashtagId = search.data[0].id;
     return makeRequest(`/${hashtagId}/recent_media`, "GET", integration.accessToken, null, {
-      user_id: params.igUserId,
+      user_id: igUserId,
       fields: "id,caption,media_type,media_url,permalink"
     });
   }
@@ -104,13 +114,14 @@ export const createPost = async (
   params: { igUserId: string; imageUrl: string; caption?: string },
   integration: IntegrationData
 ) => {
+  const igUserId = params.igUserId || getCachedIgUserId(integration);
   // 1. Create container
-  const container = await makeRequest(`/${params.igUserId}/media`, "POST", integration.accessToken, null, {
+  const container = await makeRequest(`/${igUserId}/media`, "POST", integration.accessToken, null, {
     image_url: params.imageUrl,
     caption: params.caption
   });
   // 2. Publish container
-  return makeRequest(`/${params.igUserId}/media_publish`, "POST", integration.accessToken, null, {
+  return makeRequest(`/${igUserId}/media_publish`, "POST", integration.accessToken, null, {
     creation_id: container.id
   });
 };
@@ -119,12 +130,14 @@ export const createReel = async (
   params: { igUserId: string; videoUrl: string; caption?: string },
   integration: IntegrationData
 ) => {
-  const container = await makeRequest(`/${params.igUserId}/media`, "POST", integration.accessToken, null, {
+  const igUserId = params.igUserId || getCachedIgUserId(integration);
+  // Similar flow to createPost
+  const container = await makeRequest(`/${igUserId}/media`, "POST", integration.accessToken, null, {
     media_type: "REELS",
     video_url: params.videoUrl,
     caption: params.caption
   });
-  return makeRequest(`/${params.igUserId}/media_publish`, "POST", integration.accessToken, null, {
+  return makeRequest(`/${igUserId}/media_publish`, "POST", integration.accessToken, null, {
     creation_id: container.id
   });
 };
@@ -172,7 +185,8 @@ export const getDMs = async (
   params: { igUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/${params.igUserId}/conversations`, "GET", integration.accessToken, null, {
+  const igUserId = params.igUserId || getCachedIgUserId(integration);
+  return makeRequest(`/${igUserId}/conversations`, "GET", integration.accessToken, null, {
     platform: "instagram"
   });
 };

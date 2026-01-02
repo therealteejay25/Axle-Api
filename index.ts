@@ -15,6 +15,7 @@ import { globalRateLimiter } from "./src/middleware/rateLimit";
 import { initQueueScheduler } from "./src/queue/executionQueue";
 import { startWorker } from "./src/worker";
 import { initScheduler } from "./src/triggers/scheduleHandler";
+import { initSchedulerWorker } from "./src/worker/scheduler";
 import { SocketService } from "./src/services/SocketService";
 
 // ============================================
@@ -88,8 +89,10 @@ const startServer = async () => {
   startWorker();
   logger.info("Worker started");
   
+  
   // Initialize schedule triggers
   await initScheduler();
+  initSchedulerWorker(); // Start consumer
   logger.info("Scheduler initialized");
   
   // Graceful shutdown

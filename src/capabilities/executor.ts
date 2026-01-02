@@ -382,3 +382,98 @@ export default {
   getAction,
   validateActionParams
 };
+
+// ============================================
+// ADK TOOL REGISTRY (NEW)
+// ============================================
+import { BaseTool } from './BaseTool';
+import { CreateIssueTool } from './plugins/github/create_issue';
+
+/**
+ * Adapter to allow legacy ActionDefinitions to function as ADK Tools
+ */
+class LegacyBridgeTool extends BaseTool {
+  constructor(private action: ActionDefinition) {
+    super();
+  }
+
+  get name() { return this.action.actionId; }
+  get description() { return this.action.description; }
+  
+  get schema() {
+    const properties: Record<string, any> = {};
+    const required: string[] = [];
+
+    for (const [key, def] of Object.entries(this.action.inputSchema)) {
+      properties[key] = {
+        type: def.type,
+        description: def.description,
+        enum: def.enum
+      };
+      if (def.required) {
+        required.push(key);
+      }
+    }
+
+    return {
+      type: 'object',
+      properties,
+      required: required.length > 0 ? required : undefined
+    };
+  }
+
+  async execute(params: any, context?: any): Promise<any> {
+    // Context needs to be mapped to ExecutionContext
+    // We assume context passed by ADK Runner contains 'integrations'
+    // If not, we leverage the context object directly if it has what we need
+    return this.action.executor(params, context || {});
+  }
+}
+
+/**
+ * Get all available tools for an agent, formatted for ADK
+ */
+export function getAdkTools(
+  integrations: Map<string, any>, 
+  settings?: { allowedTools?: string[] }
+): BaseTool[] {
+  const tools: BaseTool[] = [];
+  const allowed = settings?.allowedTools;
+
+  // 1. Register Native Plugins (New Architecture)
+  // We explicitly instantiate these. In a full system we might scan the dir.
+  const plugins = [
+    new CreateIssueTool()
+  ];
+
+  for (const plugin of plugins) {
+    if (!allowed || allowed.includes(plugin.name)) {
+      tools.push(plugin);
+    }
+  }
+
+  // 2. Register Legacy Actions (Bridged)
+  // Only add if not already covered by a plugin (check name collision)
+  const pluginNames = new Set(tools.map(t => t.name));
+
+  for (const action of Object.values(allActions)) {
+    if (pluginNames.has(action.actionId)) continue; // Skip if replaced by plugin
+    
+    // Check permissions/integrations
+    // We assume the Runner handles "Can I run this?" or we filter here.
+    // If filtering by allowedTools:
+    if (allowed && !allowed.includes(action.actionId)) continue;
+
+    // Check integration requirements (OPTIONAL: Let the tool fail or filter out?)
+    // Better to filter out if integration missing to avoid hallucination of available tools.
+    const required = action.metadata.requiresIntegration;
+    const hasRequirements = required.every(r => integrations.has(r));
+    
+    if (hasRequirements) {
+      tools.push(new LegacyBridgeTool(action));
+    }
+  }
+
+  return tools;
+}
+

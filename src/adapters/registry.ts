@@ -9,6 +9,7 @@ import { scraperActions } from "./scraper";
 import { researchActions } from "./research";
 import { logger } from "../services/logger";
 import { env } from "../config/env";
+import { repairToolParams, isRetryableToolError } from "./paramRepair";
 
 // ============================================
 // ACTION REGISTRY
@@ -103,9 +104,22 @@ export const executeAction = async (
   // ============================================
   // Use tool validator to check schema and detect hallucinations
   const { validateToolParams, generateErrorMessage } = require('./toolValidator');
-  
-  const validation = validateToolParams(actionType, params);
-  
+
+  let effectiveParams = params;
+  let validation = validateToolParams(actionType, effectiveParams);
+
+  if (!validation.valid) {
+    const repaired = repairToolParams(actionType, effectiveParams, validation);
+    if (repaired.repaired) {
+      logger.info('Tool params repaired', {
+        actionType,
+        notes: repaired.notes
+      });
+      effectiveParams = repaired.params;
+      validation = validateToolParams(actionType, effectiveParams);
+    }
+  }
+
   if (!validation.valid) {
     const errorMessage = generateErrorMessage(actionType, validation);
     logger.warn('Tool validation failed', {
@@ -175,8 +189,16 @@ export const executeAction = async (
   
   logger.debug("Executing action", { actionType, provider: requiredProvider });
   
-  // Execute the action
-  return handler(params, integration);
+  // Execute the action (with a single retry for transient errors)
+  try {
+    return await handler(effectiveParams, integration);
+  } catch (err: any) {
+    if (isRetryableToolError(err)) {
+      logger.warn("Retrying tool after transient failure", { actionType, error: err.message });
+      return await handler(effectiveParams, integration);
+    }
+    throw err;
+  }
 };
 
 // Validate action params (basic validation)

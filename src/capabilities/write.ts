@@ -13,6 +13,8 @@ import {
 // ============================================
 
 export const writeActions: Record<string, ActionDefinition> = {
+
+  
   
   // ==================== WRITE CODE ISSUE ====================
   write_code_issue: {
@@ -274,6 +276,39 @@ export const writeActions: Record<string, ActionDefinition> = {
     },
     
     executor: async (inputs: ActionInputs, context: ExecutionContext) => {
+      const decodeHtmlEntities = (text: string): string => {
+        if (!text) return text;
+        const named: Record<string, string> = {
+          '&quot;': '"',
+          '&apos;': "'",
+          '&amp;': '&',
+          '&lt;': '<',
+          '&gt;': '>',
+          '&#x3D;': '=',
+        };
+
+        let out = text;
+        for (const [k, v] of Object.entries(named)) {
+          out = out.split(k).join(v);
+        }
+
+        // numeric (decimal) entities: &#123;
+        out = out.replace(/&#(\d+);/g, (_m: string, dec: string) => {
+          const code = Number(dec);
+          if (!Number.isFinite(code)) return _m;
+          return String.fromCharCode(code);
+        });
+
+        // numeric (hex) entities: &#x1F600;
+        out = out.replace(/&#x([0-9a-fA-F]+);/g, (_m: string, hex: string) => {
+          const code = parseInt(hex, 16);
+          if (!Number.isFinite(code)) return _m;
+          return String.fromCharCode(code);
+        });
+
+        return out;
+      };
+
       if (inputs.platform === 'x') {
         const { xActions } = require('../adapters/twitter');
         const integration = context.integrations.get('twitter');
@@ -281,7 +316,16 @@ export const writeActions: Record<string, ActionDefinition> = {
         
         // Basic text tweet
         if (!inputs.mediaUrl) {
-            const result = await xActions.x_post_tweet({ text: inputs.content }, integration);
+            const raw = typeof inputs.content === 'string' ? inputs.content : '';
+            const decoded = decodeHtmlEntities(raw).trim();
+            if (!decoded) throw new Error('Post content is required for X');
+
+            const MAX_TWEET_LEN = 280;
+            const safeText = decoded.length > MAX_TWEET_LEN
+              ? `${decoded.slice(0, MAX_TWEET_LEN - 1)}…`
+              : decoded;
+
+            const result = await xActions.x_post_tweet({ text: safeText }, integration);
             return { posted: true, postId: result.data?.id, url: `https://x.com/user/status/${result.data?.id}` };
         }
         // TODO: Handle media upload for X if needed. Assuming text only for now for simplicity/robustness.
@@ -296,9 +340,9 @@ export const writeActions: Record<string, ActionDefinition> = {
         if (!inputs.mediaUrl) throw new Error('Image URL required for Instagram post');
         
         const result = await instagramActions.ig_create_post({ 
-             igUserId: integration.metadata?.userId || 'me', // Adapter needs ID?
+             igUserId: integration.metadata?.igUserId || 'me',
              imageUrl: inputs.mediaUrl,
-             caption: inputs.content
+             caption: typeof inputs.content === 'string' ? decodeHtmlEntities(inputs.content) : inputs.content
         }, integration);
         
         return { posted: true, postId: result.id, url: result.permalink || '' };
@@ -349,6 +393,37 @@ export const writeActions: Record<string, ActionDefinition> = {
       const { googleActions } = require('../adapters/google');
       const integration = context.integrations.get('google');
       if (!integration) throw new Error('Google integration not connected');
+
+      const decodeHtmlEntities = (text: string): string => {
+        if (!text) return text;
+        const named: Record<string, string> = {
+          '&quot;': '"',
+          '&apos;': "'",
+          '&amp;': '&',
+          '&lt;': '<',
+          '&gt;': '>',
+          '&#x3D;': '=',
+        };
+
+        let out = text;
+        for (const [k, v] of Object.entries(named)) {
+          out = out.split(k).join(v);
+        }
+
+        out = out.replace(/&#(\d+);/g, (_m: string, dec: string) => {
+          const code = Number(dec);
+          if (!Number.isFinite(code)) return _m;
+          return String.fromCharCode(code);
+        });
+
+        out = out.replace(/&#x([0-9a-fA-F]+);/g, (_m: string, hex: string) => {
+          const code = parseInt(hex, 16);
+          if (!Number.isFinite(code)) return _m;
+          return String.fromCharCode(code);
+        });
+
+        return out;
+      };
       
       const doc = await googleActions.google_docs_create_doc({ title: inputs.title }, integration);
       
@@ -356,7 +431,7 @@ export const writeActions: Record<string, ActionDefinition> = {
          // Insert initial content
          await googleActions.google_docs_insert_text({
              documentId: doc.documentId,
-             text: inputs.content
+             text: typeof inputs.content === 'string' ? decodeHtmlEntities(inputs.content) : inputs.content
          }, integration);
       }
       

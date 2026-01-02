@@ -18,22 +18,46 @@ interface IntegrationData {
   metadata: Record<string, any>;
 }
 
+const getCachedUserId = async (integration: IntegrationData): Promise<string> => {
+  const cached = integration?.metadata?.xUserId;
+  if (cached && typeof cached === "string") return cached;
+
+  // Best-effort fallback: fetch /users/me using this token.
+  // We cannot persist to Mongo here (adapter doesn't have DB access),
+  // but we can populate integration.metadata for this execution.
+  const me = await makeRequest("/users/me", "GET", integration.accessToken);
+  const id = me?.data?.id;
+  if (!id) {
+    throw new Error("Unable to determine X userId from token");
+  }
+  integration.metadata = { ...(integration.metadata || {}), xUserId: id, xUsername: me?.data?.username, xName: me?.data?.name };
+  return id;
+};
+
 const makeRequest = async (
   endpoint: string,
   method: string,
   accessToken: string,
   data?: any
 ) => {
-  const response = await axios({
-    url: `${X_API}${endpoint}`,
-    method,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json"
-    },
-    data
-  });
-  return response.data;
+  try {
+    const response = await axios({
+      url: `${X_API}${endpoint}`,
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      data
+    });
+    return response.data;
+  } catch (err: any) {
+    const status = err?.response?.status;
+    const body = err?.response?.data;
+    const message = err?.message || 'X API request failed';
+    const details = body ? ` Response: ${JSON.stringify(body)}` : '';
+    throw new Error(`${message}${status ? ` (HTTP ${status})` : ''}${details}`);
+  }
 };
 
 // ==================== READ ACTIONS ====================
@@ -50,7 +74,8 @@ export const getUserTweets = async (
   params: { userId: string; maxResults?: number },
   integration: IntegrationData
 ) => {
-  const { userId, maxResults = 10 } = params;
+  const userId = params.userId || await getCachedUserId(integration);
+  const { maxResults = 10 } = params;
   return makeRequest(`/users/${userId}/tweets?max_results=${maxResults}`, "GET", integration.accessToken);
 };
 
@@ -58,14 +83,11 @@ export const getHomeTimeline = async (
   params: { maxResults?: number; userId?: string },
   integration: IntegrationData
 ) => {
-  const { maxResults = 10, userId } = params;
+  const maxResults = params.maxResults ?? 10;
+  const userId = params.userId || await getCachedUserId(integration);
   
   // Note: The reverse_chronological timeline endpoint requires elevated access
   // If this fails, the user should use x_get_mentions or x_search_tweets instead
-  
-  if (!userId) {
-    throw new Error("userId is required for timeline access. Use x_get_mentions instead for simpler timeline access.");
-  }
   
   return makeRequest(`/users/${userId}/tweets?max_results=${maxResults}`, "GET", integration.accessToken);
 };
@@ -74,7 +96,8 @@ export const getMentions = async (
   params: { userId: string; maxResults?: number },
   integration: IntegrationData
 ) => {
-  const { userId, maxResults = 10 } = params;
+  const userId = params.userId || await getCachedUserId(integration);
+  const { maxResults = 10 } = params;
   return makeRequest(`/users/${userId}/mentions?max_results=${maxResults}`, "GET", integration.accessToken);
 };
 
@@ -157,42 +180,48 @@ export const likeTweet = async (
   params: { userId: string; tweetId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/likes`, "POST", integration.accessToken, { tweet_id: params.tweetId });
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/likes`, "POST", integration.accessToken, { tweet_id: params.tweetId });
 };
 
 export const unlikeTweet = async (
   params: { userId: string; tweetId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/likes/${params.tweetId}`, "DELETE", integration.accessToken);
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/likes/${params.tweetId}`, "DELETE", integration.accessToken);
 };
 
 export const retweet = async (
   params: { userId: string; tweetId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/retweets`, "POST", integration.accessToken, { tweet_id: params.tweetId });
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/retweets`, "POST", integration.accessToken, { tweet_id: params.tweetId });
 };
 
 export const unretweet = async (
   params: { userId: string; tweetId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/retweets/${params.tweetId}`, "DELETE", integration.accessToken);
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/retweets/${params.tweetId}`, "DELETE", integration.accessToken);
 };
 
 export const bookmarkTweet = async (
   params: { userId: string; tweetId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/bookmarks`, "POST", integration.accessToken, { tweet_id: params.tweetId });
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/bookmarks`, "POST", integration.accessToken, { tweet_id: params.tweetId });
 };
 
 export const removeBookmark = async (
   params: { userId: string; tweetId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/bookmarks/${params.tweetId}`, "DELETE", integration.accessToken);
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/bookmarks/${params.tweetId}`, "DELETE", integration.accessToken);
 };
 
 // ==================== DM ACTIONS ====================
@@ -218,42 +247,48 @@ export const followUser = async (
   params: { userId: string; targetUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/following`, "POST", integration.accessToken, { target_user_id: params.targetUserId });
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/following`, "POST", integration.accessToken, { target_user_id: params.targetUserId });
 };
 
 export const unfollowUser = async (
   params: { userId: string; targetUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/following/${params.targetUserId}`, "DELETE", integration.accessToken);
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/following/${params.targetUserId}`, "DELETE", integration.accessToken);
 };
 
 export const muteUser = async (
   params: { userId: string; targetUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/mutes`, "POST", integration.accessToken, { target_user_id: params.targetUserId });
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/mutes`, "POST", integration.accessToken, { target_user_id: params.targetUserId });
 };
 
 export const unmuteUser = async (
   params: { userId: string; targetUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/mutes/${params.targetUserId}`, "DELETE", integration.accessToken);
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/mutes/${params.targetUserId}`, "DELETE", integration.accessToken);
 };
 
 export const blockUser = async (
   params: { userId: string; targetUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/blocking`, "POST", integration.accessToken, { target_user_id: params.targetUserId });
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/blocking`, "POST", integration.accessToken, { target_user_id: params.targetUserId });
 };
 
 export const unblockUser = async (
   params: { userId: string; targetUserId: string },
   integration: IntegrationData
 ) => {
-  return makeRequest(`/users/${params.userId}/blocking/${params.targetUserId}`, "DELETE", integration.accessToken);
+  const userId = params.userId || await getCachedUserId(integration);
+  return makeRequest(`/users/${userId}/blocking/${params.targetUserId}`, "DELETE", integration.accessToken);
 };
 
 // Action handlers map

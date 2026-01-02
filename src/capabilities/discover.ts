@@ -128,7 +128,8 @@ export const discoverActions: Record<string, ActionDefinition> = {
     outputSchema: {
       results: 'array',
       query: 'string',
-      count: 'number'
+      count: 'number',
+      summaryText: 'string'
     },
     
     constraints: {
@@ -163,11 +164,22 @@ export const discoverActions: Record<string, ActionDefinition> = {
         },
         integration
       );
-      
+
+      const items = result.items || [];
+      const summaryText = items.length > 0
+        ? items.map((r: any) => {
+            const full = r.full_name || r.name || 'unknown';
+            const desc = r.description ? ` — ${r.description}` : '';
+            const url = r.html_url ? ` (${r.html_url})` : '';
+            return `- ${full}${desc}${url}`;
+          }).join('\n')
+        : 'No GitHub results found.';
+
       return {
-        results: result.items || [],
+        results: items,
         query: inputs.query,
-        count: result.total_count || 0
+        count: result.total_count || 0,
+        summaryText
       };
     }
   },

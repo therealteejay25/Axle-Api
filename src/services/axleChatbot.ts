@@ -2,6 +2,7 @@ import { callChatStream } from "../worker/aiCaller";
 import { ChatSession } from "../models/ChatSession";
 import { GodAgentService } from "./GodAgentService";
 import { logger } from "./logger";
+import { getAvailableToolDefinitions } from "../adapters/toolDefinitions";
 
 export class AxleChatbot {
   /**
@@ -25,22 +26,43 @@ export class AxleChatbot {
 
     // 4. Build system prompt
     const dataSummary = await GodAgentService.getDataSummary(userId);
+
+    const connectedIntegrations = (dataSummary.integrations || []).map((i: any) => i.provider);
+    const availableTools = getAvailableToolDefinitions(connectedIntegrations).map((t) => ({
+      name: t.name,
+      description: t.description,
+      whenToUse: t.whenToUse,
+      parameters: t.parameters,
+      provider: (t as any).provider,
+      capability: (t as any).capability
+    }));
+
+    const toolMemory = Array.isArray((session.context as any)?.toolMemory)
+      ? ((session.context as any).toolMemory as any[]).slice(-10)
+      : [];
+
     const systemPrompt = `
       You are the Axle God Agent.
       
       CONTEXT:
-      - Agents: ${JSON.stringify(dataSummary.agents.map(a => ({ id: a._id.toString(), name: a.name, status: a.status })))}
-      - Executions: ${JSON.stringify(dataSummary.recentExecutions.slice(0, 3).map(e => ({ status: e.status })))}
+      - Agents: ${JSON.stringify(dataSummary.agents.map(a => ({ id: a._id.toString(), name: a.name, status: a.status }))) }
+      - Executions: ${JSON.stringify(dataSummary.recentExecutions.slice(0, 3).map(e => ({ status: e.status }))) }
+      - Connected integrations: ${JSON.stringify((dataSummary.integrations || []).map((i: any) => ({ provider: i.provider, status: i.status, tokenExpiresAt: i.tokenExpiresAt, scopes: i.scopes, lastUsedAt: i.lastUsedAt }))) }
+      - Tool memory (recent tool calls and results): ${JSON.stringify(toolMemory) }
       
       CAPABILITIES:
       You can call tools. To call a tool, output a single line JSON block wrapped in tags:
       <tool>{"type": "tool_name", "params": {...}}</tool>
+
+      TOOLING RULES:
+      - Only call tools listed in AVAILABLE_TOOLS.
+      - Params MUST match the tool schema exactly (use only listed keys, and required fields must be present).
+      - If you need missing information, call a READ tool first.
+      - For destructive actions, ask the user for confirmation by calling the tool with {"confirmed": true} only after they agree.
       
-      Available Tools:
-      - manage_agent (params: agentId, action: "pause"|"resume"|"delete")
-      - github_list_repos (params: query)
-      - slack_send_message (params: channel, text)
-      - google_calendar_list (params: timeMin)
+      AVAILABLE_TOOLS:
+      - manage_agent: {"agentId": string, "action": "pause"|"resume"|"delete"}
+      - ${JSON.stringify(availableTools)}
       
       INSTRUCTIONS:
       - Stream your thought process naturally to the user.
@@ -88,6 +110,12 @@ export class AxleChatbot {
                 } else {
                     result = await GodAgentService.executeTool(userId, action.type, action.params);
                 }
+
+                // Persist lightweight tool memory for better multi-turn reasoning
+                const nextToolMemory = Array.isArray((session.context as any)?.toolMemory)
+                  ? ([...((session.context as any).toolMemory as any[]), { tool: action.type, params: action.params, result, timestamp: new Date() }])
+                  : ([{ tool: action.type, params: action.params, result, timestamp: new Date() }]);
+                (session.context as any).toolMemory = nextToolMemory.slice(-20);
                 
                 yield { type: "tool_result", data: { tool: action.type, result } };
 

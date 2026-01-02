@@ -69,12 +69,11 @@ export const env = {
   X_REDIRECT_URI: process.env.X_REDIRECT_URI,
   REDIS_URL: process.env.REDIS_URL || "redis://127.0.0.1:6379",
   INTEGRATION_ENC_KEY: process.env.INTEGRATION_ENC_KEY!,
-  // SMTP configuration for send_email tool
-  // SMTP_HOST: process.env.SMTP_HOST,
-  // SMTP_PORT: process.env.SMTP_PORT || "587",
-  // SMTP_USER: process.env.SMTP_USER,
-  // SMTP_PASS: process.env.SMTP_PASS,
-  // SMTP_FROM: process.env.SMTP_FROM,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT || "587",
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASS: process.env.SMTP_PASS,
+  SMTP_FROM: process.env.SMTP_FROM,
   // // Rate limiting
   // RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 min
   // RATE_LIMIT_MAX_REQUESTS: parseInt(

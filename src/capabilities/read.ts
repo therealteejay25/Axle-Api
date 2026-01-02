@@ -336,8 +336,12 @@ export const readActions: Record<string, ActionDefinition> = {
         const { xActions } = require('../adapters/twitter');
         const integration = context.integrations.get('twitter');
         if (!integration) throw new Error('Twitter integration not connected');
-        
-        const result = await xActions.x_get_home_timeline({ maxResults: inputs.limit || 10 }, integration);
+
+        const userId = (integration as any)?.metadata?.xUserId;
+        const result = await xActions.x_get_home_timeline(
+          { maxResults: inputs.limit || 10, userId },
+          integration
+        );
         return { posts: result.data || [], count: result.meta?.result_count || 0 };
       }
       
@@ -545,7 +549,8 @@ export const readActions: Record<string, ActionDefinition> = {
     },
     
     outputSchema: {
-      items: 'array'
+      items: 'array',
+      summaryText: 'string'
     },
     
     constraints: {
@@ -569,8 +574,20 @@ export const readActions: Record<string, ActionDefinition> = {
         timeMin: inputs.timeMin,
         maxResults: inputs.maxResults
       }, integration);
-      
-      return { items: result.items || [] };
+
+      const items = result.items || [];
+      const summaryText = items.length > 0
+        ? items.map((e: any) => {
+            const start = e?.start?.dateTime || e?.start?.date;
+            const end = e?.end?.dateTime || e?.end?.date;
+            const summary = e?.summary || 'Untitled event';
+            const startStr = start ? new Date(start).toLocaleString() : 'unknown time';
+            const endStr = end ? new Date(end).toLocaleString() : '';
+            return `- ${summary}${endStr ? ` (${startStr} → ${endStr})` : ` (${startStr})`}`;
+          }).join('\n')
+        : 'No calendar events found.';
+
+      return { items, summaryText };
     }
   },
   

@@ -1,7 +1,9 @@
 import { Router, Request, Response } from "express";
 import { Execution } from "../models/Execution";
+import { ExecutionEvent } from "../models/ExecutionEvent";
 import { Agent } from "../models/Agent";
 import { authMiddleware } from "../middleware/auth";
+import { ExecutionReportService } from "../services/ExecutionReportService";
 
 // ============================================
 // EXECUTIONS ROUTES
@@ -73,35 +75,6 @@ router.get("/", async (req: Request, res: Response) => {
       limit: parseInt(limit as string),
       offset: parseInt(offset as string)
     });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get single execution with full details
-router.get("/:id", async (req: Request, res: Response) => {
-  try {
-    const execution = await Execution.findById(req.params.id)
-      .populate("agentId", "name description")
-      .populate("triggerId")
-      .select("+reasoning +aiPrompt +aiResponse")  // Include AI fields
-      .lean();
-    
-    if (!execution) {
-      return res.status(404).json({ error: "Execution not found" });
-    }
-    
-    // Verify ownership
-    const agent = await Agent.findOne({
-      _id: execution.agentId,
-      ownerId: req.user!.id
-    });
-    
-    if (!agent) {
-      return res.status(404).json({ error: "Execution not found" });
-    }
-    
-    res.json({ execution });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -200,6 +173,80 @@ router.get("/stats/summary", async (req: Request, res: Response) => {
       summary,
       daily: recentExecutions
     });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get single execution with full details
+router.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const execution = await Execution.findById(req.params.id)
+      .populate("agentId", "name description")
+      .populate("triggerId")
+      .select("+reasoning +aiPrompt +aiResponse")  // Include AI fields
+      .lean();
+    
+    if (!execution) {
+      return res.status(404).json({ error: "Execution not found" });
+    }
+    
+    // Verify ownership
+    const agent = await Agent.findOne({
+      _id: execution.agentId,
+      ownerId: req.user!.id
+    });
+    
+    if (!agent) {
+      return res.status(404).json({ error: "Execution not found" });
+    }
+    
+    res.json({ execution });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get execution event log (append-only)
+router.get("/:id/events", async (req: Request, res: Response) => {
+  try {
+    const execution = await Execution.findById(req.params.id).select("agentId").lean();
+    if (!execution) {
+      return res.status(404).json({ error: "Execution not found" });
+    }
+
+    // Verify ownership
+    const agent = await Agent.findOne({ _id: execution.agentId, ownerId: req.user!.id });
+    if (!agent) {
+      return res.status(404).json({ error: "Execution not found" });
+    }
+
+    const events = await ExecutionEvent.find({ executionId: req.params.id })
+      .sort({ timestamp: 1 })
+      .lean();
+
+    res.json({ events });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get execution report (summary + hints built from event log)
+router.get("/:id/report", async (req: Request, res: Response) => {
+  try {
+    const execution = await Execution.findById(req.params.id).select("agentId").lean();
+    if (!execution) {
+      return res.status(404).json({ error: "Execution not found" });
+    }
+
+    // Verify ownership
+    const agent = await Agent.findOne({ _id: execution.agentId, ownerId: req.user!.id });
+    if (!agent) {
+      return res.status(404).json({ error: "Execution not found" });
+    }
+
+    const report = await ExecutionReportService.buildReport(req.params.id);
+    res.json({ report });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

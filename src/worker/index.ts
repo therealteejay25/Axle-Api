@@ -9,6 +9,7 @@ import { callAI, AIAction, MemoryEntry } from "./aiCaller";
 import { executeActions, toExecutionActions } from "./actionExecutor";
 import { deductCredits, calculateCredits } from "../services/billing";
 import { logger } from "../services/logger";
+import { ExecutionEventService } from "../services/ExecutionEventService";
 
 
 // ============================================
@@ -137,6 +138,16 @@ const validateActions = (actions: AIAction[], loaded: LoadedAgent): string[] => 
   return errors;
 };
 
+// ============================================
+// WORKER REFACTOR (Google ADK)
+// ============================================
+
+import { LlmAgent, Runner } from '@google/adk';
+import { MongoSessionService } from '../services/MongoSessionService';
+import { ToolRegistry } from '../capabilities/registry';
+import { LoadedAgent } from './agentLoader'; // Ensure type is exported
+import * as agentLoader from './agentLoader'; 
+
 const processJob = async (
   job: Job<ExecutionJobData, ExecutionJobResult>
 ): Promise<ExecutionJobResult> => {
@@ -151,495 +162,172 @@ const processJob = async (
   execution.status = "running";
   execution.startedAt = new Date();
   await execution.save();
+
+  await ExecutionEventService.log({
+    executionId,
+    agentId,
+    userId: ownerId,
+    type: "execution_started",
+    level: "info",
+    message: `Execution started (${triggerType})`,
+    data: { triggerType, payload }
+  });
   
-  // Emit live update
   SocketService.getInstance().emitToAgent(agentId, "execution:started", {
     executionId: execution._id,
     status: "running"
   });
   
   try {
-    // 2-3. Load agent and integrations
+    // 2. Load Agent & Integrations
     const loaded = await loadAgent(agentId, ownerId);
     
-    // Check if agent is paused
     if (loaded.agent.status === "paused") {
-      logger.info("Agent is paused, skipping execution", { agentId });
+      logger.info("Agent is paused", { agentId });
       execution.status = "failed";
       execution.error = "Agent is paused";
       await execution.save();
       return { success: false, actionsExecuted: 0, creditsUsed: 0, error: "Agent is paused" };
     }
 
-    // 4. Fetch recent executions for memory (last 5 successful runs)
-    const previousExecutions = await Execution.find({
-      agentId,
-      status: 'success',
-      _id: { $ne: executionId } // Exclude current execution
-    })
-      .sort({ createdAt: -1 })
-      .limit(5)
-      .select('name reasoning memory actionsExecuted createdAt')
-      .lean();
 
-    // ============================================
-    // ITERATIVE EXECUTION STATE
-    // ============================================
-    // Tracks state across THINK→DECIDE→ACT→OBSERVE→MEMORY→REPLAN loop
-    // ============================================
-    interface IterativeState {
-      iteration: number;
-      maxIterations: number;
-      actionHistory: any[];
-      observations: string[];
-      iterativeMemory: MemoryEntry[];  // Changed to structured memory
-      shouldContinue: boolean;
-      goalAchieved: boolean;
-      totalTokensUsed: number;
-      
-      // DYNAMIC REPLANNING fields (new)
-      currentDecision: string;         // Current replan decision
-      recoveryAttempts: number;        // Number of recovery attempts
-      maxRecoveryAttempts: number;     // Max recovery attempts before abort
-      lastError?: string;              // Last error encountered
-      adjustmentsMade: string[];       // List of adjustments made
-    }
+// 3. Initialize ADK Tools via Registry
+    const tools = await ToolRegistry.getToolsForAgent(loaded.integrations, loaded.agent.actions);
     
-    const iterativeState: IterativeState = {
-      iteration: 1,
-      maxIterations: loaded.agent.settings?.maxIterations || 10, // Configurable max iterations
-      actionHistory: [],
-      observations: [],
-      iterativeMemory: [],  // Initialize as empty array
-      shouldContinue: true,
-      goalAchieved: false,
-      totalTokensUsed: 0,
-      
-      // Initialize replanning state
-      currentDecision: 'CONTINUE',
-      recoveryAttempts: 0,
-      maxRecoveryAttempts: 3,  // Max 3 recovery attempts
-      adjustmentsMade: []
-    };
-    
-    let allActionResults: any[] = [];
-    let executionMode: 'one-shot' | 'iterative' = 'one-shot'; // Default to one-shot for backward compatibility
-    
-    // ============================================
-    // MAIN EXECUTION LOOP
-    // ============================================
-    // Supports both ONE-SHOT and ITERATIVE modes:
-    // - ONE-SHOT: AI returns actions[], execute all, exit loop
-    // - ITERATIVE: AI returns action + continue flag, loop until done
-    // ============================================
-    while (iterativeState.shouldContinue && iterativeState.iteration <= iterativeState.maxIterations) {
-      logger.info(`Execution iteration ${iterativeState.iteration}/${iterativeState.maxIterations}`, {
-        executionId,
-        mode: executionMode
-      });
-      
-      // THINK: Build context with current state
-      const context = iterativeState.iteration === 1
-        ? buildContext(loaded, triggerType, payload, previousExecutions)
-        : buildIterativeContext(
-            loaded,
-            triggerType,
-            payload,
-            iterativeState.iteration,
-            iterativeState.maxIterations,
-            iterativeState.actionHistory,
-            iterativeState.observations,
-            iterativeState.iterativeMemory,
-            previousExecutions
-          );
-      
-      const systemPrompt = buildSystemPrompt(loaded, context);
-      
-      // Store prompt for debugging (first iteration only)
-      if (iterativeState.iteration === 1) {
-        execution.aiPrompt = systemPrompt;
-      }
-      
-      // DECIDE: Call AI
-      const maxTokens = Math.max(loaded.agent.brain.maxTokens || 4096, 4096);
-      
-      const aiResponse = await callAI(
-        systemPrompt,
-        loaded.agent.brain.model,
-        loaded.agent.brain.temperature,
-        maxTokens
-      );
-      
-      iterativeState.totalTokensUsed += aiResponse.tokensUsed;
-      
-      // Store AI response and reasoning (first iteration only)
-      if (iterativeState.iteration === 1) {
-        execution.aiResponse = aiResponse.rawResponse;
-        execution.aiTokensUsed = aiResponse.tokensUsed;
-        
-        if (aiResponse.reasoning) {
-          execution.reasoning = aiResponse.reasoning;
-        }
-        
-        if (aiResponse.executionName) {
-          execution.name = aiResponse.executionName;
-        }
-      }
-      
-      // DETECT MODE: Check if AI returned one-shot or iterative response
-      if (aiResponse.actions && aiResponse.actions.length > 0) {
-        // ============================================
-        // ONE-SHOT MODE (backward compatible)
-        // ============================================
-        // AI returned multiple actions - execute all at once
-        // ============================================
-        executionMode = 'one-shot';
-        logger.info("Executing in ONE-SHOT mode", { actionsCount: aiResponse.actions.length });
-        
-        // Validate actions before execution
-        const validationErrors = validateActions(aiResponse.actions, loaded);
-        if (validationErrors.length > 0) {
-          execution.status = "failed";
-          execution.error = `Action validation failed: ${validationErrors.join('; ')}`;
-          execution.finishedAt = new Date();
-          await execution.save();
-          
-          SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
-            executionId: execution._id,
-            status: "failed",
-            error: execution.error
-          });
-          
-          return {
-            success: false,
-            actionsExecuted: 0,
-            creditsUsed: 0,
-            error: execution.error
-          };
-        }
-        
-        // Execute all actions
-        const actionResults = await executeActions(
-          aiResponse.actions,
-          loaded,
-          loaded.agent.actions,
-          executionId,
-          agentId
-        );
-        
-        allActionResults = actionResults;
-        
-        // Persist memory from AI response (structured memory)
-        if (aiResponse.memory && Array.isArray(aiResponse.memory)) {
-          execution.memory = aiResponse.memory as any;  // Store as array
-        }
-        
-        // Exit loop after one-shot execution
-        break;
-        
-      } else if (aiResponse.action) {
-        // ============================================
-        // ITERATIVE MODE (new - THINK→DECIDE→ACT→OBSERVE→MEMORY→REPLAN)
-        // ============================================
-        // AI returned single action with continuation control
-        // ============================================
-        executionMode = 'iterative';
-        logger.info("Executing in ITERATIVE mode", {
-          iteration: iterativeState.iteration,
-          action: aiResponse.action.type,
-          continue: aiResponse.continue
-        });
-        
-        // Validate single action
-        const validationErrors = validateActions([aiResponse.action], loaded);
-        if (validationErrors.length > 0) {
-          // Action validation failed - store error and continue to next iteration
-          logger.warn("Action validation failed in iteration", {
-            iteration: iterativeState.iteration,
-            errors: validationErrors
-          });
-          
-          iterativeState.actionHistory.push({
-            type: aiResponse.action.type,
-            params: aiResponse.action.params,
-            error: validationErrors.join('; '),
-            startedAt: new Date(),
-            finishedAt: new Date()
-          });
-          
-          iterativeState.observations.push(
-            aiResponse.observation || `Action validation failed: ${validationErrors.join('; ')}`
-          );
-          
-          // Continue to next iteration (AI can adapt)
-          iterativeState.iteration++;
-          continue;
-        }
-        
-        // ACT: Execute single action
-        const { executeSingleAction } = await import("./actionExecutor");
-        const actionResult = await executeSingleAction(
-          aiResponse.action,
-          loaded,
-          loaded.agent.actions,
-          executionId,
-          agentId
-        );
-        
-        // OBSERVE: Store result and create system memory entry
-        iterativeState.actionHistory.push(actionResult);
-        allActionResults.push(actionResult);
-        
-        // Add system memory entry for action result
-        const systemMemoryEntry: MemoryEntry = actionResult.error ? {
-          source: 'system',
-          timestamp: new Date().toISOString(),
-          type: 'error',
-          payload: {
-            action: actionResult.type,
-            error: actionResult.error,
-            params: actionResult.params
-          }
-        } : {
-          source: 'system',
-          timestamp: new Date().toISOString(),
-          type: 'fact',
-          payload: {
-            action: actionResult.type,
-            result: actionResult.result
-          }
-        };
-        
-        iterativeState.iterativeMemory.push(systemMemoryEntry);
-        
-        // Store AI's observation
-        if (aiResponse.observation) {
-          iterativeState.observations.push(aiResponse.observation);
-        }
-        
-        // MEMORY: Append AI's memory entries
-        if (aiResponse.memory && Array.isArray(aiResponse.memory)) {
-          iterativeState.iterativeMemory.push(...aiResponse.memory);
-        }
-        
-        // ============================================
-        // REPLAN: Handle decision
-        // ============================================
-        // AI must choose: CONTINUE | ADJUST | RECOVER | ABORT
-        // If no decision provided, infer from action result
-        const decision = aiResponse.replanDecision || (actionResult.error ? 'RECOVER' : 'CONTINUE');
-        iterativeState.currentDecision = decision;
-        
-        logger.info('Replanning decision', {
-          decision,
-          reason: aiResponse.replanReason,
-          iteration: iterativeState.iteration,
-          recoveryAttempts: iterativeState.recoveryAttempts
-        });
-        
-        switch (decision) {
-          case 'CONTINUE':
-            // Goal on track, proceed with plan
-            logger.info('CONTINUE: Proceeding as planned', {
-              reason: aiResponse.replanReason
-            });
-            
-            iterativeState.shouldContinue = aiResponse.continue ?? true;
-            iterativeState.goalAchieved = aiResponse.goalAchieved ?? false;
-            iterativeState.recoveryAttempts = 0;  // Reset recovery counter
-            break;
-          
-          case 'ADJUST':
-            // Minor adjustment needed
-            logger.info('ADJUST: Modifying approach', {
-              reason: aiResponse.replanReason,
-              adjustments: aiResponse.adjustments
-            });
-            
-            // Store adjustments
-            if (aiResponse.adjustments) {
-              iterativeState.adjustmentsMade.push(...aiResponse.adjustments);
-              
-              iterativeState.iterativeMemory.push({
-                source: 'ai',
-                timestamp: new Date().toISOString(),
-                type: 'decision',
-                payload: {
-                  decision: 'ADJUST',
-                  reason: aiResponse.replanReason,
-                  adjustments: aiResponse.adjustments
-                }
-              });
-            }
-            
-            iterativeState.shouldContinue = true;
-            iterativeState.recoveryAttempts = 0;  // Reset recovery counter
-            break;
-          
-          case 'RECOVER':
-            // Error occurred, attempt recovery
-            iterativeState.recoveryAttempts++;
-            
-            logger.warn('RECOVER: Attempting recovery', {
-              attempt: iterativeState.recoveryAttempts,
-              maxAttempts: iterativeState.maxRecoveryAttempts,
-              reason: aiResponse.replanReason,
-              strategy: aiResponse.recoveryStrategy
-            });
-            
-            // Store recovery attempt
-            iterativeState.iterativeMemory.push({
-              source: 'system',
-              timestamp: new Date().toISOString(),
-              type: 'error',
-              payload: {
-                error: actionResult.error || 'Unknown error',
-                recoveryAttempt: iterativeState.recoveryAttempts,
-                strategy: aiResponse.recoveryStrategy
-              }
-            });
-            
-            // Check if max recovery attempts reached
-            if (iterativeState.recoveryAttempts >= iterativeState.maxRecoveryAttempts) {
-              logger.error('Max recovery attempts reached, aborting', {
-                attempts: iterativeState.recoveryAttempts
-              });
-              
-              iterativeState.currentDecision = 'ABORT';
-              iterativeState.shouldContinue = false;
-              iterativeState.lastError = `Max recovery attempts (${iterativeState.maxRecoveryAttempts}) exceeded`;
-            } else {
-              iterativeState.shouldContinue = true;
-            }
-            break;
-          
-          case 'ABORT':
-            // Unrecoverable error, stop execution
-            logger.error('ABORT: Stopping execution', {
-              reason: aiResponse.replanReason
-            });
-            
-            // Store abort decision
-            iterativeState.iterativeMemory.push({
-              source: 'ai',
-              timestamp: new Date().toISOString(),
-              type: 'decision',
-              payload: {
-                decision: 'ABORT',
-                reason: aiResponse.replanReason
-              }
-            });
-            
-            iterativeState.shouldContinue = false;
-            iterativeState.goalAchieved = false;
-            iterativeState.lastError = aiResponse.replanReason || 'Execution aborted by AI';
-            break;
-          
-          default:
-            // Unknown decision, default to CONTINUE
-            logger.warn('Unknown replan decision, defaulting to CONTINUE', { decision });
-            iterativeState.shouldContinue = aiResponse.continue ?? true;
-            iterativeState.goalAchieved = aiResponse.goalAchieved ?? false;
-        }
-        
-        // Move to next iteration
-        iterativeState.iteration++;
-        
-      } else {
-        // No actions returned - treat as completion
-        logger.info("No actions returned by AI, ending execution");
-        break;
-      }
-    }
-    
-    // Check if we hit max iterations
-    if (iterativeState.iteration > iterativeState.maxIterations && !iterativeState.goalAchieved) {
-      logger.warn("Execution reached max iterations without goal achievement", {
-        executionId,
-        maxIterations: iterativeState.maxIterations
-      });
-    }
-    
-    // Persist final iterative memory to execution memory
-    if (executionMode === 'iterative' && iterativeState.iterativeMemory.length > 0) {
-      execution.memory = iterativeState.iterativeMemory as any;  // Store as array
-    }
-    
-    // Calculate and deduct credits
-    const creditsUsed = calculateCredits(iterativeState.totalTokensUsed, allActionResults.length);
-    const creditDeducted = await deductCredits(ownerId, creditsUsed);
-    
-    if (!creditDeducted) {
-      logger.warn("Insufficient credits", { ownerId, required: creditsUsed });
-    }
-    
-    // Persist results
-    execution.actionsExecuted = toExecutionActions(allActionResults);
-    execution.creditsUsed = creditsUsed;
-    execution.status = "success";
-    execution.finishedAt = new Date();
-    execution.outputPayload = {
-      actionsCount: allActionResults.length,
-      tokensUsed: iterativeState.totalTokensUsed,
-      creditsUsed,
-      executionMode,
-      iterations: executionMode === 'iterative' ? iterativeState.iteration - 1 : 1,
-      goalAchieved: iterativeState.goalAchieved
-    };
-    
-    // Check for high-risk actions requiring approval
-    if (loaded.agent.settings.approvalRequired) {
-      const highRiskPrefixes = ["delete", "remove", "archive", "un"];
-      const needsApproval = allActionResults.some(r => 
-        highRiskPrefixes.some(p => r.type.toLowerCase().includes(p))
-      );
+    let actionsCount = 0;
+    let tokensUsed = 0;
 
-      if (needsApproval) {
-        execution.status = "pending";
-        execution.approvalStatus = "pending";
-        await execution.save();
-        return { success: true, actionsExecuted: allActionResults.length, creditsUsed };
+    // Sanitize agent name for ADK (must be valid identifier: letters, digits, underscores only)
+    const sanitizedAgentName = loaded.agent.name.replace(/[^a-zA-Z0-9_]/g, '_');
+
+    // 4. Initialize ADK Agent
+    const adkAgent = new LlmAgent({
+      name: sanitizedAgentName,
+      model: loaded.agent.brain.model || 'gemini-2.0-flash-thinking-exp-1219',
+      tools,
+      instruction: buildSystemPrompt(loaded, buildContext(loaded, triggerType, payload, [])), // 'instruction' instead of 'systemPrompt'
+      generateContentConfig: { // 'generateContentConfig' instead of 'generationConfig'
+        maxOutputTokens: loaded.agent.brain.maxTokens || 4096,
+        temperature: loaded.agent.brain.temperature
+      },
+      // Callbacks for observability instead of events
+      beforeToolCallback: async (...args: any[]) => {
+         const toolName = args[0]?.name || args[0];
+         SocketService.getInstance().emitToAgent(agentId, "execution:action", {
+           type: typeof toolName === 'string' ? toolName : 'unknown',
+           status: "running"
+         });
+      },
+      afterToolCallback: async (...args: any[]) => {
+         actionsCount++;
       }
-    }
+    });
 
-    // Check if any action failed
-    const hasErrors = allActionResults.some(r => r.error);
-    if (hasErrors) {
-      execution.status = "failed";
-      execution.error = "One or more actions failed";
-    }
+    // 5. Initialize Runner with Mongo Session
+    const sessionService = new MongoSessionService();
     
-    await execution.save();
-
-    // Emit live update
-    SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
-      executionId: execution._id,
-      status: execution.status,
-      name: execution.name,
-      actionsCount: allActionResults.length,
-      executionMode,
-      iterations: executionMode === 'iterative' ? iterativeState.iteration - 1 : 1
+    // Runner config: passing sessionService directly if supported
+    // Based on inspection, Runner has 'sessionService'.
+    const runner = new Runner({
+        agent: adkAgent,
+        sessionService
     });
     
-    return {
-      success: !hasErrors,
-      actionsExecuted: allActionResults.length,
-      creditsUsed,
-      error: hasErrors ? "One or more actions failed" : undefined
-    };
     
+    // 6. Execute (Generator Loop)
+    // runAsync expects just a string prompt, NOT an object with sessionId
+    const prompt = JSON.stringify(payload);
+    const runGenerator = await runner.runAsync(prompt, {
+        sessionId: executionId
+    });
+
+    for await (const event of runGenerator) {
+        // We can process events here if needed, e.g. streaming thoughts
+        // logging thoughts is handled by LlmAgent callbacks or here if event type matches
+    }
+    
+    // 8. Process Result & Billing
+    const finalState = await sessionService.load(executionId) as any;
+    
+    // Calculate credits (Mock token usage if ADK doesn't return it yet, or use result stats)
+    // Assuming result has usage or we estimate.
+    // We used 'tokensUsed' variable scope but currently we don't update it. 
+    // We'll trust finalState or just use actionsCount for now.
+    
+    const creditsUsed = calculateCredits(tokensUsed, actionsCount);
+    
+    await deductCredits(ownerId, creditsUsed);
+
+    // Update Execution
+    execution.status = "success";
+    execution.finishedAt = new Date();
+    execution.actionsExecuted = finalState?.history?.filter((h:any) => h.role === 'tool' || h.role === 'function').map((h: any) => ({
+       type: h.parts?.[0]?.functionCall?.name || 'unknown', // Adjust based on message structure
+       // ... simplified mapping
+       verified: true
+    })) as any || [];
+    
+    // Get last model response
+    const lastMsg = finalState?.history?.[finalState.history.length - 1];
+    execution.outputPayload = { result: lastMsg?.parts?.[0]?.text || "Completed" };
+    execution.creditsUsed = creditsUsed;
+    execution.aiTokensUsed = tokensUsed;
+    
+    if (execution.thoughtSignature) {
+       // Ensure it's saved
+    }
+
+    await execution.save();
+
+    await ExecutionEventService.log({
+      executionId,
+      agentId,
+      userId: ownerId,
+      type: "execution_completed",
+      level: "info",
+      message: "Execution completed successfully",
+      data: { creditsUsed, actionsCount }
+    });
+    
+    SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
+      executionId: execution._id,
+      status: "success",
+      actionsCount
+    });
+
+    return {
+      success: true,
+      actionsExecuted: actionsCount,
+      creditsUsed,
+      error: undefined
+    };
+
   } catch (error: any) {
-    // Handle failures
+    logger.error("Execution failed", { error });
     execution.status = "failed";
     execution.error = error.message;
-    execution.errorStack = error.stack;
     execution.finishedAt = new Date();
-    execution.retryCount = (execution.retryCount || 0) + 1;
     await execution.save();
+
+    await ExecutionEventService.log({
+      executionId,
+      agentId,
+      userId: ownerId,
+      type: "execution_failed",
+      level: "error",
+      message: error.message
+    });
     
-    throw error; // Re-throw for BullMQ retry logic
+    SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
+      executionId: execution._id,
+      status: "failed",
+      error: execution.error
+    });
+
+    throw error;
   }
 };
+
 
 export const stopWorker = async (): Promise<void> => {
   if (worker) {

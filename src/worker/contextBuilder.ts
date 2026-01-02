@@ -212,6 +212,41 @@ export const buildSystemPrompt = (
     ? context.availableIntegrations.join(", ")
     : "none connected";
 
+  const integrationIdentities = (() => {
+    const out: Record<string, any> = {};
+    for (const [provider, integ] of loaded.integrations.entries()) {
+      const m: any = (integ as any)?.metadata || {};
+
+      if (provider === 'twitter') {
+        out.twitter = {
+          xUserId: m.xUserId,
+          xUsername: m.xUsername,
+          xName: m.xName
+        };
+      } else if (provider === 'github') {
+        out.github = {
+          githubLogin: m.githubLogin,
+          githubUserId: m.githubUserId,
+          githubName: m.githubName
+        };
+      } else if (provider === 'slack') {
+        out.slack = {
+          slackUserId: m.slackUserId,
+          slackTeamId: m.slackTeamId,
+          slackTeam: m.slackTeam,
+          slackUrl: m.slackUrl
+        };
+      } else if (provider === 'instagram') {
+        out.instagram = {
+          igUserId: m.igUserId,
+          igUsername: m.igUsername,
+          igName: m.igName
+        };
+      }
+    }
+    return out;
+  })();
+
   // Build iterative mode context string if in iterative mode
   const iterativeContext = context.iteration ? `
 ---
@@ -519,6 +554,7 @@ CONTEXT:
 - Timezone: ${context.environment.timezone}
 - Trigger type: ${context.trigger.type}
 - Connected integrations: ${integrationsList}
+- INTEGRATION_IDENTITIES: ${JSON.stringify(integrationIdentities)}
 
 ---
 🛠️ AVAILABLE TOOLS (grouped by capability):

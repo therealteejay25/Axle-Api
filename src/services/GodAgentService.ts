@@ -5,6 +5,7 @@ import { AuditLog } from "../models/AuditLog";
 import { User } from "../models/User";
 import { executeAction } from "../adapters/registry";
 import { Integration } from "../models/Integration";
+import { decryptToken } from "./crypto";
 import { logger } from "./logger";
 
 export class GodAgentService {
@@ -29,15 +30,44 @@ export class GodAgentService {
       };
     }
 
-    // 2. Fetch required integration
-    const integrations = await Integration.find({ ownerId: new Types.ObjectId(userId) });
-    const integrationMap = new Map(integrations.map(i => [i.provider, i as any]));
+    const integrations = await Integration.find({
+      userId: new Types.ObjectId(userId),
+      status: "connected"
+    }).lean();
+
+    const integrationMap = new Map(
+      integrations.map((i: any) => [
+        i.provider,
+        {
+          provider: i.provider,
+          accessToken: decryptToken(i.accessToken),
+          refreshToken: i.refreshToken ? decryptToken(i.refreshToken) : undefined,
+          scopes: i.scopes || [],
+          metadata: i.metadata || {}
+        }
+      ])
+    );
 
     try {
       logger.info("God Agent executing tool", { userId, actionType });
 
-      // 3. Execute action
-      const result = await executeAction(actionType, params, integrationMap as any);
+      const capabilityExecutor = require("../capabilities/executor");
+      const capabilityAction = capabilityExecutor.getAction(actionType);
+
+      let result;
+      if (capabilityAction) {
+        const execContext = {
+          integrations: integrationMap,
+          previousResults: {}
+        };
+        const execResult = await capabilityExecutor.executeAction(actionType, params, execContext);
+        if (!execResult.success) {
+          throw new Error(execResult.error || "Action failed in capability layer");
+        }
+        result = execResult.data;
+      } else {
+        result = await executeAction(actionType, params, integrationMap as any);
+      }
 
       // 4. Audit Log
       await AuditLog.create({
@@ -68,22 +98,29 @@ export class GodAgentService {
    * Fetches unified data summary for a user.
    */
   static async getDataSummary(userId: string) {
-    const [agents, recentExecutions, auditLogs] = await Promise.all([
-      Agent.find({ ownerId: new Types.ObjectId(userId) }).lean(),
-      Execution.find({ agentId: { $in: await Agent.find({ ownerId: new Types.ObjectId(userId) }).select("_id") } })
+    const ownerObjectId = new Types.ObjectId(userId);
+    const agents = await Agent.find({ ownerId: ownerObjectId }).lean();
+    const agentIds = agents.map((a: any) => a._id);
+
+    const [recentExecutions, auditLogs, integrations] = await Promise.all([
+      Execution.find({ agentId: { $in: agentIds } })
         .sort({ createdAt: -1 })
         .limit(10)
         .lean(),
-      AuditLog.find({ userId: new Types.ObjectId(userId) })
+      AuditLog.find({ userId: ownerObjectId })
         .sort({ timestamp: -1 })
         .limit(10)
+        .lean(),
+      Integration.find({ userId: ownerObjectId, status: "connected" })
+        .select("provider status tokenExpiresAt scopes metadata lastUsedAt")
         .lean()
     ]);
 
     return {
       agents,
       recentExecutions,
-      auditLogs
+      auditLogs,
+      integrations
     };
   }
 
