@@ -18,14 +18,27 @@ export class MongoSessionService implements SessionService {
     // No-op
   }
 
+  private currentSessionId?: string;
+
+  setContext(sessionId: string) {
+    this.currentSessionId = sessionId;
+  }
+
   async load(sessionIdOrObj: string | any): Promise<Session | undefined> {
     // ADK may pass an object with sessionId property or just the string
-    const sessionId = typeof sessionIdOrObj === 'string' 
+    let sessionId = typeof sessionIdOrObj === 'string' 
       ? sessionIdOrObj 
       : sessionIdOrObj?.sessionId;
     
+    // Fallback/Hack for ADK Runner dropping context
+    if (!sessionId && this.currentSessionId) {
+        sessionId = this.currentSessionId;
+    }
+
     if (!sessionId) {
-      console.warn('MongoSessionService.load called without valid sessionId', sessionIdOrObj);
+      console.warn('MongoSessionService.load called without valid sessionId', 
+        typeof sessionIdOrObj === 'object' ? JSON.stringify(sessionIdOrObj) : sessionIdOrObj
+      );
       return undefined;
     }
     
@@ -41,8 +54,13 @@ export class MongoSessionService implements SessionService {
 
   async save(session: Session): Promise<void> {
     if (!session.id) {
-      console.warn('MongoSessionService.save called without session.id', session);
-      return;
+        // Fallback
+        if (this.currentSessionId) {
+            session.id = this.currentSessionId;
+        } else {
+            console.warn('MongoSessionService.save called without session.id', session);
+            return;
+        }
     }
     
     await Execution.updateOne(

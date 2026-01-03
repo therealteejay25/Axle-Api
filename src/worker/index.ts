@@ -225,6 +225,7 @@ const processJob = async (
 
     // 5. Initialize Runner with Mongo Session
     const sessionService = new MongoSessionService();
+    sessionService.setContext(executionId); // Fix for ADK dropping context
     
     // Runner config: passing sessionService directly if supported
     // Based on inspection, Runner has 'sessionService'.
@@ -238,8 +239,10 @@ const processJob = async (
     // runAsync expects just a string prompt, NOT an object with sessionId
     const prompt = JSON.stringify(payload);
     const runGenerator = await runner.runAsync(prompt, {
-        sessionId: executionId
-    });
+        sessionId: executionId,
+        session: { id: executionId }, // Try alternate format
+        context: { sessionId: executionId } // Try context wrapper
+    } as any);
 
     for await (const event of runGenerator) {
         // We can process events here if needed, e.g. streaming thoughts
