@@ -45,10 +45,13 @@ export class MongoSessionService implements SessionService {
     const execution = await Execution.findById(sessionId);
     if (!execution) return undefined;
     
+    // Use state._adk_history for history to avoid conflict with 'memory' Map
+    const adkHistory = execution.state?._adk_history;
+    
     return {
       id: execution._id.toString(),
       state: execution.state || {},
-      history: execution.memory ? (execution.memory as any) : []
+      history: Array.isArray(adkHistory) ? adkHistory : []
     };
   }
 
@@ -63,9 +66,14 @@ export class MongoSessionService implements SessionService {
         }
     }
     
+    // Ensure state exists
+    const newState = session.state || {};
+    // Save history inside state to persist it in 'state' Mixed field
+    newState._adk_history = session.history || [];
+
     await Execution.updateOne(
       { _id: session.id },
-      { $set: { state: session.state, memory: session.history } }
+      { $set: { state: newState } } // Don't touch 'memory' field
     );
   }
 }
