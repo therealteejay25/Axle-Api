@@ -1,0 +1,10 @@
+{
+  "manualConversion": {
+    "type": "string",
+    "description": "Unknown"
+  },
+  "zodVersionCheck": "test",
+  "logs": [
+    "TypeName: undefined, Type: object, Keys: type,shape"
+  ]
+}

@@ -13,45 +13,104 @@ import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { z } from "zod";
 
-// Helpers for tool conversion
-// We need to convert ADK FunctionTools to Gemini API Tool Declarations
+// Manual Zod to Gemini Schema Converter
+// Robust against version mismatches by using typeName strings
+function zodToGeminiSchema(schema: any): any {
+  if (!schema || !schema._def) return { type: "object", properties: {} };
+
+  const def = schema._def;
+  // Fallback: Zod v3 uses typeName, Zod v4 might use type
+  const typeName = def.typeName || (def.type ? `Zod${def.type.charAt(0).toUpperCase() + def.type.slice(1)}` : 'Unknown');
+
+  // Handle Wrappers
+  if (typeName === "ZodOptional" || typeName === "ZodNullable") {
+    return zodToGeminiSchema(def.innerType);
+  }
+  if (typeName === "ZodDefault") {
+    return zodToGeminiSchema(def.innerType);
+  }
+  if (typeName === "ZodEffects") {
+    return zodToGeminiSchema(def.schema);
+  }
+
+  // Base Types
+  if (typeName === "ZodString") {
+    const s: any = { type: "string" };
+    if (schema.description) s.description = schema.description;
+    return s;
+  }
+  if (typeName === "ZodNumber") {
+    const s: any = { type: "number" };
+    if (schema.description) s.description = schema.description;
+    return s;
+  }
+  if (typeName === "ZodBoolean") {
+    const s: any = { type: "boolean" };
+    if (schema.description) s.description = schema.description;
+    return s;
+  }
+  if (typeName === "ZodEnum") {
+    const s: any = { type: "string", enum: def.values };
+    if (schema.description) s.description = schema.description;
+    return s;
+  }
+  if (typeName === "ZodArray") {
+    return {
+      type: "array",
+      items: zodToGeminiSchema(def.type),
+      description: schema.description
+    };
+  }
+  if (typeName === "ZodObject") {
+    const properties: any = {};
+    const required: string[] = [];
+    
+    // def.shape() is a function in some versions, object in others?
+    // Usually def.shape() returns the object.
+    const shape = typeof def.shape === 'function' ? def.shape() : def.shape;
+
+    for (const key in shape) {
+      const fieldSchema = shape[key];
+      properties[key] = zodToGeminiSchema(fieldSchema);
+      
+      // Determine required: Not Optional, Nullable, or Default
+      const fieldDef = fieldSchema._def;
+      const fieldTypeName = fieldDef.typeName || (fieldDef.type ? `Zod${fieldDef.type.charAt(0).toUpperCase() + fieldDef.type.slice(1)}` : 'Unknown');
+      
+      if (fieldTypeName !== "ZodOptional" && 
+          fieldTypeName !== "ZodNullable" && 
+          fieldTypeName !== "ZodDefault") {
+        required.push(key);
+      }
+    }
+
+    const output: any = { type: "object", properties };
+    if (schema.description) output.description = schema.description;
+    if (required.length > 0) output.required = required;
+    return output;
+  }
+  if (typeName === "ZodRecord") {
+      return { type: "object", description: "key-value pairs" };
+  }
+  if (typeName === "ZodAny" || typeName === "ZodUnknown") {
+      return { type: "object", properties: {}, description: "Any value" };
+  }
+
+  // Fallback
+  return { type: "string", description: "Unknown type" };
+}
+
 function toGeminiTools(tools: FunctionTool[]) {
-  // Map FunctionTools to functionDeclarations
   const functionDeclarations = tools.map((t: any) => {
     // ADK FunctionTool keeps the Zod schema in definition.parameters or parameters
     const zodSchema = t.definition ? t.definition.parameters : t.parameters;
     
-    let jsonSchema: any = { type: "object", properties: {} }; // Default safe empty object
-    
-    if (zodSchema) {
-        // Check if it's already a JSON schema-like object (simple check)
-        // or a Zod schema. Zod schemas have a parse method.
-        if (typeof zodSchema.parse === 'function') {
-             // Convert Zod to JSON Schema
-             const converted = zodToJsonSchema(zodSchema, { target: "openApi3" });
-             jsonSchema = converted;
-             
-             // zod-to-json-schema wraps it, we usually need the properties/type
-             // But Gemini expects the root object schema.
-             // Remove $schema if present as Gemini might complain or ignore
-             if (jsonSchema.$schema) delete jsonSchema.$schema;
-             
-             // Log for debugging
-             // console.log(`[Tool: ${t.name || t.definition?.name}] Schema:`, JSON.stringify(jsonSchema));
-        } else {
-            jsonSchema = zodSchema;
-        }
-    }
-    
-    // STRICT FIX: Ensure root has type: "object"
-    if (!jsonSchema.type) {
-        jsonSchema.type = "object";
-    }
-    
-    // For tools with no parameters (z.object({})), ensure properties exists
-    if (!jsonSchema.properties) {
-        jsonSchema.properties = {};
-    }
+    // Use manual converter
+    const jsonSchema = zodToGeminiSchema(zodSchema);
+
+    // Strict safety for Gemini
+    if (!jsonSchema.type) jsonSchema.type = "object";
+    if (jsonSchema.type === "object" && !jsonSchema.properties) jsonSchema.properties = {};
 
     return {
       name: t.definition ? t.definition.name : t.name,
