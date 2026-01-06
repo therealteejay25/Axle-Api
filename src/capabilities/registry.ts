@@ -1,13 +1,7 @@
 import { BaseTool } from './BaseTool';
 import { FunctionTool } from '@google/adk';
 
-// GITHUB
-import * as GithubTools from './plugins/github/index';
-// GOOGLE
-import * as GoogleTools from './plugins/google/index';
-// X
-import * as XTools from './plugins/x/index';
-// UTILITIES
+// UTILITIES - Only keep custom tools not duplicated by Gemini
 import * as UtilityTools from './plugins/utilities/index';
 
 type ToolProvider = (context: { integrations: Map<string, any> }) => Promise<FunctionTool[]>;
@@ -34,7 +28,7 @@ export class ToolRegistry {
       this.manualTools.push(instance.toFunctionTool());
     };
 
-    [GithubTools, GoogleTools, XTools, UtilityTools].forEach(namespace => {
+    [UtilityTools].forEach(namespace => {
         Object.values(namespace).forEach(ToolClass => {
             if (typeof ToolClass === 'function' && ToolClass.prototype instanceof BaseTool) {
                  add(ToolClass as new () => BaseTool);

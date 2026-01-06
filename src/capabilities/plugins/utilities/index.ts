@@ -1,34 +1,31 @@
 // ============================================
 // UTILITIES PLUGIN INDEX
 // ============================================
-// Exports all utility tools for registration
+// Exports only unique, non-duplicated utility tools
+// (Gemini already has GitHub, Google, X/Twitter tools built-in)
 // ============================================
 
-// HTTP Tools
-export {
-  HttpGetTool,
-  HttpPostTool,
-  HttpPutTool,
-  HttpDeleteTool,
-  HttpPatchTool
-} from './http';
-
-// Web Scraping Tools
+// Web Scraping Tools (Unique - Gemini doesn't have web scraping)
 export {
   ScrapeUrlTool,
   ScrapeMultipleUrlsTool,
-  ExtractLinksTool,
-  ScreenshotUrlTool
+  ExtractLinksTool
 } from './scraper';
 
-// Research Tools
+// HTTP Tools (Useful for API calls Gemini might not handle)
+export {
+  HttpGetTool,
+  HttpPostTool
+} from './http';
+
+// Research Tools (Unique - AI-powered research with real web search)
 export {
   ResearchWebTool,
   SearchWebTool,
   AnalyzePageTool
 } from './research';
 
-// Email Tools
+// Email Tools (Unique - Resend integration)
 export {
   SendEmailTool,
   SendBulkEmailTool
