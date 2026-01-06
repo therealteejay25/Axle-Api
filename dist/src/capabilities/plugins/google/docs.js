@@ -21,7 +21,7 @@ class GoogleDocsGetDocTool extends BaseTool_1.BaseTool {
 exports.GoogleDocsGetDocTool = GoogleDocsGetDocTool;
 class GoogleDocsCreateDocTool extends BaseTool_1.BaseTool {
     name = 'google_docs_create_doc';
-    description = 'Create a new Google Doc.';
+    description = 'Create a new Google Doc (requires Google integration, falls back to mock when not connected).';
     inputSchema = zod_1.z.object({
         title: zod_1.z.string().describe('Document title')
     });

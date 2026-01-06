@@ -236,11 +236,30 @@ const processJob = async (job) => {
         });
         console.log("runAsync completed");
         let eventCount = 0;
+        const executionEvents = [];
+        const executionTurns = [];
         for await (const event of runGenerator) {
             eventCount++;
             console.log(`ADK EVENT ${eventCount}:`, JSON.stringify(event, null, 2));
-            // We can process events here if needed, e.g. streaming thoughts
-            // logging thoughts is handled by LlmAgent callbacks or here if event type matches
+            // Store events for database
+            executionEvents.push({
+                ...event,
+                timestamp: Date.now(),
+                eventNumber: eventCount
+            });
+            // Store turns if this is a conversation turn
+            if (event.content && event.author) {
+                executionTurns.push(event);
+            }
+            // Emit real-time update via Socket.IO
+            SocketService_1.SocketService.getInstance().emitToAgent(agentId, "execution:event", {
+                executionId,
+                event: {
+                    ...event,
+                    timestamp: Date.now(),
+                    eventNumber: eventCount
+                }
+            });
         }
         console.log(`Total ADK events processed: ${eventCount}`);
         // 8. Process Result & Billing
@@ -263,6 +282,14 @@ const processJob = async (job) => {
                 // ... simplified mapping
                 verified: true,
             })) || [];
+        // Store detailed execution data
+        execution.state = {
+            ...execution.state,
+            events: executionEvents,
+            turns: executionTurns,
+            finalState,
+            eventCount
+        };
         // Get last model response
         const lastMsg = finalState?.history?.[finalState.history.length - 1];
         execution.outputPayload = {

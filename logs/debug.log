@@ -11479,3 +11479,51 @@
 {"timestamp":"2026-01-06 12:31:30","level":"info","message":"MongoSessionService.load success","id":"695cf26813c4b7c5612e51ed","historyLength":17}
 {"timestamp":"2026-01-06 12:31:31","level":"info","message":"Credits deducted","userId":"6947325cc0b2ea5724e45758","amount":1,"remaining":833}
 {"timestamp":"2026-01-06 12:31:31","level":"info","message":"Job completed","jobId":"221","executionId":"695cf26813c4b7c5612e51ed","success":true,"actionsExecuted":0}
+{"timestamp":"2026-01-06 12:38:58","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-06 12:39:06","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-01-06 12:39:06","level":"info","message":"[development] Axle API listening on http://localhost:7000"}
+{"timestamp":"2026-01-06 12:39:06","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-01-06 12:39:06","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-01-06 12:39:07","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-01-06 12:39:07","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-01-06 12:39:07","level":"info","message":"Worker started"}
+{"timestamp":"2026-01-06 12:39:07","level":"info","message":"Worker started"}
+{"timestamp":"2026-01-06 12:39:09","level":"info","message":"Scheduled trigger 69492ae5173fca105d2a7c63","cron":"0 8 * * *","agentId":"69492a2d173fca105d2a7c5e"}
+{"timestamp":"2026-01-06 12:39:10","level":"info","message":"Scheduled trigger 69568551c80b7cea8052742e","cron":"0 9 * * *","agentId":"6956851ac80b7cea80527418"}
+{"timestamp":"2026-01-06 12:39:10","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-01-06 12:39:10","level":"info","message":"Scheduler initialized: 2 triggers scheduled"}
+{"timestamp":"2026-01-06 12:39:11","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-01-06 12:39:11","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-01-06 12:39:11","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-01-06 12:43:44","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-06 12:44:02","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-01-06 12:44:02","level":"info","message":"[development] Axle API listening on http://localhost:7000"}
+{"timestamp":"2026-01-06 12:44:02","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-01-06 12:44:02","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-01-06 12:44:06","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-01-06 12:44:06","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-01-06 12:44:12","level":"info","message":"Worker started"}
+{"timestamp":"2026-01-06 12:44:12","level":"info","message":"Worker started"}
+{"timestamp":"2026-01-06 12:44:16","level":"info","message":"Scheduled trigger 69492ae5173fca105d2a7c63","cron":"0 8 * * *","agentId":"69492a2d173fca105d2a7c5e"}
+{"timestamp":"2026-01-06 12:44:17","level":"info","message":"Scheduled trigger 69568551c80b7cea8052742e","cron":"0 9 * * *","agentId":"6956851ac80b7cea80527418"}
+{"timestamp":"2026-01-06 12:44:17","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-01-06 12:44:17","level":"info","message":"Scheduler initialized: 2 triggers scheduled"}
+{"timestamp":"2026-01-06 12:44:18","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-01-06 12:44:18","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-01-06 12:44:18","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-01-06 12:47:24","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-06 12:48:33","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-01-06 12:48:34","level":"info","message":"[development] Axle API listening on http://localhost:7000"}
+{"timestamp":"2026-01-06 12:48:34","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-01-06 12:48:34","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-01-06 12:48:36","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-01-06 12:48:36","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-01-06 12:48:36","level":"info","message":"Worker started"}
+{"timestamp":"2026-01-06 12:48:36","level":"info","message":"Worker started"}
+{"timestamp":"2026-01-06 12:48:43","level":"info","message":"Scheduled trigger 69492ae5173fca105d2a7c63","cron":"0 8 * * *","agentId":"69492a2d173fca105d2a7c5e"}
+{"timestamp":"2026-01-06 12:48:44","level":"info","message":"Scheduled trigger 69568551c80b7cea8052742e","cron":"0 9 * * *","agentId":"6956851ac80b7cea80527418"}
+{"timestamp":"2026-01-06 12:48:44","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-01-06 12:48:44","level":"info","message":"Scheduler initialized: 2 triggers scheduled"}
+{"timestamp":"2026-01-06 12:48:45","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-01-06 12:48:45","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-01-06 12:48:45","level":"info","message":"Scheduler initialized"}

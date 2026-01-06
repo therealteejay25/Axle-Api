@@ -84,7 +84,7 @@ router.get("/", async (req, res) => {
                 .skip(parseInt(offset))
                 .limit(parseInt(limit))
                 .populate("agentId", "name")
-                .select("+reasoning") // Include reasoning field
+                .select("+reasoning +events +turns") // Include reasoning, events, and turns fields
                 .lean(),
             Execution_1.Execution.countDocuments(query)
         ]);

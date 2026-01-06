@@ -35,13 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToolRegistry = void 0;
 const BaseTool_1 = require("./BaseTool");
-// GITHUB
-const GithubTools = __importStar(require("./plugins/github/index"));
-// GOOGLE
-const GoogleTools = __importStar(require("./plugins/google/index"));
-// X
-const XTools = __importStar(require("./plugins/x/index"));
-// UTILITIES
+// UTILITIES - Only keep custom tools not duplicated by Gemini
 const UtilityTools = __importStar(require("./plugins/utilities/index"));
 /**
  * Registry to manage available tools and instantiate them for agents.
@@ -61,7 +55,7 @@ class ToolRegistry {
             // Convert to ADK FunctionTool
             this.manualTools.push(instance.toFunctionTool());
         };
-        [GithubTools, GoogleTools, XTools, UtilityTools].forEach(namespace => {
+        [UtilityTools].forEach(namespace => {
             Object.values(namespace).forEach(ToolClass => {
                 if (typeof ToolClass === 'function' && ToolClass.prototype instanceof BaseTool_1.BaseTool) {
                     add(ToolClass);

@@ -37,7 +37,7 @@ const startServer = async () => {
   
   // CORS
   app.use(cors({
-    origin: "http://localhost:3000",
+    origin: "https://heyaxle.vercel.app",
     credentials: true
   }));
   
