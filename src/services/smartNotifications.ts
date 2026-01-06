@@ -73,7 +73,7 @@ export const generateSmartNotifications = async (userId: string): Promise<SmartN
     `;
 
     // 3. Call AI
-    const aiResponse = await callAI(systemPrompt, "google/gemini-2.0-flash-001", 0.7);
+    const aiResponse = await callAI(systemPrompt, "gemini-1.5-pro-002", 0.7);
     
     // Debug log
     console.log("DEBUG: AI Raw Response", JSON.stringify(aiResponse, null, 2));

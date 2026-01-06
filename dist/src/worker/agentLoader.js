@@ -6,6 +6,7 @@ const Integration_1 = require("../models/Integration");
 const User_1 = require("../models/User");
 const crypto_1 = require("../services/crypto");
 const logger_1 = require("../services/logger");
+const IntegrationIdentityService_1 = require("../services/IntegrationIdentityService");
 const loadAgent = async (agentId, ownerId) => {
     // Load agent
     const agent = await Agent_1.Agent.findById(agentId);
@@ -25,41 +26,91 @@ const loadAgent = async (agentId, ownerId) => {
     if (!user) {
         throw new Error(`User not found: ${ownerId}`);
     }
-    // Resolve integrations
+    //  Resolve integrations
     const integrations = new Map();
-    // Load user's integrations for the providers the agent needs
-    for (const providerName of agent.integrations) {
-        const integration = await Integration_1.Integration.findOne({
+    // SIMPLIFIED UX: If agent.integrations is empty, load ALL user's connected integrations
+    const integrationsToLoad = agent.integrations.length > 0
+        ? agent.integrations // Legacy: specific integrations
+        : null; // New: load all
+    if (integrationsToLoad === null) {
+        // Load ALL user integrations
+        const allUserIntegrations = await Integration_1.Integration.find({
             userId: ownerId,
-            provider: providerName,
             status: "connected"
         });
-        if (integration) {
+        for (const integration of allUserIntegrations) {
             try {
-                // Decrypt tokens
                 const accessToken = (0, crypto_1.decryptToken)(integration.accessToken);
                 const refreshToken = integration.refreshToken
                     ? (0, crypto_1.decryptToken)(integration.refreshToken)
                     : undefined;
-                integrations.set(providerName, {
+                const hydrated = await IntegrationIdentityService_1.IntegrationIdentityService.hydrateIfNeeded(integration, {
                     provider: integration.provider,
                     accessToken,
                     refreshToken,
                     scopes: integration.scopes,
                     metadata: integration.metadata
                 });
+                integrations.set(integration.provider, {
+                    provider: integration.provider,
+                    accessToken: hydrated.accessToken,
+                    refreshToken: hydrated.refreshToken,
+                    scopes: hydrated.scopes,
+                    metadata: hydrated.metadata
+                });
                 // Update last used
                 integration.lastUsedAt = new Date();
                 await integration.save();
-                logger_1.logger.debug(`Loaded integration: ${providerName}`);
+                logger_1.logger.debug(`Loaded integration: ${integration.provider}`);
             }
             catch (err) {
-                logger_1.logger.error(`Failed to decrypt integration ${providerName}:`, err);
+                logger_1.logger.error(`Failed to decrypt integration ${integration.provider}:`, err);
                 // Continue without this integration
             }
         }
-        else {
-            logger_1.logger.warn(`Agent ${agentId} requires ${providerName} but not connected`);
+    }
+    else {
+        // Load specific integrations (backward compatibility)
+        for (const providerName of integrationsToLoad) {
+            const integration = await Integration_1.Integration.findOne({
+                userId: ownerId,
+                provider: providerName,
+                status: "connected"
+            });
+            if (integration) {
+                try {
+                    // Decrypt tokens
+                    const accessToken = (0, crypto_1.decryptToken)(integration.accessToken);
+                    const refreshToken = integration.refreshToken
+                        ? (0, crypto_1.decryptToken)(integration.refreshToken)
+                        : undefined;
+                    const hydrated = await IntegrationIdentityService_1.IntegrationIdentityService.hydrateIfNeeded(integration, {
+                        provider: integration.provider,
+                        accessToken,
+                        refreshToken,
+                        scopes: integration.scopes,
+                        metadata: integration.metadata
+                    });
+                    integrations.set(providerName, {
+                        provider: integration.provider,
+                        accessToken: hydrated.accessToken,
+                        refreshToken: hydrated.refreshToken,
+                        scopes: hydrated.scopes,
+                        metadata: hydrated.metadata
+                    });
+                    // Update last used
+                    integration.lastUsedAt = new Date();
+                    await integration.save();
+                    logger_1.logger.debug(`Loaded integration: ${providerName}`);
+                }
+                catch (err) {
+                    logger_1.logger.error(`Failed to decrypt integration ${providerName}:`, err);
+                    // Continue without this integration
+                }
+            }
+            else {
+                logger_1.logger.warn(`Agent ${agentId} requires ${providerName} but not connected`);
+            }
         }
     }
     return { agent, user, integrations };

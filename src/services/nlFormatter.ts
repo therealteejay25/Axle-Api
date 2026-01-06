@@ -103,7 +103,7 @@ Example good summaries:
 
 Generate ONE concise sentence (max 15 words) that a non-technical user would understand:`;
 
-    const response = await callAI(prompt, "google/gemini-2.0-flash-001", 0.7, 150);
+    const response = await callAI(prompt, "gemini-1.5-pro-002", 0.7, 150);
     
     // Extract just the summary text
     return response.reasoning || "Execution completed";

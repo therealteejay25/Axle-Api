@@ -16,6 +16,7 @@
     "@ai-sdk/groq": "^3.0.1",
     "@anthropic-ai/sdk": "^0.71.1",
     "@google/adk": "^0.2.1",
+    "@google/adk-devtools": "^0.2.1",
     "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.2.9",
     "@openai/agents": "^0.3.3",

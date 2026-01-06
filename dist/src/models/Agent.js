@@ -20,6 +20,12 @@ const AgentSchema = new mongoose_1.Schema({
         trim: true,
         maxlength: 500
     },
+    // Simple plain-English instructions for user-friendly agent creation
+    instructions: {
+        type: String,
+        trim: true,
+        maxlength: 2000
+    },
     status: {
         type: String,
         enum: ["active", "paused"],
@@ -29,11 +35,11 @@ const AgentSchema = new mongoose_1.Schema({
     brain: {
         model: {
             type: String,
-            default: "gpt-4o"
+            default: "gemini-1.5-pro-002"
         },
         systemPrompt: {
             type: String,
-            required: true
+            required: false // Made optional - can use instructions instead
         },
         temperature: {
             type: Number,
@@ -48,6 +54,23 @@ const AgentSchema = new mongoose_1.Schema({
             max: 16000
         }
     },
+    rules: {
+        type: [{
+                if: { type: String, required: true },
+                then: { type: String, required: true }
+            }],
+        default: []
+    },
+    blueprint: {
+        originalPrompt: { type: String },
+        generatedAt: { type: Date },
+        category: { type: String }
+    },
+    settings: {
+        tone: { type: String, default: "professional" },
+        maxActionsPerRun: { type: Number, default: 5 },
+        approvalRequired: { type: Boolean, default: false }
+    },
     // Integration names this agent uses (resolved at execution time)
     integrations: {
         type: [String],
@@ -57,7 +80,14 @@ const AgentSchema = new mongoose_1.Schema({
     actions: {
         type: [String],
         default: []
-    }
+    },
+    blueprintHistory: [
+        {
+            rules: { type: mongoose_1.Schema.Types.Mixed },
+            settings: { type: mongoose_1.Schema.Types.Mixed },
+            updatedAt: { type: Date, default: Date.now }
+        }
+    ]
 }, {
     timestamps: true,
     toJSON: { virtuals: true },

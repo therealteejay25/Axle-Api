@@ -90,7 +90,7 @@ const AgentSchema = new Schema<IAgent>(
     brain: {
       model: { 
         type: String, 
-        default: "google/gemini-2.0-flash-001" 
+        default: "gemini-1.5-pro-002" 
       },
       systemPrompt: { 
         type: String, 

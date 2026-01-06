@@ -7,8 +7,16 @@ const ExecutionActionSchema = new mongoose_1.Schema({
     params: { type: mongoose_1.Schema.Types.Mixed, default: {} },
     result: { type: mongoose_1.Schema.Types.Mixed },
     error: { type: String },
+    humanReadableStep: { type: String },
     startedAt: { type: Date, required: true },
-    finishedAt: { type: Date }
+    finishedAt: { type: Date },
+    durationMs: { type: Number },
+    outputValidation: {
+        type: mongoose_1.Schema.Types.Mixed,
+        default: null
+    },
+    toolsCalled: { type: [String], default: [] },
+    verified: { type: Boolean }
 }, { _id: false });
 const ExecutionSchema = new mongoose_1.Schema({
     agentId: {
@@ -32,6 +40,7 @@ const ExecutionSchema = new mongoose_1.Schema({
         default: "pending",
         index: true
     },
+    name: { type: String, trim: true },
     inputPayload: {
         type: mongoose_1.Schema.Types.Mixed,
         default: {}
@@ -42,15 +51,28 @@ const ExecutionSchema = new mongoose_1.Schema({
     aiPrompt: { type: String },
     aiResponse: { type: String },
     aiTokensUsed: { type: Number, default: 0 },
+    reasoning: { type: String },
     actionsExecuted: {
         type: [ExecutionActionSchema],
         default: []
+    },
+    memory: {
+        type: Map,
+        of: mongoose_1.Schema.Types.Mixed,
+        default: {}
     },
     error: { type: String },
     errorStack: { type: String },
     retryCount: {
         type: Number,
         default: 0
+    },
+    thoughtSignature: { type: String },
+    state: { type: mongoose_1.Schema.Types.Mixed, default: {} },
+    approvalStatus: {
+        type: String,
+        enum: ["pending", "approved", "rejected"],
+        index: true
     },
     creditsUsed: {
         type: Number,

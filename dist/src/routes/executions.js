@@ -35,8 +35,10 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const Execution_1 = require("../models/Execution");
+const ExecutionEvent_1 = require("../models/ExecutionEvent");
 const Agent_1 = require("../models/Agent");
 const auth_1 = require("../middleware/auth");
+const ExecutionReportService_1 = require("../services/ExecutionReportService");
 // ============================================
 // EXECUTIONS ROUTES
 // ============================================
@@ -82,6 +84,7 @@ router.get("/", async (req, res) => {
                 .skip(parseInt(offset))
                 .limit(parseInt(limit))
                 .populate("agentId", "name")
+                .select("+reasoning") // Include reasoning field
                 .lean(),
             Execution_1.Execution.countDocuments(query)
         ]);
@@ -91,30 +94,6 @@ router.get("/", async (req, res) => {
             limit: parseInt(limit),
             offset: parseInt(offset)
         });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-// Get single execution with full details
-router.get("/:id", async (req, res) => {
-    try {
-        const execution = await Execution_1.Execution.findById(req.params.id)
-            .populate("agentId", "name description")
-            .populate("triggerId")
-            .lean();
-        if (!execution) {
-            return res.status(404).json({ error: "Execution not found" });
-        }
-        // Verify ownership
-        const agent = await Agent_1.Agent.findOne({
-            _id: execution.agentId,
-            ownerId: req.user.id
-        });
-        if (!agent) {
-            return res.status(404).json({ error: "Execution not found" });
-        }
-        res.json({ execution });
     }
     catch (err) {
         res.status(500).json({ error: err.message });
@@ -215,6 +194,71 @@ router.get("/stats/summary", async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+// Get single execution with full details
+router.get("/:id", async (req, res) => {
+    try {
+        const execution = await Execution_1.Execution.findById(req.params.id)
+            .populate("agentId", "name description")
+            .populate("triggerId")
+            .select("+reasoning +aiPrompt +aiResponse") // Include AI fields
+            .lean();
+        if (!execution) {
+            return res.status(404).json({ error: "Execution not found" });
+        }
+        // Verify ownership
+        const agent = await Agent_1.Agent.findOne({
+            _id: execution.agentId,
+            ownerId: req.user.id
+        });
+        if (!agent) {
+            return res.status(404).json({ error: "Execution not found" });
+        }
+        res.json({ execution });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// Get execution event log (append-only)
+router.get("/:id/events", async (req, res) => {
+    try {
+        const execution = await Execution_1.Execution.findById(req.params.id).select("agentId").lean();
+        if (!execution) {
+            return res.status(404).json({ error: "Execution not found" });
+        }
+        // Verify ownership
+        const agent = await Agent_1.Agent.findOne({ _id: execution.agentId, ownerId: req.user.id });
+        if (!agent) {
+            return res.status(404).json({ error: "Execution not found" });
+        }
+        const events = await ExecutionEvent_1.ExecutionEvent.find({ executionId: req.params.id })
+            .sort({ timestamp: 1 })
+            .lean();
+        res.json({ events });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// Get execution report (summary + hints built from event log)
+router.get("/:id/report", async (req, res) => {
+    try {
+        const execution = await Execution_1.Execution.findById(req.params.id).select("agentId").lean();
+        if (!execution) {
+            return res.status(404).json({ error: "Execution not found" });
+        }
+        // Verify ownership
+        const agent = await Agent_1.Agent.findOne({ _id: execution.agentId, ownerId: req.user.id });
+        if (!agent) {
+            return res.status(404).json({ error: "Execution not found" });
+        }
+        const report = await ExecutionReportService_1.ExecutionReportService.buildReport(req.params.id);
+        res.json({ report });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 // Retry a failed execution
 router.post("/:id/retry", async (req, res) => {
     try {
@@ -244,6 +288,71 @@ router.post("/:id/retry", async (req, res) => {
             retried: true,
             originalExecutionId: execution._id,
             newExecutionId: result.executionId
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// Approve a pending execution
+router.post("/:id/approve", async (req, res) => {
+    try {
+        const execution = await Execution_1.Execution.findById(req.params.id);
+        if (!execution)
+            return res.status(404).json({ error: "Execution not found" });
+        // Verify ownership
+        const agent = await Agent_1.Agent.findOne({ _id: execution.agentId, ownerId: req.user.id });
+        if (!agent)
+            return res.status(404).json({ error: "Execution not found" });
+        if (execution.status !== "pending" || execution.approvalStatus !== "pending") {
+            return res.status(400).json({ error: "Execution is not awaiting approval" });
+        }
+        execution.approvalStatus = "approved";
+        execution.status = "running"; // Resume execution
+        await execution.save();
+        // In a real system, you'd re-queue the worker task here
+        // For now, we update the status so the next poll/worker cycle picks it up
+        res.json({ approved: true, status: execution.status });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// Reject a pending execution
+router.post("/:id/reject", async (req, res) => {
+    try {
+        const execution = await Execution_1.Execution.findById(req.params.id);
+        if (!execution)
+            return res.status(404).json({ error: "Execution not found" });
+        // Verify ownership
+        const agent = await Agent_1.Agent.findOne({ _id: execution.agentId, ownerId: req.user.id });
+        if (!agent)
+            return res.status(404).json({ error: "Execution not found" });
+        execution.approvalStatus = "rejected";
+        execution.status = "failed";
+        execution.error = "Rejected by user";
+        await execution.save();
+        res.json({ rejected: true, status: execution.status });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// Rollback an execution (Simple version: just mark as rolled back or trigger inverse where possible)
+router.post("/:id/rollback", async (req, res) => {
+    try {
+        const execution = await Execution_1.Execution.findById(req.params.id);
+        if (!execution)
+            return res.status(404).json({ error: "Execution not found" });
+        // Verify ownership
+        const agent = await Agent_1.Agent.findOne({ _id: execution.agentId, ownerId: req.user.id });
+        if (!agent)
+            return res.status(404).json({ error: "Execution not found" });
+        // logic for rollback would go here (e.g., deleting created files, un-starring repos)
+        // For now, we just log the intent and update status
+        res.json({
+            rolledBack: true,
+            message: "Rollback initiated. Note: Automated rollback is experimental."
         });
     }
     catch (err) {

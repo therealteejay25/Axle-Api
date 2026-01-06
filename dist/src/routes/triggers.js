@@ -15,19 +15,42 @@ router.use(auth_1.authMiddleware);
 router.get("/", async (req, res) => {
     try {
         const { agentId } = req.query;
-        if (!agentId) {
-            return res.status(400).json({ error: "agentId is required" });
+        // If agentId is provided, return triggers for that single agent.
+        // If agentId is NOT provided, return triggers across all of the user's agents
+        // (frontend dashboard view expects to list everything).
+        let agentIds = [];
+        if (agentId) {
+            // Verify agent ownership
+            const agent = await Agent_1.Agent.findOne({
+                _id: agentId,
+                ownerId: req.user.id
+            });
+            if (!agent) {
+                return res.status(404).json({ error: "Agent not found" });
+            }
+            agentIds = [agent._id];
         }
-        // Verify agent ownership
-        const agent = await Agent_1.Agent.findOne({
-            _id: agentId,
-            ownerId: req.user.id
+        else {
+            agentIds = (await Agent_1.Agent.find({ ownerId: req.user.id }).select("_id").lean()).map(a => a._id);
+        }
+        const triggers = await Trigger_1.Trigger.find({ agentId: { $in: agentIds } })
+            .sort({ createdAt: -1 })
+            .populate("agentId", "name")
+            .lean();
+        const normalized = triggers.map((t) => {
+            const cronExpression = t?.config?.cron;
+            const webhookPath = t?.config?.webhookPath;
+            const source = t?.config?.source;
+            const webhookUrl = webhookPath ? `/webhooks/${webhookPath}` : undefined;
+            return {
+                ...t,
+                cronExpression,
+                source,
+                webhookPath,
+                webhookUrl
+            };
         });
-        if (!agent) {
-            return res.status(404).json({ error: "Agent not found" });
-        }
-        const triggers = await Trigger_1.Trigger.find({ agentId }).sort({ createdAt: -1 });
-        res.json({ triggers });
+        res.json({ triggers: normalized });
     }
     catch (err) {
         res.status(500).json({ error: err.message });
@@ -36,7 +59,9 @@ router.get("/", async (req, res) => {
 // Get single trigger
 router.get("/:id", async (req, res) => {
     try {
-        const trigger = await Trigger_1.Trigger.findById(req.params.id);
+        const trigger = await Trigger_1.Trigger.findById(req.params.id)
+            .populate("agentId", "name")
+            .lean();
         if (!trigger) {
             return res.status(404).json({ error: "Trigger not found" });
         }
@@ -48,7 +73,17 @@ router.get("/:id", async (req, res) => {
         if (!agent) {
             return res.status(404).json({ error: "Trigger not found" });
         }
-        res.json({ trigger });
+        const cronExpression = trigger?.config?.cron;
+        const webhookPath = trigger?.config?.webhookPath;
+        const webhookUrl = webhookPath ? `/webhooks/${webhookPath}` : undefined;
+        res.json({
+            trigger: {
+                ...trigger,
+                cronExpression,
+                webhookPath,
+                webhookUrl
+            }
+        });
     }
     catch (err) {
         res.status(500).json({ error: err.message });
@@ -57,7 +92,7 @@ router.get("/:id", async (req, res) => {
 // Create trigger
 router.post("/", async (req, res) => {
     try {
-        const { agentId, type, config, enabled = true } = req.body;
+        const { agentId, type, config, cronExpression, enabled = true } = req.body;
         // Validate
         if (!agentId || !type) {
             return res.status(400).json({ error: "agentId and type are required" });
@@ -73,14 +108,23 @@ router.post("/", async (req, res) => {
         if (!agent) {
             return res.status(404).json({ error: "Agent not found" });
         }
-        // Build config based on type
-        const triggerConfig = { ...config };
+        // Build config based on type.
+        // Accept either config.cron or top-level cronExpression for frontend compatibility.
+        const triggerConfig = { ...(config || {}) };
+        if (cronExpression && !triggerConfig.cron) {
+            triggerConfig.cron = cronExpression;
+        }
         if (type === "schedule" && !triggerConfig.cron) {
             return res.status(400).json({ error: "cron expression required for schedule trigger" });
         }
         if (type === "webhook") {
             // Generate unique webhook path
             triggerConfig.webhookPath = (0, webhookHandler_1.generateWebhookPath)();
+            // Allow caller to specify a provider/source (e.g. "github", "slack", "google")
+            // or a fully-qualified source (e.g. "github.push").
+            if (typeof triggerConfig.source === "string") {
+                triggerConfig.source = triggerConfig.source.trim();
+            }
         }
         const trigger = await Trigger_1.Trigger.create({
             agentId,
@@ -93,7 +137,15 @@ router.post("/", async (req, res) => {
             await (0, scheduleHandler_1.addScheduleTrigger)(trigger._id.toString());
         }
         // Return webhook URL for webhook triggers
-        const response = { trigger };
+        const response = {
+            trigger: {
+                ...(trigger.toObject ? trigger.toObject() : trigger),
+                cronExpression: triggerConfig.cron,
+                source: triggerConfig.source,
+                webhookPath: triggerConfig.webhookPath,
+                webhookUrl: triggerConfig.webhookPath ? `/webhooks/${triggerConfig.webhookPath}` : undefined
+            }
+        };
         if (type === "webhook") {
             response.webhookUrl = `/webhooks/${triggerConfig.webhookPath}`;
         }
@@ -106,7 +158,7 @@ router.post("/", async (req, res) => {
 // Update trigger
 router.patch("/:id", async (req, res) => {
     try {
-        const { config, enabled } = req.body;
+        const { config, enabled, cronExpression } = req.body;
         const trigger = await Trigger_1.Trigger.findById(req.params.id);
         if (!trigger) {
             return res.status(404).json({ error: "Trigger not found" });
@@ -124,6 +176,9 @@ router.patch("/:id", async (req, res) => {
         if (config !== undefined) {
             trigger.config = { ...trigger.config, ...config };
         }
+        if (cronExpression !== undefined) {
+            trigger.config = { ...trigger.config, cron: cronExpression };
+        }
         if (enabled !== undefined) {
             trigger.enabled = enabled;
         }
@@ -136,13 +191,26 @@ router.patch("/:id", async (req, res) => {
             else if (!wasEnabled && trigger.enabled) {
                 await (0, scheduleHandler_1.addScheduleTrigger)(trigger._id.toString());
             }
-            else if (trigger.enabled && config?.cron) {
+            else if (trigger.enabled && (config?.cron || cronExpression !== undefined)) {
                 // Cron changed, re-register
                 await (0, scheduleHandler_1.removeScheduleTrigger)(trigger._id.toString());
                 await (0, scheduleHandler_1.addScheduleTrigger)(trigger._id.toString());
             }
         }
-        res.json({ trigger });
+        const updated = await Trigger_1.Trigger.findById(trigger._id)
+            .populate("agentId", "name")
+            .lean();
+        const cronExpr = updated?.config?.cron;
+        const webhookPath = updated?.config?.webhookPath;
+        const webhookUrl = webhookPath ? `/webhooks/${webhookPath}` : undefined;
+        res.json({
+            trigger: {
+                ...updated,
+                cronExpression: cronExpr,
+                webhookPath,
+                webhookUrl
+            }
+        });
     }
     catch (err) {
         res.status(500).json({ error: err.message });

@@ -2,10 +2,22 @@ import { BaseTool, ToolContext } from '../../BaseTool';
 import { z } from 'zod';
 
 // ============================================
-// GITHUB ISSUES
+// GITHUB TOOLS INDEX
 // ============================================
-// Export all tools
+// Exports all GitHub tools from organized categories
+// ============================================
+
+// Export OpenAPI tools
 export * from './openapi';
+
+// Export all tool categories
+export * from './pullRequests';
+export * from './repositories';
+export * from './commits';
+export * from './releases';
+export * from './workflows';
+export * from './admin';
+export * from './users';
 export class GitHubCreateIssueTool extends BaseTool {
   name = 'github_create_issue';
   description = 'Create a new issue in a GitHub repository with title, body, labels, and assignees.';
@@ -101,6 +113,105 @@ export class GitHubCommentIssueTool extends BaseTool {
     return githubActions.github_comment_issue({
         owner, repo, issueNumber: params.issueNumber, body: params.body
     }, integration);
+  }
+}
+
+export class GitHubGetIssueTool extends BaseTool {
+  name = 'github_get_issue';
+  description = 'Get details of a specific GitHub issue including title, body, state, labels, and assignees.';
+  inputSchema = z.object({
+    repository: z.string().describe('Repository name ("owner/repo")'),
+    issueNumber: z.number().describe('Issue number')
+  });
+
+  async runImpl(params: any, context: ToolContext) {
+    const integration = context.integrations.get('github');
+    const { githubActions } = require('../../../adapters/github');
+    const [owner, repo] = params.repository.split('/');
+    return githubActions.github_get_issue({ owner, repo, issueNumber: params.issueNumber }, integration);
+  }
+}
+
+export class GitHubCloseIssueTool extends BaseTool {
+  name = 'github_close_issue';
+  description = 'Close a GitHub issue. Use when an issue is resolved or no longer relevant.';
+  inputSchema = z.object({
+    repository: z.string().describe('Repository name ("owner/repo")'),
+    issueNumber: z.number().describe('Issue number to close')
+  });
+
+  async runImpl(params: any, context: ToolContext) {
+    const integration = context.integrations.get('github');
+    const { githubActions } = require('../../../adapters/github');
+    const [owner, repo] = params.repository.split('/');
+    return githubActions.github_close_issue({ owner, repo, issueNumber: params.issueNumber }, integration);
+  }
+}
+
+export class GitHubReopenIssueTool extends BaseTool {
+  name = 'github_reopen_issue';
+  description = 'Reopen a closed GitHub issue.';
+  inputSchema = z.object({
+    repository: z.string().describe('Repository name ("owner/repo")'),
+    issueNumber: z.number().describe('Issue number to reopen')
+  });
+
+  async runImpl(params: any, context: ToolContext) {
+    const integration = context.integrations.get('github');
+    const { githubActions } = require('../../../adapters/github');
+    const [owner, repo] = params.repository.split('/');
+    return githubActions.github_reopen_issue({ owner, repo, issueNumber: params.issueNumber }, integration);
+  }
+}
+
+export class GitHubAssignIssueTool extends BaseTool {
+  name = 'github_assign_issue';
+  description = 'Assign users to a GitHub issue.';
+  inputSchema = z.object({
+    repository: z.string().describe('Repository name ("owner/repo")'),
+    issueNumber: z.number().describe('Issue number'),
+    assignees: z.array(z.string()).describe('Array of GitHub usernames to assign')
+  });
+
+  async runImpl(params: any, context: ToolContext) {
+    const integration = context.integrations.get('github');
+    const { githubActions } = require('../../../adapters/github');
+    const [owner, repo] = params.repository.split('/');
+    return githubActions.github_assign_issue({ owner, repo, issueNumber: params.issueNumber, assignees: params.assignees }, integration);
+  }
+}
+
+export class GitHubLabelIssueTool extends BaseTool {
+  name = 'github_label_issue';
+  description = 'Add labels to a GitHub issue for categorization and prioritization.';
+  inputSchema = z.object({
+    repository: z.string().describe('Repository name ("owner/repo")'),
+    issueNumber: z.number().describe('Issue number'),
+    labels: z.array(z.string()).describe('Array of label names to add')
+  });
+
+  async runImpl(params: any, context: ToolContext) {
+    const integration = context.integrations.get('github');
+    const { githubActions } = require('../../../adapters/github');
+    const [owner, repo] = params.repository.split('/');
+    return githubActions.github_label_issue({ owner, repo, issueNumber: params.issueNumber, labels: params.labels }, integration);
+  }
+}
+
+export class GitHubUnlabelIssueTool extends BaseTool {
+  name = 'github_unlabel_issue';
+  description = 'Remove a label from a GitHub issue.';
+  inputSchema = z.object({
+    repository: z.string().describe('Repository name ("owner/repo")'),
+    issueNumber: z.number().describe('Issue number'),
+    label: z.string().describe('Label name to remove')
+  });
+
+  async runImpl(params: any, context: ToolContext) {
+    const integration = context.integrations.get('github');
+    const { githubActions } = require('../../../adapters/github');
+    const [owner, repo] = params.repository.split('/');
+    return githubActions.github_unlabel_issue({ owner, repo, issueNumber: params.issueNumber, label: params.label }, integration);
   }
 }
 

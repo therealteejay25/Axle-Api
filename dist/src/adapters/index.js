@@ -3,13 +3,15 @@
 // ADAPTERS INDEX
 // ============================================
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateActionParams = exports.getActionsForIntegrations = exports.getAvailableActions = exports.executeAction = exports.httpActions = exports.googleActions = exports.emailActions = exports.twitterActions = exports.slackActions = exports.githubActions = void 0;
+exports.validateActionParams = exports.getActionsForIntegrations = exports.getAvailableActions = exports.executeAction = exports.httpActions = exports.googleActions = exports.emailActions = exports.instagramActions = exports.xActions = exports.slackActions = exports.githubActions = void 0;
 var github_1 = require("./github");
 Object.defineProperty(exports, "githubActions", { enumerable: true, get: function () { return github_1.githubActions; } });
 var slack_1 = require("./slack");
 Object.defineProperty(exports, "slackActions", { enumerable: true, get: function () { return slack_1.slackActions; } });
 var twitter_1 = require("./twitter");
-Object.defineProperty(exports, "twitterActions", { enumerable: true, get: function () { return twitter_1.twitterActions; } });
+Object.defineProperty(exports, "xActions", { enumerable: true, get: function () { return twitter_1.xActions; } });
+var instagram_1 = require("./instagram");
+Object.defineProperty(exports, "instagramActions", { enumerable: true, get: function () { return instagram_1.instagramActions; } });
 var email_1 = require("./email");
 Object.defineProperty(exports, "emailActions", { enumerable: true, get: function () { return email_1.emailActions; } });
 var google_1 = require("./google");

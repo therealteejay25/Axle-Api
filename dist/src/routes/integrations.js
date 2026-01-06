@@ -1,144 +1,62 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const Integration_1 = require("../models/Integration");
-const crypto_1 = require("../services/crypto");
+const oauthController = __importStar(require("../controllers/oauth"));
 const auth_1 = require("../middleware/auth");
 // ============================================
 // INTEGRATIONS ROUTES
 // ============================================
+// OAuth flows and integration management.
+// ============================================
 const router = (0, express_1.Router)();
+// All routes require authentication
 router.use(auth_1.authMiddleware);
-// List user's integrations
-router.get("/", async (req, res) => {
-    try {
-        const integrations = await Integration_1.Integration.find({
-            userId: req.user.id
-        }).select("-accessToken -refreshToken").lean();
-        res.json({ integrations });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-// Get integration status
-router.get("/:provider", async (req, res) => {
-    try {
-        const integration = await Integration_1.Integration.findOne({
-            userId: req.user.id,
-            provider: req.params.provider
-        }).select("-accessToken -refreshToken").lean();
-        if (!integration) {
-            return res.json({
-                connected: false,
-                provider: req.params.provider
-            });
-        }
-        res.json({
-            connected: true,
-            integration
-        });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-// Connect integration (store tokens from OAuth callback)
-router.post("/:provider/connect", async (req, res) => {
-    try {
-        const { provider } = req.params;
-        const { accessToken, refreshToken, scopes, metadata, expiresIn } = req.body;
-        if (!accessToken) {
-            return res.status(400).json({ error: "accessToken is required" });
-        }
-        // Encrypt tokens
-        const encryptedAccessToken = (0, crypto_1.encryptToken)(accessToken);
-        const encryptedRefreshToken = refreshToken ? (0, crypto_1.encryptToken)(refreshToken) : undefined;
-        // Calculate expiry
-        const tokenExpiresAt = expiresIn
-            ? new Date(Date.now() + expiresIn * 1000)
-            : undefined;
-        // Upsert integration
-        const integration = await Integration_1.Integration.findOneAndUpdate({ userId: req.user.id, provider }, {
-            userId: req.user.id,
-            provider,
-            accessToken: encryptedAccessToken,
-            refreshToken: encryptedRefreshToken,
-            tokenExpiresAt,
-            scopes: scopes || [],
-            metadata: metadata || {},
-            status: "connected",
-            connectedAt: new Date()
-        }, { upsert: true, new: true }).select("-accessToken -refreshToken");
-        res.json({
-            success: true,
-            integration
-        });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+// Get all integrations status
+router.get("/", oauthController.getIntegrationsStatus);
+// Get single integration status
+router.get("/:provider", oauthController.getIntegrationStatus);
+// Start OAuth flow - returns auth URL
+router.get("/:provider/auth", oauthController.getAuthUrl);
+// Frontend-friendly alias for starting OAuth flow
+// e.g. GET /integrations/google/connect -> { url }
+router.get("/:provider/connect", oauthController.getAuthUrl);
+// OAuth callback (usually hit by redirect, but can work with code)
+router.get("/:provider/callback", oauthController.handleCallback);
 // Disconnect integration
-router.delete("/:provider", async (req, res) => {
-    try {
-        const result = await Integration_1.Integration.findOneAndDelete({
-            userId: req.user.id,
-            provider: req.params.provider
-        });
-        if (!result) {
-            return res.status(404).json({ error: "Integration not found" });
-        }
-        res.json({
-            disconnected: true,
-            provider: req.params.provider
-        });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-// Revoke integration (mark as revoked without deleting)
-router.post("/:provider/revoke", async (req, res) => {
-    try {
-        const integration = await Integration_1.Integration.findOneAndUpdate({ userId: req.user.id, provider: req.params.provider }, { status: "revoked" }, { new: true }).select("-accessToken -refreshToken");
-        if (!integration) {
-            return res.status(404).json({ error: "Integration not found" });
-        }
-        res.json({ revoked: true, integration });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+router.delete("/:provider", oauthController.disconnectIntegration);
 // Refresh integration token
-router.post("/:provider/refresh", async (req, res) => {
-    try {
-        const { accessToken, refreshToken, expiresIn } = req.body;
-        if (!accessToken) {
-            return res.status(400).json({ error: "accessToken is required" });
-        }
-        const encryptedAccessToken = (0, crypto_1.encryptToken)(accessToken);
-        const encryptedRefreshToken = refreshToken ? (0, crypto_1.encryptToken)(refreshToken) : undefined;
-        const tokenExpiresAt = expiresIn
-            ? new Date(Date.now() + expiresIn * 1000)
-            : undefined;
-        const updateData = {
-            accessToken: encryptedAccessToken,
-            tokenExpiresAt,
-            status: "connected"
-        };
-        if (encryptedRefreshToken) {
-            updateData.refreshToken = encryptedRefreshToken;
-        }
-        const integration = await Integration_1.Integration.findOneAndUpdate({ userId: req.user.id, provider: req.params.provider }, updateData, { new: true }).select("-accessToken -refreshToken");
-        if (!integration) {
-            return res.status(404).json({ error: "Integration not found" });
-        }
-        res.json({ refreshed: true, integration });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+router.post("/:provider/refresh", oauthController.refreshIntegrationToken);
 exports.default = router;

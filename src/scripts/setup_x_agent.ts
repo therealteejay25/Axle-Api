@@ -60,7 +60,7 @@ const setup = async () => {
       description: "An agent that can post tweets to your X account.",
       ownerId: user._id,
       brain: {
-        model: "google/gemini-2.0-flash-001",
+        model: "gemini-1.5-pro-002",
         systemPrompt: `You are a social media manager for the user's personal brand.
 Your goal is to create engaging, concise, and professional posts for X (Twitter).
 

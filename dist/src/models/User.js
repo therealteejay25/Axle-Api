@@ -20,6 +20,7 @@ const UserSchema = new mongoose_1.Schema({
         type: String,
         trim: true
     },
+    passwordHash: { type: String },
     accessToken: { type: String },
     refreshToken: { type: String },
     magicLinkToken: { type: String },
@@ -42,10 +43,21 @@ const UserSchema = new mongoose_1.Schema({
             return new Date(now.getFullYear(), now.getMonth() + 1, 1);
         }
     },
-    timeZone: { type: String, default: "UTC" }
+    // Stripe
+    stripeCustomerId: { type: String },
+    stripeSubscriptionId: { type: String },
+    subscriptionStatus: {
+        type: String,
+        enum: ['active', 'canceled', 'past_due', 'trialing']
+    },
+    subscriptionCurrentPeriodEnd: { type: Date },
+    timeZone: { type: String, default: "UTC" },
+    profileImageUrl: { type: String },
+    automaticBackupsEnabled: { type: Boolean, default: true },
+    notificationEmailsEnabled: { type: Boolean, default: false }
 }, { timestamps: true });
 // Indexes
-UserSchema.index({ email: 1 }, { unique: true });
+// UserSchema.index({ email: 1 }, { unique: true }); // Redundant
 UserSchema.index({ magicLinkToken: 1 }, { sparse: true });
 // Methods
 UserSchema.methods.canCreateAgent = async function () {

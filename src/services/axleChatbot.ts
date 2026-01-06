@@ -169,7 +169,7 @@ export class AxleChatbot {
     // 3. Initialize Gemini Chat
     const genAI = getGeminiClient();
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash-exp", // Using latest capable model
+        model: "gemini-1.5-pro-002", // Using latest capable model
         tools: toGeminiTools(allTools),
         systemInstruction: `
             You are the Axle God Agent.

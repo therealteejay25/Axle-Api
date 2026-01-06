@@ -25,7 +25,7 @@ const setup = async () => {
       description: "Searches for jobs based on your GitHub profile and emails you a daily summary.",
       ownerId: user._id,
       brain: {
-        model: "google/gemini-2.0-flash-001",
+        model: "gemini-1.5-pro-002",
         // System Prompt with FIXED paths and Nunjucks templates
         systemPrompt: `You are a career advisor agent. Your goal is to find the best job opportunities for the user based on their GitHub profile.
 

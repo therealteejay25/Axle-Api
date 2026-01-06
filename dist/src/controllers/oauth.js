@@ -36,306 +36,413 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.xCallbackController = exports.getXUrlController = exports.instagramCallbackController = exports.getInstagramUrlController = exports.slackCallbackController = exports.getSlackUrlController = exports.googleCallbackController = exports.githubCallbackController = exports.getGoogleUrlController = exports.getGitHubUrlController = exports.pkceStore = void 0;
-const githubapis_1 = require("../lib/githubapis");
-const crypto_1 = __importDefault(require("crypto"));
-// import qs from "querystring";
-const pkce_1 = require("../lib/pkce");
-// import { pkceStore } from "./pkceStore";
-const googleapis_1 = require("../lib/googleapis");
+exports.refreshIntegrationToken = exports.disconnectIntegration = exports.getIntegrationStatus = exports.getIntegrationsStatus = exports.handleCallback = exports.getAuthUrl = void 0;
 const axios_1 = __importDefault(require("axios"));
+const crypto_1 = __importDefault(require("crypto"));
 const Integration_1 = require("../models/Integration");
+const crypto_2 = require("../services/crypto");
 const env_1 = require("../config/env");
-const querystring_1 = __importDefault(require("querystring"));
-exports.pkceStore = new Map();
-const getGitHubUrlController = async (req, res) => {
-    // Comprehensive GitHub scopes for all tools
-    const defaultScopes = [
-        "repo", // Full control of private repositories (read/write code, issues, PRs, commits, branches, releases)
-        "user", // Read user profile data
-        "notifications", // Access notifications (list_notifications, mark_notification_read)
-        "read:org", // Read org and team membership (for organization repositories)
-        "workflow", // Update GitHub Action workflows (list_workflows, get_workflow_runs)
-    ];
-    const scopes = req.query.scopes
-        ? String(req.query.scopes).split(",")
-        : defaultScopes;
-    try {
-        const url = await (0, githubapis_1.getGitHubOAuthUrl)(scopes);
-        res.redirect(url);
-    }
-    catch (err) {
-        res
-            .status(500)
-            .json({ message: "Unable to get GitHub OAuth url", err: err.message });
+const logger_1 = require("../services/logger");
+// Provider configurations
+const getProviderConfig = (provider) => {
+    switch (provider) {
+        case "github":
+            return {
+                clientId: env_1.env.GITHUB_CLIENT_ID,
+                clientSecret: env_1.env.GITHUB_CLIENT_SECRET,
+                redirectUri: env_1.env.GITHUB_REDIRECT_URI,
+                authUrl: "https://github.com/login/oauth/authorize",
+                tokenUrl: "https://github.com/login/oauth/access_token",
+                scopes: ["repo", "user", "read:org"],
+                userInfoUrl: "https://api.github.com/user"
+            };
+        case "google":
+            return env_1.env.GOOGLE_CLIENT_ID ? {
+                clientId: env_1.env.GOOGLE_CLIENT_ID,
+                clientSecret: env_1.env.GOOGLE_CLIENT_SECRET,
+                redirectUri: env_1.env.GOOGLE_REDIRECT_URI,
+                authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+                tokenUrl: "https://oauth2.googleapis.com/token",
+                scopes: [
+                    "https://www.googleapis.com/auth/gmail.send",
+                    "https://www.googleapis.com/auth/calendar",
+                    "https://www.googleapis.com/auth/userinfo.email",
+                    "https://www.googleapis.com/auth/documents",
+                    "https://www.googleapis.com/auth/drive.file"
+                ],
+                userInfoUrl: "https://www.googleapis.com/oauth2/v2/userinfo"
+            } : null;
+        case "slack":
+            return env_1.env.SLACK_CLIENT_ID ? {
+                clientId: env_1.env.SLACK_CLIENT_ID,
+                clientSecret: env_1.env.SLACK_CLIENT_SECRET,
+                redirectUri: env_1.env.SLACK_REDIRECT_URI,
+                authUrl: "https://slack.com/oauth/v2/authorize",
+                tokenUrl: "https://slack.com/api/oauth.v2.access",
+                scopes: ["chat:write", "channels:read", "users:read"],
+                userInfoUrl: "https://slack.com/api/auth.test"
+            } : null;
+        case "twitter":
+        case "x":
+            return env_1.env.X_CLIENT_ID ? {
+                clientId: env_1.env.X_CLIENT_ID,
+                clientSecret: env_1.env.X_CLIENT_SECRET,
+                redirectUri: env_1.env.X_REDIRECT_URI,
+                authUrl: "https://twitter.com/i/oauth2/authorize",
+                tokenUrl: "https://api.twitter.com/2/oauth2/token",
+                scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+                userInfoUrl: "https://api.twitter.com/2/users/me"
+            } : null;
+        case "instagram":
+            return env_1.env.INSTAGRAM_CLIENT_ID ? {
+                clientId: env_1.env.INSTAGRAM_CLIENT_ID,
+                clientSecret: env_1.env.INSTAGRAM_CLIENT_SECRET,
+                redirectUri: env_1.env.INSTAGRAM_REDIRECT_URI,
+                authUrl: "https://api.instagram.com/oauth/authorize",
+                tokenUrl: "https://api.instagram.com/oauth/access_token",
+                scopes: ["user_profile", "user_media"],
+                userInfoUrl: "https://graph.instagram.com/me"
+            } : null;
+        default:
+            return null;
     }
 };
-exports.getGitHubUrlController = getGitHubUrlController;
-const getGoogleUrlController = async (_req, res) => {
+// ==================== OAUTH FLOW ====================
+// Step 1: Get OAuth authorization URL
+const getAuthUrl = async (req, res) => {
     try {
-        const url = (0, googleapis_1.getGoogleOAuthUrl)();
-        res.redirect(url);
-    }
-    catch (err) {
-        res
-            .status(500)
-            .json({ message: "Unable to get Google OAuth url", err: err.message });
-    }
-};
-exports.getGoogleUrlController = getGoogleUrlController;
-const githubCallbackController = async (req, res) => {
-    const code = req.query.code || req.body.code;
-    const userId = req.userId || req.body.userId;
-    if (!code || !userId)
-        return res.status(400).json({ message: "Missing code or userId" });
-    try {
-        const tokenRes = await (0, githubapis_1.getGitHubToken)(String(code));
-        // encrypt tokens before storing
-        const { encrypt } = await Promise.resolve().then(() => __importStar(require("../lib/crypto")));
-        const integration = await Integration_1.Integration.create({
-            name: "github",
-            userId,
-            accessToken: encrypt(tokenRes.accessToken),
-            scope: tokenRes.scope,
-        });
-        res.json({ integration });
-    }
-    catch (err) {
-        res.status(500).json({ message: "GitHub OAuth failed", err: err.message });
-    }
-};
-exports.githubCallbackController = githubCallbackController;
-const googleCallbackController = async (req, res) => {
-    const code = req.query.code || req.body.code;
-    const userId = req.userId || req.body.userId;
-    if (!code || !userId)
-        return res.status(400).json({ message: "Missing code or userId" });
-    try {
-        const tokens = await (0, googleapis_1.exchangeGoogleCode)(String(code));
-        if (!tokens || (!tokens.access_token && !tokens.refresh_token)) {
+        const { provider } = req.params;
+        const config = getProviderConfig(provider);
+        if (!config) {
             return res.status(400).json({
-                message: "Google OAuth failed",
-                error: "No tokens received from Google. Please try again."
+                error: `Provider ${provider} not configured`,
+                configured: false
             });
         }
-        const { encrypt } = await Promise.resolve().then(() => __importStar(require("../lib/crypto")));
-        // Check if integration already exists and update it, otherwise create new
-        let integration = await Integration_1.Integration.findOne({ name: "google", userId });
-        const integrationData = {
-            name: "google",
-            userId,
-            accessToken: tokens.access_token
-                ? encrypt(tokens.access_token)
-                : undefined,
-            refreshToken: tokens.refresh_token
-                ? encrypt(tokens.refresh_token)
-                : undefined,
-            expiresAt: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
-            scope: tokens.scope,
-        };
-        if (integration) {
-            // Update existing integration
-            Object.assign(integration, integrationData);
-            await integration.save();
+        // Generate state for CSRF protection
+        // For Twitter, also include code_verifier for PKCE
+        let codeVerifier;
+        if (provider === "twitter") {
+            // Generate random code_verifier (43-128 chars, URL-safe)
+            codeVerifier = crypto_1.default.randomBytes(32).toString("base64url");
         }
-        else {
-            // Create new integration
-            integration = await Integration_1.Integration.create(integrationData);
-        }
-        res.json({ integration });
-    }
-    catch (err) {
-        // Handle specific Google OAuth errors
-        if (err.message?.includes("TokenExpiredError") || err.message?.includes("invalid_grant")) {
-            return res.status(400).json({
-                message: "Google OAuth failed",
-                error: "The authorization code has expired or already been used. Please try connecting again.",
-                details: err.message
-            });
-        }
-        res.status(500).json({
-            message: "Google OAuth failed",
-            error: err.message || "Unknown error occurred"
-        });
-    }
-};
-exports.googleCallbackController = googleCallbackController;
-const getSlackUrlController = async (req, res) => {
-    // Comprehensive Slack scopes for all tools
-    const scopes = [
-        "chat:write", // Send messages (send_slack_message)
-        "channels:read", // View basic public channel info (list_channels)
-        "channels:history", // View messages in public channels (get_channel_history)
-        "groups:read", // View basic private channel info
-        "groups:history", // View messages in private channels
-        "im:read", // View basic DM info (open_dm)
-        "im:history", // View DM history
-        "mpim:read", // View basic group DM info
-        "mpim:history", // View group DM history
-        "users:read", // View people in workspace (list_slack_users, get_slack_user_info)
-        "users:read.email", // View email addresses of people in workspace
-        "files:read", // View files shared in channels (list_files, list_slack_files)
-        "files:write", // Upload files (upload_slack_file)
-        "search:read", // Search messages and files (search_messages, search_slack_messages)
-    ];
-    const params = new URLSearchParams({
-        client_id: env_1.env.SLACK_CLIENT_ID || "",
-        scope: scopes.join(","),
-        redirect_uri: env_1.env.SLACK_REDIRECT_URI || "",
-    });
-    res.redirect(`https://slack.com/oauth/v2/authorize?${params.toString()}`);
-};
-exports.getSlackUrlController = getSlackUrlController;
-const slackCallbackController = async (req, res) => {
-    const code = req.query.code || req.body.code;
-    const userId = req.userId || req.body.userId;
-    if (!code || !userId)
-        return res.status(400).json({ message: "Missing code or userId" });
-    try {
-        const response = await axios_1.default.post("https://slack.com/api/oauth.v2.access", new URLSearchParams({
-            client_id: env_1.env.SLACK_CLIENT_ID || "",
-            client_secret: env_1.env.SLACK_CLIENT_SECRET || "",
-            code: String(code),
-            redirect_uri: env_1.env.SLACK_REDIRECT_URI || "",
-        }).toString(), { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
-        if (!response.data || !response.data.ok)
-            throw new Error(response.data.error || "Slack OAuth error");
-        const token = response.data.access_token;
-        const { encrypt } = await Promise.resolve().then(() => __importStar(require("../lib/crypto")));
-        const integration = await Integration_1.Integration.create({
-            name: "slack",
-            userId,
-            accessToken: encrypt(token),
-        });
-        res.json({ integration });
-    }
-    catch (err) {
-        res.status(500).json({ message: "Slack OAuth failed", err: err.message });
-    }
-};
-exports.slackCallbackController = slackCallbackController;
-exports.default = {};
-const getInstagramUrlController = async (_req, res) => {
-    try {
-        // Comprehensive Instagram (Meta/Facebook) scopes for all tools
-        const scopes = [
-            "instagram_basic", // Basic Instagram account info (get_instagram_profile)
-            "instagram_content_publish", // Publish content (post_instagram_media)
-            "pages_read_engagement", // Read page engagement metrics
-            "pages_show_list", // List Instagram accounts connected to Facebook pages
-            "instagram_manage_comments", // Manage comments (comment_on_post)
-            "instagram_manage_messages", // Send DMs (send_instagram_dm)
-            "pages_read_user_content", // Read user content (get_instagram_stories, list_posts)
-        ];
+        const state = Buffer.from(JSON.stringify({
+            userId: req.user.id,
+            provider,
+            timestamp: Date.now(),
+            codeVerifier // Store for Twitter PKCE
+        })).toString("base64");
+        // Build auth URL
         const params = new URLSearchParams({
-            client_id: env_1.env.INSTAGRAM_CLIENT_ID || "",
-            redirect_uri: env_1.env.INSTAGRAM_REDIRECT_URI || "",
-            scope: scopes.join(","),
-            response_type: "code",
+            client_id: config.clientId,
+            redirect_uri: config.redirectUri,
+            scope: config.scopes.join(" "),
+            state,
+            response_type: "code"
         });
-        const url = `https://www.facebook.com/v17.0/dialog/oauth?${params.toString()}`;
-        res.redirect(url);
+        // Provider-specific params
+        if (provider === "google") {
+            params.append("access_type", "offline");
+            params.append("prompt", "consent");
+        }
+        if (provider === "twitter" && codeVerifier) {
+            // Generate code_challenge from code_verifier using S256
+            const codeChallenge = crypto_1.default
+                .createHash("sha256")
+                .update(codeVerifier)
+                .digest("base64url");
+            params.append("code_challenge", codeChallenge);
+            params.append("code_challenge_method", "S256");
+        }
+        const authUrl = `${config.authUrl}?${params.toString()}`;
+        res.json({
+            authUrl,
+            provider,
+            configured: true
+        });
     }
     catch (err) {
-        res
-            .status(500)
-            .json({ message: "Unable to get Instagram OAuth url", err: err.message });
+        logger_1.logger.error("Failed to generate auth URL", { error: err.message });
+        res.status(500).json({ error: err.message });
     }
 };
-exports.getInstagramUrlController = getInstagramUrlController;
-const instagramCallbackController = async (req, res) => {
-    const code = req.query.code || req.body.code;
-    const userId = req.userId || req.body.userId;
-    if (!code || !userId)
-        return res.status(400).json({ message: "Missing code or userId" });
+exports.getAuthUrl = getAuthUrl;
+// Step 2: Handle OAuth callback
+const handleCallback = async (req, res) => {
     try {
-        const tokenRes = await axios_1.default.get(`https://graph.facebook.com/v17.0/oauth/access_token?client_id=${env_1.env.INSTAGRAM_CLIENT_ID}&redirect_uri=${encodeURIComponent(env_1.env.INSTAGRAM_REDIRECT_URI || "")}&client_secret=${env_1.env.INSTAGRAM_CLIENT_SECRET}&code=${String(code)}`);
-        const accessToken = tokenRes.data.access_token;
-        const { encrypt } = await Promise.resolve().then(() => __importStar(require("../lib/crypto")));
-        const integration = await Integration_1.Integration.create({
-            name: "instagram",
-            userId,
-            accessToken: encrypt(accessToken),
-            scope: tokenRes.data.scope,
+        let { provider } = req.params;
+        // Normalize x to twitter
+        if (provider === "x")
+            provider = "twitter";
+        const { code, state, error } = req.query;
+        if (error) {
+            return res.status(400).json({ error: `OAuth error: ${error}` });
+        }
+        if (!code || !state) {
+            return res.status(400).json({ error: "Missing code or state" });
+        }
+        // Decode and verify state
+        let stateData;
+        try {
+            stateData = JSON.parse(Buffer.from(state, "base64").toString());
+        }
+        catch {
+            return res.status(400).json({ error: "Invalid state" });
+        }
+        // Check state freshness (15 min max)
+        if (Date.now() - stateData.timestamp > 15 * 60 * 1000) {
+            return res.status(400).json({ error: "State expired" });
+        }
+        const config = getProviderConfig(provider);
+        if (!config) {
+            return res.status(400).json({ error: `Provider ${provider} not configured` });
+        }
+        // Exchange code for tokens
+        const tokenResponse = await exchangeCodeForTokens(provider, code, config, stateData.codeVerifier // Pass code_verifier for Twitter
+        );
+        // Get user info if available
+        let metadata = {};
+        if (config.userInfoUrl && tokenResponse.access_token) {
+            try {
+                metadata = await getUserInfo(provider, tokenResponse.access_token, config);
+            }
+            catch (e) {
+                logger_1.logger.warn("Failed to get user info", { provider, error: e.message });
+            }
+        }
+        // Encrypt tokens
+        const encryptedAccessToken = (0, crypto_2.encryptToken)(tokenResponse.access_token);
+        const encryptedRefreshToken = tokenResponse.refresh_token
+            ? (0, crypto_2.encryptToken)(tokenResponse.refresh_token)
+            : undefined;
+        // Save integration
+        const integration = await Integration_1.Integration.findOneAndUpdate({ userId: stateData.userId, provider }, {
+            userId: stateData.userId,
+            provider,
+            accessToken: encryptedAccessToken,
+            refreshToken: encryptedRefreshToken,
+            tokenExpiresAt: tokenResponse.expires_in
+                ? new Date(Date.now() + tokenResponse.expires_in * 1000)
+                : undefined,
+            scopes: config.scopes,
+            metadata,
+            status: "connected",
+            connectedAt: new Date()
+        }, { upsert: true, new: true });
+        logger_1.logger.info("OAuth integration connected", {
+            userId: stateData.userId,
+            provider,
+            integrationId: integration._id
         });
-        res.json({ integration });
+        // Redirect to frontend success page
+        res.redirect(`https://heyaxle.vercel.app/dashboard/integrations`);
     }
     catch (err) {
-        res
-            .status(500)
-            .json({ message: "Instagram OAuth failed", err: err.message });
+        logger_1.logger.error("OAuth callback failed", { error: err.message });
+        res.redirect(`https://heyaxle.vercel.app/dashboard/integrations`);
     }
 };
-exports.instagramCallbackController = instagramCallbackController;
-// let codeVerifier: string;
-const getXUrlController = async (_req, res) => {
-    const codeVerifier = (0, pkce_1.generatePKCE)();
-    const codeChallenge = (0, pkce_1.generatePKCE)();
-    const state = crypto_1.default.randomBytes(16).toString("hex");
-    // Store verifier using state as key
-    exports.pkceStore.set(state, codeVerifier);
-    const scopes = [
-        "tweet.read",
-        "users.read",
-        "offline.access",
-    ];
+exports.handleCallback = handleCallback;
+// Exchange authorization code for tokens
+const exchangeCodeForTokens = async (provider, code, config, codeVerifier // For Twitter PKCE
+) => {
     const params = {
-        response_type: "code",
-        client_id: env_1.env.X_CLIENT_ID,
-        redirect_uri: env_1.env.X_REDIRECT_URI,
-        scope: scopes.join(" "),
-        state,
-        code_challenge: codeChallenge,
-        code_challenge_method: "S256",
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+        redirect_uri: config.redirectUri,
+        grant_type: "authorization_code"
     };
-    const url = `https://twitter.com/i/oauth2/authorize?${querystring_1.default.stringify(params)}`;
-    res.redirect(url);
-};
-exports.getXUrlController = getXUrlController;
-const xCallbackController = async (req, res) => {
-    const code = req.query.code || req.body.code;
-    const { state } = req.query.state || req.body.state;
-    const code_verifier = exports.pkceStore.get(state);
-    const userId = req.userId || req.body.userId;
-    console.log(code);
-    console.log(code_verifier);
-    console.log(userId);
-    console.log(state);
-    if (!code || !userId || !code_verifier)
-        return res
-            .status(400)
-            .json({ message: "Missing code, code_verifier or userId" });
+    // Twitter uses PKCE with code_verifier
+    if (provider === "twitter" && codeVerifier) {
+        params.code_verifier = codeVerifier;
+    }
+    const headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json"
+    };
+    // Twitter uses Basic auth
+    if (provider === "twitter" || provider === "x") {
+        const credentials = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64");
+        headers["Authorization"] = `Basic ${credentials}`;
+        // For Twitter v2 with Basic auth, client_id and client_secret should be removed from body
+        delete params.client_secret;
+        delete params.client_id;
+    }
     try {
-        const tokenUrl = "https://api.twitter.com/2/oauth2/token";
-        const body = querystring_1.default.stringify({
-            code: String(code),
-            grant_type: "authorization_code",
-            client_id: env_1.env.X_CLIENT_ID,
-            redirect_uri: env_1.env.X_REDIRECT_URI,
-            code_verifier: String(code_verifier),
+        const response = await axios_1.default.post(config.tokenUrl, new URLSearchParams(params).toString(), { headers });
+        return response.data;
+    }
+    catch (error) {
+        logger_1.logger.error("Token exchange failed", {
+            provider,
+            status: error.response?.status,
+            data: error.response?.data
         });
-        const response = await axios_1.default.post(tokenUrl, body, {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        throw new Error(error.response?.data?.error_description || error.message);
+    }
+};
+// Get user info from provider
+const getUserInfo = async (provider, accessToken, config) => {
+    if (!config.userInfoUrl)
+        return {};
+    const headers = {
+        "Authorization": `Bearer ${accessToken}`,
+        "Accept": "application/json"
+    };
+    // GitHub uses different header
+    if (provider === "github") {
+        headers["Authorization"] = `token ${accessToken}`;
+    }
+    // Normalize twitter/x
+    if (provider === "x")
+        provider = "twitter";
+    // Slack needs token as query param
+    let url = config.userInfoUrl;
+    if (provider === "slack") {
+        url += `?token=${accessToken}`;
+        delete headers["Authorization"];
+    }
+    // Instagram needs fields
+    if (provider === "instagram") {
+        url += `?fields=id,username&access_token=${accessToken}`;
+        delete headers["Authorization"];
+    }
+    const response = await axios_1.default.get(url, { headers });
+    return response.data;
+};
+// ==================== STATUS & MANAGEMENT ====================
+// Get all integrations status
+const getIntegrationsStatus = async (req, res) => {
+    try {
+        const integrations = await Integration_1.Integration.find({
+            userId: req.user.id
+        }).select("-accessToken -refreshToken").lean();
+        // Build status for all providers
+        const providers = ["github", "google", "slack", "twitter", "instagram"];
+        const status = providers.map(provider => {
+            const config = getProviderConfig(provider);
+            const integration = integrations.find(i => i.provider === provider);
+            return {
+                provider,
+                configured: !!config,
+                connected: integration?.status === "connected",
+                status: integration?.status || "disconnected",
+                connectedAt: integration?.connectedAt,
+                metadata: integration?.metadata,
+                scopes: integration?.scopes
+            };
         });
-        if (!response.data || !response.data.access_token)
-            throw new Error("X token exchange failed");
-        const { encrypt } = await Promise.resolve().then(() => __importStar(require("../lib/crypto")));
-        const integration = await Integration_1.Integration.create({
-            name: "x",
-            userId,
-            accessToken: encrypt(response.data.access_token),
-            refreshToken: response.data.refresh_token
-                ? encrypt(response.data.refresh_token)
-                : undefined,
-            expiresAt: response.data.expires_in
-                ? new Date(Date.now() + response.data.expires_in * 1000)
-                : undefined,
-            scope: response.data.scope,
-        });
-        res.json({ integration });
+        res.json({ integrations: status });
     }
     catch (err) {
-        res.status(500).json({ message: "X OAuth failed", err: err.message });
+        res.status(500).json({ error: err.message });
     }
 };
-exports.xCallbackController = xCallbackController;
+exports.getIntegrationsStatus = getIntegrationsStatus;
+// Get single integration status
+const getIntegrationStatus = async (req, res) => {
+    try {
+        const { provider } = req.params;
+        const config = getProviderConfig(provider);
+        const integration = await Integration_1.Integration.findOne({
+            userId: req.user.id,
+            provider
+        }).select("-accessToken -refreshToken").lean();
+        res.json({
+            provider,
+            configured: !!config,
+            connected: integration?.status === "connected",
+            status: integration?.status || "disconnected",
+            connectedAt: integration?.connectedAt,
+            metadata: integration?.metadata,
+            scopes: integration?.scopes
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+exports.getIntegrationStatus = getIntegrationStatus;
+// Disconnect integration
+const disconnectIntegration = async (req, res) => {
+    try {
+        const { provider } = req.params;
+        const result = await Integration_1.Integration.findOneAndDelete({
+            userId: req.user.id,
+            provider
+        });
+        if (!result) {
+            return res.status(404).json({ error: "Integration not found" });
+        }
+        logger_1.logger.info("Integration disconnected", {
+            userId: req.user.id,
+            provider
+        });
+        res.json({
+            disconnected: true,
+            provider,
+            status: "disconnected"
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+exports.disconnectIntegration = disconnectIntegration;
+// Refresh integration token
+const refreshIntegrationToken = async (req, res) => {
+    try {
+        const { provider } = req.params;
+        const integration = await Integration_1.Integration.findOne({
+            userId: req.user.id,
+            provider
+        });
+        if (!integration || !integration.refreshToken) {
+            return res.status(400).json({ error: "No refresh token available" });
+        }
+        const config = getProviderConfig(provider);
+        if (!config) {
+            return res.status(400).json({ error: `Provider ${provider} not configured` });
+        }
+        // Decrypt refresh token
+        const { decryptToken } = await Promise.resolve().then(() => __importStar(require("../services/crypto")));
+        const refreshToken = decryptToken(integration.refreshToken);
+        // Request new tokens
+        const params = new URLSearchParams({
+            client_id: config.clientId,
+            client_secret: config.clientSecret,
+            refresh_token: refreshToken,
+            grant_type: "refresh_token"
+        });
+        const response = await axios_1.default.post(config.tokenUrl, params.toString(), { headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+        // Update tokens
+        integration.accessToken = (0, crypto_2.encryptToken)(response.data.access_token);
+        if (response.data.refresh_token) {
+            integration.refreshToken = (0, crypto_2.encryptToken)(response.data.refresh_token);
+        }
+        if (response.data.expires_in) {
+            integration.tokenExpiresAt = new Date(Date.now() + response.data.expires_in * 1000);
+        }
+        integration.status = "connected";
+        await integration.save();
+        res.json({
+            refreshed: true,
+            provider,
+            status: "connected"
+        });
+    }
+    catch (err) {
+        logger_1.logger.error("Token refresh failed", { error: err.message });
+        res.status(500).json({ error: err.message });
+    }
+};
+exports.refreshIntegrationToken = refreshIntegrationToken;
+exports.default = {
+    getAuthUrl: exports.getAuthUrl,
+    handleCallback: exports.handleCallback,
+    getIntegrationsStatus: exports.getIntegrationsStatus,
+    getIntegrationStatus: exports.getIntegrationStatus,
+    disconnectIntegration: exports.disconnectIntegration,
+    refreshIntegrationToken: exports.refreshIntegrationToken
+};

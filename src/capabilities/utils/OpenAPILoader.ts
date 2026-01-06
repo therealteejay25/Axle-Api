@@ -66,7 +66,7 @@ export class OpenAPILoader {
                 }
                 
                 // Execute Request
-                const { encryptToken, decryptToken } = require('../../../services/crypto');
+                const { encryptToken, decryptToken } = require('../../services/crypto');
                 let accessToken = integration.accessToken;
                 try {
                     accessToken = decryptToken(integration.accessToken);

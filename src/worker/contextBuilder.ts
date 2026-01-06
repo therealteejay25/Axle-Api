@@ -26,12 +26,12 @@ export interface ExecutionContext {
   availableActions: string[];
   availableIntegrations: string[];
   previousExecutions?: any[]; // Recent execution history for memory
-  
+
   // ITERATIVE MODE FIELDS (new - for THINK→DECIDE→ACT→OBSERVE loop)
-  iteration?: number;           // Current iteration number (1-indexed)
-  maxIterations?: number;       // Maximum allowed iterations
-  actionHistory?: any[];        // Actions executed in current execution
-  observations?: string[];      // AI observations from each iteration
+  iteration?: number; // Current iteration number (1-indexed)
+  maxIterations?: number; // Maximum allowed iterations
+  actionHistory?: any[]; // Actions executed in current execution
+  observations?: string[]; // AI observations from each iteration
   iterativeMemory?: MemoryEntry[]; // Structured memory within current execution
 }
 
@@ -45,19 +45,19 @@ export const buildContext = (
     agent: {
       id: loaded.agent._id.toString(),
       name: loaded.agent.name,
-      description: loaded.agent.description
+      description: loaded.agent.description,
     },
     trigger: {
       type: triggerType,
-      payload: triggerPayload
+      payload: triggerPayload,
     },
     environment: {
       timestamp: new Date().toISOString(),
-      timezone: loaded.user.timeZone || "UTC"
+      timezone: loaded.user.timeZone || "UTC",
     },
     availableActions: loaded.agent.actions,
     availableIntegrations: Array.from(loaded.integrations.keys()),
-    previousExecutions: previousExecutions || []
+    previousExecutions: previousExecutions || [],
   };
 };
 
@@ -76,18 +76,23 @@ export const buildIterativeContext = (
   maxIterations: number,
   actionHistory: any[],
   observations: string[],
-  iterativeMemory: MemoryEntry[],  // Changed to structured memory
+  iterativeMemory: MemoryEntry[], // Changed to structured memory
   previousExecutions?: any[]
 ): ExecutionContext => {
-  const baseContext = buildContext(loaded, triggerType, triggerPayload, previousExecutions);
-  
+  const baseContext = buildContext(
+    loaded,
+    triggerType,
+    triggerPayload,
+    previousExecutions
+  );
+
   return {
     ...baseContext,
     iteration,
     maxIterations,
     actionHistory,
     observations,
-    iterativeMemory
+    iterativeMemory,
   };
 };
 
@@ -96,9 +101,35 @@ export const buildSystemPrompt = (
   loaded: LoadedAgent,
   context: ExecutionContext
 ): string => {
+  console.log("=== BUILD SYSTEM PROMPT START ===");
+  console.log(
+    "buildSystemPrompt called with context:",
+    JSON.stringify(context.trigger, null, 2)
+  );
   // SIMPLIFIED UX: Use instructions if present, otherwise fall back to brain.systemPrompt
-  const baseInstructions = loaded.agent.instructions || loaded.agent.brain.systemPrompt || "You are a helpful AI agent. Follow the user's instructions precisely.";
-  
+  const baseInstructions =
+    loaded.agent.instructions ||
+    loaded.agent.brain.systemPrompt ||
+    "You are a helpful AI agent. Follow the user's instructions precisely.";
+
+  // For manual runs, prioritize the task from payload
+  const taskFromPayload = context.trigger.payload?.task;
+  console.log("=== DEBUGGING SIMPLIFIED PROMPT ===");
+  console.log(
+    "Context trigger payload:",
+    JSON.stringify(context.trigger.payload, null, 2)
+  );
+  console.log("Task from payload:", taskFromPayload);
+  console.log(
+    "Context iteration:",
+    context.iteration,
+    "typeof:",
+    typeof context.iteration
+  );
+  console.log("!context.iteration:", !context.iteration);
+  console.log("Condition result:", taskFromPayload && !context.iteration);
+  console.log("=== END DEBUG ===");
+
   // ============================================
   // BUILD CAPABILITY-GROUPED TOOLS SECTION
   // ============================================
@@ -107,75 +138,79 @@ export const buildSystemPrompt = (
   // ============================================
   const { getAvailableActions } = require("../capabilities/executor");
   const { Capability } = require("../capabilities/types");
-  const { getAvailableToolDefinitions } = require("../adapters/toolDefinitions");
+  const {
+    getAvailableToolDefinitions,
+  } = require("../adapters/toolDefinitions");
   const { ToolCapability } = require("../adapters/types"); // Legacy enum
-  
+
   // 1. NEW CAPABILITIES (Human-Action Layer)
   const newActions = getAvailableActions(context.availableIntegrations);
   const actionsByCap: Record<string, any[]> = {};
-  
+
   for (const action of newActions) {
     const cap = action.capability;
     if (!actionsByCap[cap]) actionsByCap[cap] = [];
     actionsByCap[cap].push(action);
   }
-  
-  let toolsSection = '';
-  
+
+  let toolsSection = "";
+
   const newCapabilityOrder = [
     Capability.DISCOVER,
     Capability.READ,
     Capability.WRITE,
     Capability.ENGAGE,
     Capability.ORGANIZE,
-    Capability.NOTIFY
+    Capability.NOTIFY,
   ];
-  
+
   const capDescriptions: Record<string, string> = {
-    [Capability.DISCOVER]: 'Find information, people, or resources',
-    [Capability.READ]: 'Consume and understand content',
-    [Capability.WRITE]: 'Create new content',
-    [Capability.ENGAGE]: 'React, like, follow, share (Social)',
-    [Capability.ORGANIZE]: 'Structure and manage resources (Google/Files)',
-    [Capability.NOTIFY]: 'Alert people or systems'
+    [Capability.DISCOVER]: "Find information, people, or resources",
+    [Capability.READ]: "Consume and understand content",
+    [Capability.WRITE]: "Create new content",
+    [Capability.ENGAGE]: "React, like, follow, share (Social)",
+    [Capability.ORGANIZE]: "Structure and manage resources (Google/Files)",
+    [Capability.NOTIFY]: "Alert people or systems",
   };
-  
+
   if (newActions.length > 0) {
-    toolsSection += '**PRIMARY CAPABILITIES (Recommended):**\n';
-    
+    toolsSection += "**PRIMARY CAPABILITIES (Recommended):**\n";
+
     for (const cap of newCapabilityOrder) {
       const actions = actionsByCap[cap];
       if (!actions || actions.length === 0) continue;
-      
+
       const capName = cap.toUpperCase();
-      toolsSection += `\n*${capName}* - ${capDescriptions[cap] || ''}\n`;
-      
+      toolsSection += `\n*${capName}* - ${capDescriptions[cap] || ""}\n`;
+
       for (const action of actions) {
         // Build signature: action(param1, param2?)
         const params = Object.entries(action.inputSchema || {})
           .map(([key, def]: [string, any]) => {
             return def.required ? key : `${key}?`;
           })
-          .join(', ');
-          
+          .join(", ");
+
         toolsSection += `  • ${action.actionId}(${params}): ${action.intent}`;
         if (action.whenToUse) {
           toolsSection += `\n    Use when: ${action.whenToUse}`;
         }
-        toolsSection += '\n';
+        toolsSection += "\n";
       }
     }
-    toolsSection += '\n';
+    toolsSection += "\n";
   }
-  
+
   // 2. LEGACY TOOLS (Platform Layer)
   // Filter out legacy tools if we want to be strict, but for now show them
   // as "Advanced/Platform Specific"
-  const legacyTools = getAvailableToolDefinitions(context.availableIntegrations);
-  
+  const legacyTools = getAvailableToolDefinitions(
+    context.availableIntegrations
+  );
+
   if (legacyTools.length > 0) {
-    toolsSection += '**PLATFORM TOOLS (Advanced):**\n';
-    
+    toolsSection += "**PLATFORM TOOLS (Advanced):**\n";
+
     // Group by legacy capability
     const legacyByCap: Record<string, any[]> = {};
     for (const tool of legacyTools) {
@@ -183,7 +218,7 @@ export const buildSystemPrompt = (
       if (!legacyByCap[cap]) legacyByCap[cap] = [];
       legacyByCap[cap].push(tool);
     }
-    
+
     // Legacy order
     const legacyOrder = [
       ToolCapability.CODE_MANAGEMENT,
@@ -191,64 +226,113 @@ export const buildSystemPrompt = (
       ToolCapability.RESEARCH,
       ToolCapability.READ_CONTENT,
       ToolCapability.WRITE_CONTENT,
-      ToolCapability.NOTIFICATIONS
+      ToolCapability.NOTIFICATIONS,
     ];
-    
+
     for (const cap of legacyOrder) {
       const tools = legacyByCap[cap];
       if (!tools || tools.length === 0) continue;
-      
-      const capName = cap.toUpperCase().replace(/_/g, ' ');
+
+      const capName = cap.toUpperCase().replace(/_/g, " ");
       toolsSection += `\n*${capName}*\n`;
-      
+
       for (const tool of tools) {
         // Shorter listing for legacy tools to save tokens
         toolsSection += `  • ${tool.name}: ${tool.description}\n`;
       }
     }
   }
-  
-  const integrationsList = context.availableIntegrations.length > 0
-    ? context.availableIntegrations.join(", ")
-    : "none connected";
+
+  const integrationsList =
+    context.availableIntegrations.length > 0
+      ? context.availableIntegrations.join(", ")
+      : "none connected";
 
   const integrationIdentities = (() => {
     const out: Record<string, any> = {};
     for (const [provider, integ] of loaded.integrations.entries()) {
       const m: any = (integ as any)?.metadata || {};
 
-      if (provider === 'twitter') {
+      if (provider === "twitter") {
         out.twitter = {
           xUserId: m.xUserId,
           xUsername: m.xUsername,
-          xName: m.xName
+          xName: m.xName,
         };
-      } else if (provider === 'github') {
+      } else if (provider === "github") {
         out.github = {
           githubLogin: m.githubLogin,
           githubUserId: m.githubUserId,
-          githubName: m.githubName
+          githubName: m.githubName,
         };
-      } else if (provider === 'slack') {
+      } else if (provider === "slack") {
         out.slack = {
           slackUserId: m.slackUserId,
           slackTeamId: m.slackTeamId,
           slackTeam: m.slackTeam,
-          slackUrl: m.slackUrl
+          slackUrl: m.slackUrl,
         };
-      } else if (provider === 'instagram') {
+      } else if (provider === "instagram") {
         out.instagram = {
           igUserId: m.igUserId,
           igUsername: m.igUsername,
-          igName: m.igName
+          igName: m.igName,
         };
       }
     }
     return out;
   })();
 
+  // Create simplified system prompt for manual runs with tasks
+  if (taskFromPayload && !context.iteration) {
+    const simpleToolsList = toolsSection
+      .replace(/• /g, "- ")
+      .split("\n")
+      .slice(0, 20)
+      .join("\n"); // Limit to first 20 tools
+
+    // Include essential user and integration information
+    const userInfo = loaded.user
+      ? `
+USER INFORMATION:
+- Name: ${loaded.user.name || "Unknown"}
+- Email: ${loaded.user.email || "Unknown"}
+- Timezone: ${loaded.user.timeZone || "UTC"}
+`
+      : "";
+
+    const integrationsInfo =
+      context.availableIntegrations.length > 0
+        ? `
+AVAILABLE INTEGRATIONS: ${context.availableIntegrations.join(", ")}
+
+${toolsSection ? `AVAILABLE TOOLS:\n${simpleToolsList}` : "No tools available"}
+`
+        : "No integrations connected.";
+
+    const prompt = `You are ${loaded.agent.name || "an AI agent"}. ${
+      loaded.agent.description || ""
+    }
+
+${userInfo}
+${integrationsInfo}
+
+TASK: ${taskFromPayload}
+
+IMPORTANT: Use the available tools to complete this task. For example, if you need to send an email, use the Gmail tools with the user's email address above. Do not ask the user for information that you already have access to through their profile or integrations.`;
+
+    console.log("=== USING SIMPLIFIED PROMPT ===");
+    console.log("Task:", taskFromPayload);
+    console.log("User:", loaded.user?.email);
+    console.log("Integrations:", context.availableIntegrations);
+    console.log("SIMPLE PROMPT:", prompt);
+    console.log("=== END SIMPLIFIED PROMPT ===");
+    return prompt;
+  }
+
   // Build iterative mode context string if in iterative mode
-  const iterativeContext = context.iteration ? `
+  const iterativeContext = context.iteration
+    ? `
 ---
 🔄 ITERATIVE EXECUTION MODE (THINK→DECIDE→ACT→OBSERVE→MEMORY→REPLAN):
 
@@ -263,41 +347,67 @@ You are in iteration ${context.iteration} of ${context.maxIterations}.
 6. REPLAN: Decide whether to continue or stop
 
 **RESPONSE FORMAT FOR ITERATIVE MODE:**
-{
+[
   "reasoning": "Why I'm taking this specific action now",
-  "action": { "type": "action_name", "params": {...} },  // ONE action only
+  "action": [ "type": "action_name", "params": [...] ],  // ONE action only
   "observation": "What I expect to learn from this action",
   "continue": true,  // Set to false when task is complete
   "goalAchieved": false,  // Set to true when goal is met
-  "memory": { "key": "value" }  // State to remember for next iteration
-}
+  "memory": [ "key": "value" ]  // State to remember for next iteration
+]
 
 **CURRENT ITERATION STATE:**
 - Iteration: ${context.iteration} / ${context.maxIterations}
 - Actions executed so far: ${context.actionHistory?.length || 0}
-${context.actionHistory && context.actionHistory.length > 0 ? `
+${
+  context.actionHistory && context.actionHistory.length > 0
+    ? `
 - Previous actions:
-${context.actionHistory.map((a: any, i: number) => `  ${i + 1}. ${a.type} - ${a.error ? 'FAILED: ' + a.error : 'SUCCESS'}`).join('\n')}
-` : ''}
-${context.observations && context.observations.length > 0 ? `
+${context.actionHistory
+  .map(
+    (a: any, i: number) =>
+      `  ${i + 1}. ${a.type} - ${a.error ? "FAILED: " + a.error : "SUCCESS"}`
+  )
+  .join("\n")}
+`
+    : ""
+}
+${
+  context.observations && context.observations.length > 0
+    ? `
 - Previous observations:
-${context.observations.map((o: string, i: number) => `  ${i + 1}. ${o}`).join('\n')}
-` : ''}
-${context.iterativeMemory && context.iterativeMemory.length > 0 ? `
+${context.observations
+  .map((o: string, i: number) => `  ${i + 1}. ${o}`)
+  .join("\n")}
+`
+    : ""
+}
+${
+  context.iterativeMemory && context.iterativeMemory.length > 0
+    ? `
 - Current memory (${context.iterativeMemory.length} entries):
-${context.iterativeMemory.map((m: MemoryEntry, i: number) => `  ${i + 1}. [${m.type}] ${m.source} @ ${m.timestamp}: ${JSON.stringify(m.payload)}`).join('\n')}
-` : ''}
+${context.iterativeMemory
+  .map(
+    (m: MemoryEntry, i: number) =>
+      `  ${i + 1}. [${m.type}] ${m.source} @ ${m.timestamp}: ${JSON.stringify(
+        m.payload
+      )}`
+  )
+  .join("\n")}
+`
+    : ""
+}
 
 **STRUCTURED MEMORY SYSTEM:**
 You can store structured memory entries to track facts, errors, decisions, and constraints.
 
 Memory entry format:
-{
+[
   "source": "ai",  // ai | system | action | user
   "timestamp": "${context.environment.timestamp}",  // Use current timestamp
   "type": "fact",  // fact | error | decision | constraint
-  "payload": { "key": "value" }  // Your data
-}
+  "payload": [ "key": "value" ]  // Your data
+]
 
 Memory types:
 - fact: Factual information (IDs, URLs, data retrieved)
@@ -306,31 +416,31 @@ Memory types:
 - constraint: Limitations or rules you discovered
 
 Example response with memory:
-{
-  "action": { "type": "google_docs_create_doc", "params": {...} },
+[
+  "action": [ "type": "google_docs_create_doc", "params": [...] ],
   "memory": [
-    {
+    [
       "source": "ai",
       "timestamp": "${context.environment.timestamp}",
       "type": "decision",
-      "payload": { 
+      "payload": [ 
         "decision": "Creating doc before email",
         "reason": "Need doc link for email content"
-      }
-    }
+      ]
+    ]
   ],
   "continue": true
-}
+]
 
 **🚨 CRITICAL SAFETY RULES:**
 
 1. **NEVER GUESS IDS OR IDENTIFIERS**
    - ❌ BAD: "documentId": "abc123"  // Hardcoded guess
-   - ✅ GOOD: "documentId": "{{create_google_doc.documentId}}"  // From previous action
+   - ✅ GOOD: "documentId": "[[create_google_doc.documentId]]"  // From previous action
 
 2. **ALWAYS DERIVE PARAMETERS FROM MEMORY OR RESULTS**
    - ❌ BAD: "issueNumber": 42  // Assumed value
-   - ✅ GOOD: "issueNumber": "{{create_github_issue.number}}"  // From action result
+   - ✅ GOOD: "issueNumber": "[[create_github_issue.number]]"  // From action result
 
 3. **CHECK DEPENDENCIES BEFORE USE**
    - If you need data from a previous action, verify it succeeded
@@ -349,21 +459,21 @@ Example response with memory:
 ❌ BAD (Guessing IDs):
 Iteration 1:
 {
-  "action": { "type": "create_google_doc", "params": { "title": "Report" } },
+  "action": [ "type": "create_google_doc", "params": [ "title": "Report" ] ],
   "replanDecision": "CONTINUE",
   "continue": true
 }
 
 Iteration 2:
 {
-  "action": {
+  "action": [
     "type": "send_email",
-    "params": {
+    "params": [
       "to": "user@example.com",
       "subject": "Report",
       "html": "View: https://docs.google.com/document/d/GUESSED_ID"  // ❌ WRONG
-    }
-  },
+    ]
+  ],
   "replanDecision": "CONTINUE",
   "continue": false
 }
@@ -371,13 +481,13 @@ Iteration 2:
 ✅ GOOD (Using Results):
 Iteration 1:
 {
-  "action": { "type": "create_google_doc", "params": { "title": "Report" } },
+  "action": [ "type": "create_google_doc", "params": [ "title": "Report" ] ],
   "memory": [
     {
       "source": "ai",
       "timestamp": "${context.environment.timestamp}",
       "type": "decision",
-      "payload": { "decision": "Creating doc first to get link" }
+      "payload": [ "decision": "Creating doc first to get link" ]
     }
   ],
   "replanDecision": "CONTINUE",
@@ -386,14 +496,14 @@ Iteration 1:
 
 Iteration 2 (after observing result):
 {
-  "action": {
+  "action": [
     "type": "send_email",
-    "params": {
+    "params": [
       "to": "user@example.com",
       "subject": "Report",
-      "html": "View: {{create_google_doc.webViewLink}}"  // ✅ CORRECT
-    }
-  },
+      "html": "View: [[create_google_doc.webViewLink]]"  // ✅ CORRECT
+    ]
+  ],
   "replanDecision": "CONTINUE",
   "continue": false,
   "goalAchieved": true
@@ -412,11 +522,11 @@ Iteration 2:
 }
 
 ✅ GOOD (Recovery):
-Iteration 1 result: { "error": "Repository not found: user/wrong-repo" }
+Iteration 1 result: [ "error": "Repository not found: user/wrong-repo" ]
 
 Iteration 2:
 {
-  "action": { "type": "github_list_repos", "params": {} },
+  "action": [ "type": "github_list_repos", "params": [] ],
   "replanDecision": "RECOVER",  // ✅ CORRECT
   "replanReason": "Repository name was incorrect, listing repos to find correct name",
   "recoveryStrategy": "List all repos, find the correct one, then retry issue creation",
@@ -425,11 +535,11 @@ Iteration 2:
       "source": "ai",
       "timestamp": "${context.environment.timestamp}",
       "type": "error",
-      "payload": {
+      "payload": [
         "failedAction": "create_github_issue",
         "error": "Repository not found",
         "lesson": "Must verify repo name before creating issues"
-      }
+      ]
     }
   ],
   "continue": true
@@ -448,11 +558,11 @@ Iteration 2:
 }
 
 ✅ GOOD (Adjusting):
-Iteration 1 result: { "ok": false, "error": "channel_not_found" }
+Iteration 1 result: [ "ok": false, "error": "channel_not_found" ]
 
 Iteration 2:
 {
-  "action": { "type": "slack_list_channels", "params": {} },
+  "action": [ "type": "slack_list_channels", "params": [] ],
   "replanDecision": "ADJUST",  // ✅ CORRECT
   "replanReason": "Channel name was invalid, need to list channels first",
   "adjustments": ["List channels to find correct channel ID"],
@@ -461,11 +571,11 @@ Iteration 2:
       "source": "ai",
       "timestamp": "${context.environment.timestamp}",
       "type": "error",
-      "payload": {
+      "payload": [
         "failedAction": "slack_send_message",
         "error": "channel_not_found",
         "adjustment": "List channels first"
-      }
+      ]
     }
   ],
   "continue": true
@@ -496,15 +606,15 @@ After EVERY action, you MUST explicitly choose a replanning decision:
    - No recovery strategy available
 
 **Response format:**
-{
-  "action": { "type": "...", "params": {...} },
+[
+  "action": [ "type": "...", "params": [...] ],
   "replanDecision": "CONTINUE",  // REQUIRED: CONTINUE | ADJUST | RECOVER | ABORT
   "replanReason": "Why this decision was made",  // REQUIRED
   "recoveryStrategy": "If RECOVER, what's the plan",  // Optional
   "adjustments": ["change1", "change2"],  // Optional for ADJUST
   "memory": [...],
   "continue": true
-}
+]
 
 **IMPORTANT:**
 - ALWAYS provide replanDecision and replanReason
@@ -513,11 +623,26 @@ After EVERY action, you MUST explicitly choose a replanning decision:
 - Explain your reasoning in replanReason
 
 **Current replanning state:**
-${context.iteration && context.iteration > 1 ? `
-- Recovery attempts: ${(context as any).recoveryAttempts || 0}/${(context as any).maxRecoveryAttempts || 3}
-${(context as any).adjustmentsMade && (context as any).adjustmentsMade.length > 0 ? `- Adjustments made: ${(context as any).adjustmentsMade.join(', ')}` : ''}
-${(context as any).lastError ? `- Last error: ${(context as any).lastError}` : ''}
-` : ''}
+${
+  context.iteration && context.iteration > 1
+    ? `
+- Recovery attempts: ${(context as any).recoveryAttempts || 0}/${
+        (context as any).maxRecoveryAttempts || 3
+      }
+${
+  (context as any).adjustmentsMade &&
+  (context as any).adjustmentsMade.length > 0
+    ? `- Adjustments made: ${(context as any).adjustmentsMade.join(", ")}`
+    : ""
+}
+${
+  (context as any).lastError
+    ? `- Last error: ${(context as any).lastError}`
+    : ""
+}
+`
+    : ""
+}
 
 **WHEN TO STOP:**
 - Set "continue": false when the goal is achieved
@@ -525,27 +650,33 @@ ${(context as any).lastError ? `- Last error: ${(context as any).lastError}` : '
 - You will automatically stop at iteration ${context.maxIterations}
 
 **IMPORTANT:** Return ONE action per iteration. The system will call you again after execution.
-` : '';
+`
+    : "";
 
   // ONE-SHOT MODE instructions (backward compatible)
-  const oneShotInstructions = !context.iteration ? `
+  const oneShotInstructions = !context.iteration
+    ? `
 ---
 📋 ONE-SHOT MODE (for simple tasks):
 
+${taskFromPayload ? `EXECUTE THIS TASK: ${taskFromPayload}` : ""}
+
 For simple tasks that don't require iteration, you can return multiple actions at once:
 {
-  "reasoning": "...",
-  "executionName": "Task name",
+  "reasoning": "Brief explanation of your approach",
+  "executionName": "Descriptive name for this execution",
   "actions": [
-    { "type": "action1", "params": {...} },
-    { "type": "action2", "params": {...} }
+    { "type": "action_name", "params": {...} },
+    { "type": "action_name", "params": {...} }
   ],
   "memory": { "key": "value" }
 }
 
 All actions will be executed sequentially in one go.
-` : '';
+`
+    : "";
 
+  // Use full complex prompt for other cases
   return `${baseInstructions}
 
 ---
@@ -591,61 +722,73 @@ PHASE 1 ANALYSIS:
 
 PHASE 2 EXECUTION:
 \`\`\`json
-{
+[
   "reasoning": "Breaking into 3 sequential steps: list repos to get repo name, fetch commits using that name, compose and send email with results",
   "executionName": "GitHub Commits Email Digest",
   "actions": [
-    { "type": "github_list_repos", "params": {} },
-    { 
+    [ "type": "github_list_repos", "params": [] ],
+    [ 
       "type": "github_list_commits", 
-      "params": {
-        "owner": "{{github_list_repos.0.owner.login}}",
-        "repo": "{{github_list_repos.0.name}}"
-      }
-    },
-    {
+      "params": [
+        "owner": "[[github_list_repos.0.owner.login]]",
+        "repo": "[[github_list_repos.0.name]]"
+      ]
+    ],
+    [
       "type": "email_send",
-      "params": {
-        "to": "{{user.email}}",
+      "params": [
+        "to": "[[user.email]]",
         "subject": "Latest Commits",
-        "html": "<p>Latest commit: {{github_list_commits.0.commit.message}}</p>"
-      }
-    }
+        "html": "<p>Latest commit: [[github_list_commits.0.commit.message]]</p>"
+      ]
+    ]
   ]
-}
+} // Outer brace logic check... wait, I should change ALL of them.
 \`\`\`
 
 ---
 CHAINING ACTIONS & TEMPLATES:
 You can use results from previous actions and user data in subsequent actions using Handlebars templates.
 Available context variables:
-- user: properties like {{user.email}}, {{user.name}}
-- agent: properties like {{agent.name}}, {{agent.id}}
-- {action_type}: The result object of a previous action.
-  - google_docs_create_doc: { documentId, title, webViewLink }
-  - google_docs_get_doc: { documentId, title, body }
-  - github_list_repos: [ { name, owner: { login }, description }, ... ]
-  - x_get_user_tweets: [ { id, text, created_at }, ... ]
+- user: properties like [[user.email]], [[user.name]]
+- agent: properties like [[agent.name]], [[agent.id]]
+- [action_type]: The result object of a previous action.
+  - google_docs_create_doc: [ documentId, title, webViewLink ]
+  - google_docs_get_doc: [ documentId, title, body ]
+  - github_list_repos: [ [ name, owner: [ login ], description ], ... ]
+  - x_get_user_tweets: [ [ id, text, created_at ], ... ]
 
 CRITICAL TEMPLATE RULES:
 1. Templates can ONLY reference previous action results - you CANNOT call new actions inside templates
 2. NO nested loops with params like {{#action params={...}}} - this is INVALID Handlebars
 3. To use data from multiple actions, execute them SEQUENTIALLY, then reference results in later actions
 4. If you need a userId for Twitter, first call x_get_profile (no params) to get your own user ID
-5. ALWAYS use double curly braces: {{variable}} NOT {variable}
+5. ALWAYS use double brackets: [[variable]] NOT [variable]
 
-${context.previousExecutions && context.previousExecutions.length > 0 ? `
+${
+  context.previousExecutions && context.previousExecutions.length > 0
+    ? `
 ---
 💾 MEMORY & PREVIOUS EXECUTIONS:
-You have access to the last ${context.previousExecutions.length} successful executions for this agent:
+You have access to the last ${
+        context.previousExecutions.length
+      } successful executions for this agent:
 
-${context.previousExecutions.map((exec: any, idx: number) => `
+${context.previousExecutions
+  .map(
+    (exec: any, idx: number) => `
 Execution ${idx + 1} (${new Date(exec.createdAt).toISOString()}):
-- Name: ${exec.name || 'Unnamed'}
-${exec.reasoning ? `- Reasoning: ${exec.reasoning}` : ''}
-${exec.memory && Object.keys(exec.memory).length > 0 ? `- Memory: ${JSON.stringify(exec.memory, null, 2)}` : '- Memory: (empty)'}
+- Name: ${exec.name || "Unnamed"}
+${exec.reasoning ? `- Reasoning: ${exec.reasoning}` : ""}
+${
+  exec.memory && Object.keys(exec.memory).length > 0
+    ? `- Memory: ${JSON.stringify(exec.memory, null, 2)}`
+    : "- Memory: (empty)"
+}
 - Actions: ${exec.actionsExecuted?.length || 0} executed
-`).join('\n')}
+`
+  )
+  .join("\n")}
 
 🔒 MEMORY-FIRST RULES (CRITICAL):
 
@@ -656,9 +799,9 @@ ${exec.memory && Object.keys(exec.memory).length > 0 ? `- Memory: ${JSON.stringi
    - ✅ ID found in memory → REUSE IT (skip creation, use get/update actions instead)
    - ❌ ID NOT in memory → CREATE NEW and SAVE ID to memory
 3. **MEMORY NAMING**: Use consistent keys: 
-   - Google Docs: "{purpose}DocId", "{purpose}DocLink"
-   - GitHub: "{purpose}IssueNumber", "{purpose}IssueUrl"
-   - Tweets: "{purpose}TweetId", "{purpose}ThreadIds"
+   - Google Docs: "[purpose]DocId", "[purpose]DocLink"
+   - GitHub: "[purpose]IssueNumber", "[purpose]IssueUrl"
+   - Tweets: "[purpose]TweetId", "[purpose]ThreadIds"
 4. **ALWAYS UPDATE MEMORY**: Even if just accessing existing resources, update access timestamps
 
 **WRONG** (Creates duplicate resources):
@@ -673,45 +816,47 @@ ${exec.memory && Object.keys(exec.memory).length > 0 ? `- Memory: ${JSON.stringi
 
 **RIGHT** (Checks memory first - DAY 1):
 \`\`\`json
-{
+[
   "reasoning": "No contentPlanDocId in memory. Creating new doc and storing ID.",
   "executionName": "Content Plan - Day 1 Setup",
   "actions": [
-    { "type": "google_docs_create_doc", "params": { "title": "30-Day Content Plan" } }
+    [ "type": "google_docs_create_doc", "params": [ "title": "30-Day Content Plan" ] ]
   ],
-  "memory": {
-    "contentPlanDocId": "{{google_docs_create_doc.documentId}}",
-    "contentPlanDocLink": "{{google_docs_create_doc.webViewLink}}",
-    "createdAt": "{{environment.timestamp}}"
-  }
-}
+  "memory": [
+    "contentPlanDocId": "[[google_docs_create_doc.documentId]]",
+    "contentPlanDocLink": "[[google_docs_create_doc.webViewLink]]",
+    "createdAt": "[[environment.timestamp]]"
+  ]
+]
 \`\`\`
 
 **RIGHT** (Checks memory first - DAY 2+):
 \`\`\`json
-{
+[
   "reasoning": "Found contentPlanDocId (abc123) in memory. Doc exists, using get instead of create.",
   "executionName": "Content Plan - Day 2 Update",
   "actions": [
-    { "type": "google_docs_get_doc", "params": { "documentId": "abc123" } }
+    [ "type": "google_docs_get_doc", "params": [ "documentId": "abc123" ] ]
   ],
-  "memory": {
+  "memory": [
     "contentPlanDocId": "abc123", 
     "contentPlanDocLink": "https://docs.google.com/document/d/abc123",
-    "lastAccessedAt": "{{environment.timestamp}}"
-  }
-}
+    "lastAccessedAt": "[[environment.timestamp]]"
+  ]
+]
 \`\`\`
 
 CRITICAL: Memory prevents duplicate resources and API waste!
-` : ''}
+`
+    : ""
+}
 
 TRIGGER PAYLOAD:
 ${JSON.stringify(context.trigger.payload, null, 2)}
 
 ---
 ACTION NAMING CONVENTIONS:
-All action names follow the pattern: {platform}_{action_name}
+All action names follow the pattern: [platform]_[action_name]
 
 Examples:
 - Twitter/X: x_post_tweet, x_post_thread, x_get_user_tweets (NOT twitter_post_tweet!)
@@ -730,7 +875,7 @@ SYSTEM THINKING:
 - PLAN SEQUENTIALLY: Break complex tasks into simple sequential steps. Get data first, then use it.
 - VERIFY: If the user asks for something from GitHub, list the repositories or commits first to be sure you have the right data.
 - NO PLACEHOLDERS: NEVER use text like "FILL_IN_LINK" or "REPLACE_ME". If you don't have a value, try to find it with a "get" or "list" action first.
-- BE PRECISE: Use the exact IDs and names returned from previous action results. Always use the {{action_name.property}} syntax to reference data.
+- BE PRECISE: Use the exact IDs and names returned from previous action results. Always use the [[action_name.property]] syntax to reference data.
 - GOOGLE DOCS: When using google_docs_edit_doc, you MUST use the "requests" parameter (an array of request objects). NEVER use "edits".
 - TWITTER/X: For timeline access, use x_get_mentions (no userId required) or first call x_get_profile to get your userId, then use x_get_user_tweets with that ID.
 - KEEP IT SIMPLE: Don't try to do everything in one template. Execute actions in order, reference results in later steps.
@@ -761,7 +906,7 @@ Example well-styled email body:
 </body>
 </html>
 
-CRITICAL: Email body must have ALL data filled in, NO template code like {{variable}}.
+CRITICAL: Email body must have ALL data filled in, NO template code like [[variable]].
 
 ---
 INSTRUCTIONS:
@@ -776,47 +921,46 @@ Each action must have:
 - "params": an object with the parameters for that action
 
 Example response WITH memory:
-{
+[
   "reasoning": "Checked previous executions. Found contentPlanDocId in memory, so skipping doc creation. Posting day 2 content to X.",
   "executionName": "Post Day 2 Content",
   "actions": [
-    {
+    [
       "type": "x_post_tweet",
-      "params": {
+      "params": [
         "text": "Day 2: Unlock Scalable Automation with Axle!"
-      }
-    },
-    {
+      ]
+    ],
+    [
       "type": "email_send",
-      "params": {
-        "to": "{{user.email}}",
+      "params": [
+        "to": "[[user.email]]",
         "subject": "Day 2 Posted",
         "body": "Your day 2 content was posted successfully."
-      }
-    }
+      ]
+    ]
   ],
-  "memory": {
+  "memory": [
     "contentPlanDocId": "1XBSkoyhG2ya1U9WlgC8M4MrclnSucuOKXj7AzV1rxXc",
     "lastPostedDay": 2,
     "lastPostTime": "2025-12-25T12:00:00Z"
-  }
-}
+  ]
+]
 
 If no action is needed, respond with:
-{
+[
   "reasoning": "All tasks completed in previous execution. No further action required.",
   "executionName": "No action required",
   "actions": [],
-  "memory": {}
-}
+  "memory": []
+]
 
 IMPORTANT:
 - ALWAYS include "reasoning" to explain your decisions
 - Only use actions from the available list
 - Use the EXACT action names (e.g., x_post_tweet NOT twitter_post_tweet)
 - Only use integrations that are connected
-- Respond ONLY with valid JSON, no explanations`
+- Respond ONLY with valid JSON, no explanations`;
 };
 
 export default { buildContext, buildSystemPrompt };
-

@@ -1,5 +1,7 @@
+
 import { SessionService, Session } from '@google/adk';
 import { Execution } from '../models/Execution';
+import { logger } from './logger';
 
 export class MongoSessionService implements SessionService {
   async getSession(sessionId: string): Promise<Session | undefined> {
@@ -29,30 +31,50 @@ export class MongoSessionService implements SessionService {
     let sessionId = typeof sessionIdOrObj === 'string' 
       ? sessionIdOrObj 
       : sessionIdOrObj?.sessionId;
-    
+
     // Fallback/Hack for ADK Runner dropping context
     if (!sessionId && this.currentSessionId) {
         sessionId = this.currentSessionId;
     }
 
     if (!sessionId) {
-      console.warn('MongoSessionService.load called without valid sessionId', 
-        typeof sessionIdOrObj === 'object' ? JSON.stringify(sessionIdOrObj) : sessionIdOrObj
-      );
+      logger.warn('MongoSessionService.load called without valid sessionId', { 
+        input: typeof sessionIdOrObj === 'object' ? JSON.stringify(sessionIdOrObj) : sessionIdOrObj 
+      });
       return undefined;
     }
     
     const execution = await Execution.findById(sessionId);
     if (!execution) return undefined;
     
-    // Use state._adk_history for history to avoid conflict with 'memory' Map
+    // Use state._adk_history for history/events to avoid conflict with 'memory' Map
     const adkHistory = execution.state?._adk_history;
-    
-    return {
+    const historyArray = Array.isArray(adkHistory) ? adkHistory : [];
+
+    // ADK Runner expects 'events' property. We map it to the same history array.
+    const session = {
       id: execution._id.toString(),
       state: execution.state || {},
-      history: Array.isArray(adkHistory) ? adkHistory : []
+      history: historyArray,
+      events: historyArray, 
+      turns: []
     };
+    
+    logger.info('MongoSessionService.load success', { 
+        id: session.id, 
+        historyLength: session.history.length
+    });
+    
+    return session as any;
+  }
+
+  async appendEvent(request: { session: Session; event: any }): Promise<void> {
+    const { session, event } = request;
+    if (!session.events) session.events = [];
+    session.events.push(event);
+    // Sync history for legacy compatibility
+    session.history = session.events;
+    await this.save(session);
   }
 
   async save(session: Session): Promise<void> {
@@ -61,15 +83,16 @@ export class MongoSessionService implements SessionService {
         if (this.currentSessionId) {
             session.id = this.currentSessionId;
         } else {
-            console.warn('MongoSessionService.save called without session.id', session);
+            // logger.warn('MongoSessionService.save called without session.id', { session });
+            // Suppress warn if saving initial state without ID (though rare)
             return;
         }
     }
     
     // Ensure state exists
     const newState = session.state || {};
-    // Save history inside state to persist it in 'state' Mixed field
-    newState._adk_history = session.history || [];
+    // Save history/events inside state
+    newState._adk_history = session.events || session.history || [];
 
     await Execution.updateOne(
       { _id: session.id },

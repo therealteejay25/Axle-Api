@@ -8,11 +8,18 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_1 = require("../config/env");
 const authMiddleware = async (req, res, next) => {
     try {
+        // Check Authorization header first, then cookies
         const authHeader = req.headers.authorization;
-        if (!authHeader?.startsWith("Bearer ")) {
+        let token;
+        if (authHeader?.startsWith("Bearer ")) {
+            token = authHeader.slice(7);
+        }
+        else if (req.cookies?.axle_access_token) {
+            token = req.cookies.axle_access_token;
+        }
+        if (!token) {
             return res.status(401).json({ error: "Authorization required" });
         }
-        const token = authHeader.slice(7);
         // Verify token
         let decoded;
         try {

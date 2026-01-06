@@ -73,14 +73,8 @@ export interface AIResponse {
 let _gemini: GoogleGenerativeAI | null = null;
 
 const normalizeGeminiModel = (model?: string) => {
-  const raw = (model || env.MODEL || "gemini-1.5-pro-latest").trim();
-  if (!raw) return "gemini-1.5-pro-latest";
-  // Backward compatibility: some call sites used OpenRouter-style ids like "google/gemini-2.0-flash-001"
-  if (raw.includes("/")) {
-    const last = raw.split("/").filter(Boolean).pop();
-    return last || "gemini-1.5-pro-latest";
-  }
-  return raw;
+  // STRICT HARDCODE: Always return gemini-1.5-pro-002 regardless of input
+  return "gemini-1.5-pro-002";
 };
 
 const getGeminiClient = (): GoogleGenerativeAI => {
@@ -106,7 +100,7 @@ const messagesToPrompt = (messages: any[]) => {
 
 export const callAI = async (
   systemPrompt: string,
-  model: string = env.MODEL || "gemini-1.5-pro-latest",
+  model: string = "gemini-1.5-pro-002",
   temperature: number = 0.7,
   maxTokens: number = 4096
 ): Promise<AIResponse> => {
@@ -321,7 +315,7 @@ const validateAction = (action: any): boolean => {
 
 export const callChat = async (
   messages: any[],
-  model: string = env.MODEL || "gemini-1.5-pro-latest",
+  model: string = "gemini-1.5-pro-002",
   temperature: number = 0.7
 ): Promise<{ response: string; actions?: AIAction[] }> => {
   const startTime = Date.now();
@@ -383,7 +377,7 @@ export const callChat = async (
 
 export const callChatStream = async function* (
   messages: any[],
-  model: string = env.MODEL || "gemini-1.5-pro-latest",
+  model: string = "gemini-1.5-pro-002",
   temperature: number = 0.7
 ): AsyncGenerator<string, void, unknown> {
   try {

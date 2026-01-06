@@ -46,8 +46,9 @@ exports.perUserRateLimiter = perUserRateLimiter;
 // Execution rate limiter (prevent runaway agents)
 exports.executionRateLimiter = (0, express_rate_limit_1.default)({
     windowMs: 60000, // 1 minute
-    max: 30, // 30 executions per minute per IP
-    keyGenerator: (req) => req.user?.id || req.ip || "unknown",
+    max: 30, // 30 executions per minute
+    standardHeaders: true,
+    legacyHeaders: false,
     message: {
         error: "Too many execution requests, please slow down"
     }

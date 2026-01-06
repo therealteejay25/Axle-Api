@@ -44,6 +44,13 @@ export const logger = winston.createLogger({
 });
 
 // Add file transport in production
+// Add file transport (always for debugging)
+logger.add(new winston.transports.File({
+  filename: "logs/debug.log",
+  level: "debug",
+  format: combine(timestamp(), prodFormat)
+}));
+
 if (env.IS_PROD) {
   logger.add(new winston.transports.File({
     filename: "logs/error.log",

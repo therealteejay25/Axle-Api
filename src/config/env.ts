@@ -7,6 +7,17 @@ if (process.env.OPENAI_KEY && !process.env.OPENAI_API_KEY) {
   process.env.OPENAI_API_KEY = process.env.OPENAI_KEY;
 }
 
+// Google ADK / @google/genai expects `GOOGLE_API_KEY` (AI Studio) by default.
+// Our codebase currently uses `GEMINI_API_KEY`, so provide a compatibility alias.
+if (process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+  process.env.GOOGLE_API_KEY = process.env.GEMINI_API_KEY;
+}
+
+// If not explicitly using Vertex AI, default to AI Studio mode.
+if (!process.env.GOOGLE_GENAI_USE_VERTEXAI) {
+  process.env.GOOGLE_GENAI_USE_VERTEXAI = "FALSE";
+}
+
 const NODE_ENV = process.env.NODE_ENV || "development";
 const IS_PROD = NODE_ENV === "production";
 
@@ -51,7 +62,7 @@ export const env = {
   // OpenRouter AI
   OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-  MODEL: process.env.MODEL || "gemini-1.5-pro-latest",
+  MODEL: process.env.MODEL || "gemini-1.5-pro-002",
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
   GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!,

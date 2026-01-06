@@ -46,7 +46,7 @@ export class AgentBlueprintGenerator {
     `;
 
     try {
-      const response = await callAI(systemPrompt, "google/gemini-2.0-flash-001", 0.3);
+      const response = await callAI(systemPrompt, "gemini-1.5-pro-002", 0.3);
       
       // The callAI tool returns a structured response based on the parseAIResponse logic
       // We might need to handle the case where it returns "actions" but we want a different JSON structure.

@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -14,10 +47,9 @@ const health_1 = __importDefault(require("./src/routes/health"));
 const db_1 = require("./src/lib/db");
 const logger_1 = require("./src/services/logger");
 const env_1 = require("./src/config/env");
-const rateLimit_1 = require("./src/middleware/rateLimit");
 const executionQueue_1 = require("./src/queue/executionQueue");
-const worker_1 = require("./src/worker");
 const scheduleHandler_1 = require("./src/triggers/scheduleHandler");
+const SocketService_1 = require("./src/services/SocketService");
 // ============================================
 // AXLE AGENT EXECUTION ENGINE
 // ============================================
@@ -35,11 +67,11 @@ const startServer = async () => {
     app.use((0, cookie_parser_1.default)());
     // CORS
     app.use((0, cors_1.default)({
-        origin: env_1.env.ALLOWED_ORIGINS.split(",").map(o => o.trim()),
+        origin: "http://localhost:3000",
         credentials: true
     }));
     // Rate limiting
-    app.use(rateLimit_1.globalRateLimiter);
+    // app.use(globalRateLimiter);
     // Routes
     const apiVersion = env_1.env.API_VERSION || "v1";
     app.use(`/api/${apiVersion}`, routes_1.default);
@@ -58,6 +90,8 @@ const startServer = async () => {
     });
     // Create HTTP server
     const server = http_1.default.createServer(app);
+    // Initialize WebSocket
+    SocketService_1.SocketService.getInstance().init(server);
     // Start server
     const PORT = env_1.env.PORT || 9000;
     server.listen(PORT, () => {
@@ -70,10 +104,13 @@ const startServer = async () => {
     await (0, executionQueue_1.initQueueScheduler)();
     logger_1.logger.info("Queue scheduler initialized");
     // Start worker
-    (0, worker_1.startWorker)();
+    const { startWorker } = await Promise.resolve().then(() => __importStar(require("./src/worker")));
+    startWorker();
     logger_1.logger.info("Worker started");
     // Initialize schedule triggers
     await (0, scheduleHandler_1.initScheduler)();
+    const { initSchedulerWorker } = await Promise.resolve().then(() => __importStar(require("./src/worker/scheduler")));
+    initSchedulerWorker(); // Start consumer
     logger_1.logger.info("Scheduler initialized");
     // Graceful shutdown
     const shutdown = async (signal) => {

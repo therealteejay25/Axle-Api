@@ -126,7 +126,7 @@ router.post("/", async (req: Request, res: Response) => {
       instructions,  // Plain English instructions
       status: "active",
       brain: {
-        model: "google/gemini-2.0-flash-001",
+        model: "gemini-1.5-pro-002",
         // systemPrompt will be generated at runtime from instructions
         temperature: 0.7,
         maxTokens: 2048

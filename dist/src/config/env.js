@@ -11,27 +11,40 @@ dotenv_1.default.config();
 if (process.env.OPENAI_KEY && !process.env.OPENAI_API_KEY) {
     process.env.OPENAI_API_KEY = process.env.OPENAI_KEY;
 }
+// Google ADK / @google/genai expects `GOOGLE_API_KEY` (AI Studio) by default.
+// Our codebase currently uses `GEMINI_API_KEY`, so provide a compatibility alias.
+if (process.env.GEMINI_API_KEY && !process.env.GOOGLE_API_KEY) {
+    process.env.GOOGLE_API_KEY = process.env.GEMINI_API_KEY;
+}
+// If not explicitly using Vertex AI, default to AI Studio mode.
+if (!process.env.GOOGLE_GENAI_USE_VERTEXAI) {
+    process.env.GOOGLE_GENAI_USE_VERTEXAI = "FALSE";
+}
 const NODE_ENV = process.env.NODE_ENV || "development";
 const IS_PROD = NODE_ENV === "production";
-// Validate required env vars
-const requiredVars = [
-    "PORT",
-    "MONGODB_URI",
-    "API_VERSION",
-    "JWT_SECRET",
-    "REFRESH_SECRET",
-    "OPENAI_KEY",
-    "GITHUB_CLIENT_ID",
-    "GITHUB_CLIENT_SECRET",
-    "GITHUB_REDIRECT_URI",
-    "INTEGRATION_ENC_KEY",
-];
-if (IS_PROD) {
-    const missing = requiredVars.filter((v) => !process.env[v]);
-    if (missing.length > 0) {
-        throw new Error(`Missing required environment variables in production: ${missing.join(", ")}`);
-    }
-}
+// // Validate required env vars
+// const requiredVars = [
+//   "PORT",
+//   "MONGODB_URI",
+//   "API_VERSION",
+//   "JWT_SECRET",
+//   "REFRESH_SECRET",
+//   "OPENAI_KEY",
+//   "GITHUB_CLIENT_ID",
+//   "GITHUB_CLIENT_SECRET",
+//   "GITHUB_REDIRECT_URI",
+//   "INTEGRATION_ENC_KEY",
+// ];
+// if (IS_PROD) {
+//   const missing = requiredVars.filter((v) => !process.env[v]);
+//   if (missing.length > 0) {
+//     throw new Error(
+//       `Missing required environment variables in production: ${missing.join(
+//         ", "
+//       )}`
+//     );
+//   }
+// }
 exports.env = {
     NODE_ENV,
     IS_PROD,
@@ -43,9 +56,12 @@ exports.env = {
     RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
     JWT_SECRET: process.env.JWT_SECRET,
     REFRESH_SECRET: process.env.REFRESH_SECRET,
-    OPENAI_KEY: process.env.OPENAI_KEY,
+    // OPENAI_KEY: process.env.OPENAI_KEY!,
     OPENAI_API_BASE: process.env.OPENAI_API_BASE || "https://api.algion.dev/v1",
-    MODEL: process.env.MODEL,
+    // OpenRouter AI
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    MODEL: process.env.MODEL || "gemini-1.5-pro-002",
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI,
@@ -63,16 +79,17 @@ exports.env = {
     X_REDIRECT_URI: process.env.X_REDIRECT_URI,
     REDIS_URL: process.env.REDIS_URL || "redis://127.0.0.1:6379",
     INTEGRATION_ENC_KEY: process.env.INTEGRATION_ENC_KEY,
-    // SMTP configuration for send_email tool
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT || "587",
     SMTP_USER: process.env.SMTP_USER,
     SMTP_PASS: process.env.SMTP_PASS,
     SMTP_FROM: process.env.SMTP_FROM,
-    // Rate limiting
-    RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 min
-    RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
-    // Agent execution
-    AGENT_TIMEOUT_MS: parseInt(process.env.AGENT_TIMEOUT_MS || "30000"), // 30 sec
-    AGENT_MAX_RETRIES: parseInt(process.env.AGENT_MAX_RETRIES || "3"),
+    // // Rate limiting
+    // RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 min
+    // RATE_LIMIT_MAX_REQUESTS: parseInt(
+    //   process.env.RATE_LIMIT_MAX_REQUESTS || "100"
+    // ),
+    // // Agent execution
+    // AGENT_TIMEOUT_MS: parseInt(process.env.AGENT_TIMEOUT_MS || "30000"), // 30 sec
+    // AGENT_MAX_RETRIES: parseInt(process.env.AGENT_MAX_RETRIES || "3"),
 };

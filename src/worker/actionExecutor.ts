@@ -396,10 +396,12 @@ const resolveParams = (
 
   const processValue = (value: any): any => {
     if (typeof value === "string") {
-      // Check if it looks like a template
-      if (value.includes("{{") || value.includes("{%")) {
+      // Check if it looks like a template (Handlebars or square bracket fallback)
+      if (value.includes("{{") || value.includes("{%") || value.includes("[[")) {
         try {
-          const template = Handlebars.compile(value, { noEscape: true });
+          // Normalize square brackets to curly braces for Handlebars compatibility
+          const normalizedValue = value.replace(/\[\[/g, "{{").replace(/\]\]/g, "}}");
+          const template = Handlebars.compile(normalizedValue, { noEscape: true });
           return template(context);
         } catch (e) {
           logger.warn("Template render failed", { value, error: e });

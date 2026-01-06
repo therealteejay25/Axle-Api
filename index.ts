@@ -13,9 +13,7 @@ import { logger } from "./src/services/logger";
 import { env } from "./src/config/env";
 import { globalRateLimiter } from "./src/middleware/rateLimit";
 import { initQueueScheduler } from "./src/queue/executionQueue";
-import { startWorker } from "./src/worker";
 import { initScheduler } from "./src/triggers/scheduleHandler";
-import { initSchedulerWorker } from "./src/worker/scheduler";
 import { SocketService } from "./src/services/SocketService";
 
 // ============================================
@@ -39,7 +37,7 @@ const startServer = async () => {
   
   // CORS
   app.use(cors({
-    origin: "https://heyaxle.vercel.app",
+    origin: "http://localhost:3000",
     credentials: true
   }));
   
@@ -86,12 +84,14 @@ const startServer = async () => {
   logger.info("Queue scheduler initialized");
   
   // Start worker
+  const { startWorker } = await import("./src/worker");
   startWorker();
   logger.info("Worker started");
   
   
   // Initialize schedule triggers
   await initScheduler();
+  const { initSchedulerWorker } = await import("./src/worker/scheduler");
   initSchedulerWorker(); // Start consumer
   logger.info("Scheduler initialized");
   
