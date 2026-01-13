@@ -13,15 +13,15 @@ import { Schema, model, Document, Types } from "mongoose";
 //   4. We pass them to the action adapter
 // ============================================
 
-export type IntegrationProvider = 
-  | "github" 
-  | "slack" 
-  | "twitter" 
-  | "google" 
+export type IntegrationProvider =
+  | "github"
+  | "slack"
+  | "twitter"
+  | "google"
   | "email"
   | "instagram";
 
-export type IntegrationStatus = "connected" | "revoked" | "expired";
+export type IntegrationStatus = "connected" | "disconnected" | "revoked" | "expired";
 
 export interface IIntegration extends Document {
   _id: Types.ObjectId;
@@ -36,6 +36,7 @@ export interface IIntegration extends Document {
   // Provider-specific metadata (e.g., username, org name)
   metadata: Record<string, any>;
   status: IntegrationStatus;
+  error?: string;
   connectedAt: Date;
   lastUsedAt?: Date;
   createdAt: Date;
@@ -71,10 +72,11 @@ const IntegrationSchema = new Schema<IIntegration>(
     },
     status: {
       type: String,
-      enum: ["connected", "revoked", "expired"],
+      enum: ["connected", "disconnected", "revoked", "expired"],
       default: "connected",
       index: true
     },
+    error: { type: String },
     connectedAt: {
       type: Date,
       default: Date.now

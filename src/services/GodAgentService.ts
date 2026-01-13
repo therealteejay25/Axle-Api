@@ -6,7 +6,7 @@ import { User } from "../models/User";
 import { Integration } from "../models/Integration";
 import { decryptToken } from "./crypto";
 import { logger } from "./logger";
-import { triggerAgentExecution } from "../worker/executionDispatcher"; // Assuming this exists or similar logic needed
+
 
 
 export class GodAgentService {
@@ -124,24 +124,24 @@ export class GodAgentService {
 
   static async listExecutions(userId: string, filters: { agentId?: string, status?: string, limit?: number }) {
     const query: any = {};
-    
+
     // If agentId is provided, verify ownership first or just rely on query
     if (filters.agentId) {
-        query.agentId = new Types.ObjectId(filters.agentId);
-        // implicit ownership check: ensure agent belongs to user?
-        // For performance, we might just query executions where agent belongs to user
-        // But simpler: get all user agents, then filter executions
-        const userAgents = await Agent.find({ ownerId: new Types.ObjectId(userId) }).select('_id');
-        const userAgentIds = userAgents.map(a => a._id);
-        if (!userAgentIds.some(id => id.equals(query.agentId))) {
-             // If the requested agent isn't owned by user, return empty or error
-             // strict check:
-             throw new Error("Agent not found or unauthorized");
-        }
+      query.agentId = new Types.ObjectId(filters.agentId);
+      // implicit ownership check: ensure agent belongs to user?
+      // For performance, we might just query executions where agent belongs to user
+      // But simpler: get all user agents, then filter executions
+      const userAgents = await Agent.find({ ownerId: new Types.ObjectId(userId) }).select('_id');
+      const userAgentIds = userAgents.map(a => a._id);
+      if (!userAgentIds.some(id => id.equals(query.agentId))) {
+        // If the requested agent isn't owned by user, return empty or error
+        // strict check:
+        throw new Error("Agent not found or unauthorized");
+      }
     } else {
-        // Get all executions for any agent owned by user
-        const userAgents = await Agent.find({ ownerId: new Types.ObjectId(userId) }).select('_id');
-        query.agentId = { $in: userAgents.map(a => a._id) };
+      // Get all executions for any agent owned by user
+      const userAgents = await Agent.find({ ownerId: new Types.ObjectId(userId) }).select('_id');
+      query.agentId = { $in: userAgents.map(a => a._id) };
     }
 
     if (filters.status) query.status = filters.status;
@@ -153,38 +153,38 @@ export class GodAgentService {
   }
 
   static async triggerExecution(userId: string, agentId: string, input: any) {
-     const agent = await Agent.findOne({ _id: new Types.ObjectId(agentId), ownerId: new Types.ObjectId(userId) });
-     if (!agent) throw new Error("Agent not found");
-     
-     // Dispatch execution
-     // This depends on how your execution engine works. 
-     // For now, I'll assume a method exists or create a placeholder.
-     // In a real scenario, this might push to a queue.
-     
-     // return triggerAgentExecution(agent, input);
-     // Placeholder:
-     const execution = await Execution.create({
-         agentId: agent._id,
-         status: "queued",
-         input,
-         logs: []
-     });
-     return execution;
+    const agent = await Agent.findOne({ _id: new Types.ObjectId(agentId), ownerId: new Types.ObjectId(userId) });
+    if (!agent) throw new Error("Agent not found");
+
+    // Dispatch execution
+    // This depends on how your execution engine works. 
+    // For now, I'll assume a method exists or create a placeholder.
+    // In a real scenario, this might push to a queue.
+
+    // return triggerAgentExecution(agent, input);
+    // Placeholder:
+    const execution = await Execution.create({
+      agentId: agent._id,
+      status: "queued",
+      input,
+      logs: []
+    });
+    return execution;
   }
 
   static async getExecutionLogs(userId: string, executionId: string) {
-      // Ensure execution belongs to an agent owned by user
-      const execution = await Execution.findById(executionId).populate('agentId');
-      if (!execution) throw new Error("Execution not found");
-      
-      const agent = execution.agentId as any;
-      if (agent.ownerId.toString() !== userId) throw new Error("Unauthorized");
+    // Ensure execution belongs to an agent owned by user
+    const execution = await Execution.findById(executionId).populate('agentId');
+    if (!execution) throw new Error("Execution not found");
 
-      return execution.logs || [];
+    const agent = execution.agentId as any;
+    if (agent.ownerId.toString() !== userId) throw new Error("Unauthorized");
+
+    return execution.logs || [];
   }
 
   static async listIntegrations(userId: string) {
-      return Integration.find({ userId: new Types.ObjectId(userId) }).lean();
+    return Integration.find({ userId: new Types.ObjectId(userId) }).lean();
   }
 }
 

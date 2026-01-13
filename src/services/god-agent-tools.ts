@@ -15,9 +15,11 @@ export const listAgentsTool = new FunctionTool({
   parameters: z.object({
     status: z.enum(["active", "paused", "draft"]).optional().describe("Filter agents by status"),
     limit: z.number().optional().default(10).describe("Maximum number of agents to return"),
-  }),
+  }) as any,
   execute: async ({ status, limit }, context) => {
-    return GodAgentService.listAgents(context.userId, { status, limit });
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.listAgents(userId, { status, limit });
   },
 });
 
@@ -29,9 +31,11 @@ export const createAgentTool = new FunctionTool({
     description: z.string().describe("Brief description of what the agent does"),
     instructions: z.string().describe("Detailed instructions for the agent's behavior"),
     schedule: z.string().optional().describe("Cron expression for scheduled execution"),
-  }),
+  }) as any,
   execute: async (params, context) => {
-    return GodAgentService.createAgent(context.userId, params);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.createAgent(userId, params);
   },
 });
 
@@ -45,9 +49,11 @@ export const updateAgentTool = new FunctionTool({
     instructions: z.string().optional(),
     status: z.enum(["active", "paused", "draft"]).optional(),
     schedule: z.string().optional(),
-  }),
+  }) as any,
   execute: async (params, context) => {
-    return GodAgentService.updateAgent(context.userId, params.agentId, params);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.updateAgent(userId, params.agentId, params);
   },
 });
 
@@ -57,27 +63,29 @@ export const deleteAgentTool = new FunctionTool({
   parameters: z.object({
     agentId: z.string().describe("ID of the agent to delete"),
     confirmed: z.boolean().describe("Must be true to proceed with deletion"),
-  }),
+  }) as any,
   execute: async ({ agentId, confirmed }, context) => {
     if (!confirmed) return { error: "Confirmation required for deletion." };
-    return GodAgentService.manageAgent(context.userId, agentId, "delete");
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.manageAgent(userId, agentId, "delete");
   },
 });
 
 export const requestAgentConfirmationTool = new FunctionTool({
-    name: "request_agent_confirmation",
-    description: "Request explicit user confirmation for a sensitive action.",
-    parameters: z.object({
-        message: z.string().describe("The message to explain why confirmation is needed and what will happen"),
-        action: z.string().describe("The action identifier being confirmed"),
-        context: z.record(z.any()).describe("Context data for the action")
-    }),
-    execute: async (params, context) => {
-        // This tool doesn't do anything on the backend structurally other than return a signal
-        // that the UI can use (or specific logic) to show a confirmation dialog.
-        // For the God Agent flow, it might just be part of the chat turn.
-        return { status: "awaiting_confirmation", ...params };
-    }
+  name: "request_agent_confirmation",
+  description: "Request explicit user confirmation for a sensitive action.",
+  parameters: z.object({
+    message: z.string().describe("The message to explain why confirmation is needed and what will happen"),
+    action: z.string().describe("The action identifier being confirmed"),
+    context: z.record(z.any()).describe("Context data for the action")
+  }) as any,
+  execute: async (params, context) => {
+    // This tool doesn't do anything on the backend structurally other than return a signal
+    // that the UI can use (or specific logic) to show a confirmation dialog.
+    // For the God Agent flow, it might just be part of the chat turn.
+    return { status: "awaiting_confirmation", ...params };
+  }
 });
 
 
@@ -88,9 +96,11 @@ export const getBlueprintTool = new FunctionTool({
   description: "Get the blueprint (configuration) of a specific agent.",
   parameters: z.object({
     agentId: z.string().describe("ID of the agent"),
-  }),
+  }) as any,
   execute: async ({ agentId }, context) => {
-    return GodAgentService.getAgentBlueprint(context.userId, agentId);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.getAgentBlueprint(userId, agentId);
   },
 });
 
@@ -100,9 +110,11 @@ export const updateBlueprintTool = new FunctionTool({
   parameters: z.object({
     agentId: z.string().describe("ID of the agent"),
     blueprint: z.record(z.any()).describe("New blueprint object"),
-  }),
+  }) as any,
   execute: async ({ agentId, blueprint }, context) => {
-    return GodAgentService.updateBlueprint(context.userId, agentId, blueprint);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.updateBlueprint(userId, agentId, blueprint);
   },
 });
 
@@ -115,9 +127,11 @@ export const listExecutionsTool = new FunctionTool({
     agentId: z.string().optional().describe("Filter by agent ID"),
     status: z.enum(["running", "success", "failed", "pending"]).optional(),
     limit: z.number().optional().default(10),
-  }),
+  }) as any,
   execute: async (params, context) => {
-    return GodAgentService.listExecutions(context.userId, params);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.listExecutions(userId, params);
   },
 });
 
@@ -127,9 +141,11 @@ export const startExecutionTool = new FunctionTool({
   parameters: z.object({
     agentId: z.string().describe("ID of the agent to run"),
     input: z.record(z.any()).optional().describe("Input parameters for the execution"),
-  }),
+  }) as any,
   execute: async ({ agentId, input }, context) => {
-    return GodAgentService.triggerExecution(context.userId, agentId, input);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.triggerExecution(userId, agentId, input);
   },
 });
 
@@ -138,9 +154,11 @@ export const getExecutionLogsTool = new FunctionTool({
   description: "Get logs for a specific execution.",
   parameters: z.object({
     executionId: z.string().describe("ID of the execution"),
-  }),
+  }) as any,
   execute: async ({ executionId }, context) => {
-    return GodAgentService.getExecutionLogs(context.userId, executionId);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.getExecutionLogs(userId, executionId);
   },
 });
 
@@ -149,9 +167,11 @@ export const getExecutionLogsTool = new FunctionTool({
 export const listIntegrationsTool = new FunctionTool({
   name: "list_integrations",
   description: "List all connected integrations and their status.",
-  parameters: z.object({}),
+  parameters: z.object({}) as any,
   execute: async (_, context) => {
-    return GodAgentService.listIntegrations(context.userId);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.listIntegrations(userId);
   },
 });
 
@@ -160,9 +180,11 @@ export const listIntegrationsTool = new FunctionTool({
 export const getAnalyticsTool = new FunctionTool({
   name: "get_analytics",
   description: "Get summary analytics for the user's account.",
-  parameters: z.object({}),
+  parameters: z.object({}) as any,
   execute: async (_, context) => {
-    return GodAgentService.getDataSummary(context.userId);
+    const userId = (context as any)?.userId;
+    if (!userId) throw new Error("Missing userId in tool context");
+    return GodAgentService.getDataSummary(userId);
   },
 });
 

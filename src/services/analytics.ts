@@ -37,28 +37,28 @@ export const getUserMetrics = async (
 ): Promise<UsageMetrics> => {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
-  
+
   // Get executions
   const executions = await Execution.find({
     userId,
     createdAt: { $gte: startDate }
   }).populate('agentId', 'name').lean();
-  
+
   const total = executions.length;
   const successful = executions.filter(e => e.status === 'success').length;
   const failed = executions.filter(e => e.status === 'failed').length;
-  
+
   // Calculate success rate
   const successRate = total > 0 ? (successful / total) * 100 : 0;
-  
+
   // Calculate avg execution time
   const executionTimes = executions
-    .filter(e =>e.finishedAt && e.createdAt)
+    .filter(e => e.finishedAt && e.createdAt)
     .map(e => new Date(e.finishedAt!).getTime() - new Date(e.createdAt).getTime());
   const avgTime = executionTimes.length > 0
     ? executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length
     : 0;
-  
+
   // Find most used agent
   const agentCounts: Record<string, number> = {};
   executions.forEach(e => {
@@ -68,7 +68,7 @@ export const getUserMetrics = async (
   const mostUsedAgent = Object.keys(agentCounts).length > 0
     ? Object.keys(agentCounts).reduce((a, b) => agentCounts[a] > agentCounts[b] ? a : b)
     : 'None';
-  
+
   // Find most used integration (from actions)
   const integrationCounts: Record<string, number> = {};
   executions.forEach(e => {
@@ -80,10 +80,10 @@ export const getUserMetrics = async (
   const mostUsedIntegration = Object.keys(integrationCounts).length > 0
     ? Object.keys(integrationCounts).reduce((a, b) => integrationCounts[a] > integrationCounts[b] ? a : b)
     : 'None';
-  
+
   // Calculate credits (simplified - assume 1 credit per execution)
   const totalCreditsUsed = executions.reduce((sum, e) => sum + (e.creditsUsed || 1), 0);
-  
+
   return {
     totalExecutions: total,
     successfulExecutions: successful,
@@ -105,18 +105,18 @@ export const getTimeSeriesData = async (
 ): Promise<TimeSeriesData[]> => {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
-  
+
   const executions = await Execution.find({
     userId,
     createdAt: { $gte: startDate }
   }).lean();
-  
+
   // Group by date
   const dataByDate: Record<string, TimeSeriesData> = {};
-  
+
   executions.forEach(e => {
     const dateKey = new Date(e.createdAt).toISOString().split('T')[0];
-    
+
     if (!dataByDate[dateKey]) {
       dataByDate[dateKey] = {
         date: dateKey,
@@ -125,19 +125,19 @@ export const getTimeSeriesData = async (
         failed: 0
       };
     }
-    
+
     dataByDate[dateKey].executions++;
     if (e.status === 'success') dataByDate[dateKey].success++;
     if (e.status === 'failed') dataByDate[dateKey].failed++;
   });
-  
+
   // Fill in missing dates
   const result: TimeSeriesData[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     const dateKey = date.toISOString().split('T')[0];
-    
+
     result.push(dataByDate[dateKey] || {
       date: dateKey,
       executions: 0,
@@ -145,7 +145,7 @@ export const getTimeSeriesData = async (
       failed: 0
     });
   }
-  
+
   return result;
 };
 
@@ -154,12 +154,12 @@ export const getTimeSeriesData = async (
  */
 export const getAgentPerformance = async (userId: string) => {
   const agents = await Agent.find({ ownerId: userId }).lean();
-  
+
   const performance = await Promise.all(agents.map(async agent => {
     const executions = await Execution.find({ agentId: agent._id }).lean();
     const total = executions.length;
     const successful = executions.filter(e => e.status === 'success').length;
-    
+
     return {
       agentId: agent._id,
       agentName: agent.name,
@@ -168,7 +168,7 @@ export const getAgentPerformance = async (userId: string) => {
       lastRun: executions[0]?.createdAt || null
     };
   }));
-  
+
   return performance.sort((a, b) => b.totalRuns - a.totalRuns);
 };
 
@@ -185,8 +185,8 @@ export const getRecentActivity = async (
   userId: string,
   limit: number = 20
 ): Promise<IAuditLog[]> => {
-  return await AuditLog.find({ userId })
+  return (await AuditLog.find({ userId })
     .sort({ timestamp: -1 })
     .limit(limit)
-    .lean();
+    .lean()) as any;
 };

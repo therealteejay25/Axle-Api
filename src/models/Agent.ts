@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
+import { env } from "../config/env";
 
 // ============================================
 // AGENT MODEL - Pure Configuration
@@ -92,7 +93,7 @@ const AgentSchema = new Schema<IAgent>(
         brain: {
             model: {
                 type: String,
-                default: "gemini-1.5-pro-002"
+                default: env.MODEL
             },
             systemPrompt: {
                 type: String,

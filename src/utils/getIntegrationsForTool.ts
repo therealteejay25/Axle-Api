@@ -1,4 +1,4 @@
-import Integration from "../models/Integration";
+import { Integration } from "../models/Integration";
 
 export type IntegrationProvider = "google" | "github" | "twitter";
 
@@ -7,9 +7,9 @@ export async function getIntegrationsForTool(
   providers: IntegrationProvider[]
 ): Promise<Record<IntegrationProvider, any>> {
   const integrations = await Integration.find({
-    ownerId: userId,
+    userId,
     provider: { $in: providers },
-    connected: true,
+    status: "connected",
   }).lean();
 
   const result = {} as Record<IntegrationProvider, any>;

@@ -1,5 +1,6 @@
 import { callAI } from "../worker/aiCaller";
 import { logger } from "./logger";
+import { env } from "../config/env";
 
 export interface IGeneratedBlueprint {
   name: string;
@@ -46,18 +47,18 @@ export class AgentBlueprintGenerator {
     `;
 
     try {
-      const response = await callAI(systemPrompt, "gemini-1.5-pro-002", 0.3);
-      
+      const response = await callAI(systemPrompt, env.MODEL, 0.3);
+
       // The callAI tool returns a structured response based on the parseAIResponse logic
       // We might need to handle the case where it returns "actions" but we want a different JSON structure.
       // For now, let's assume we use a specialized prompt that gets the JSON we need.
-      
+
       // NOTE: aiCaller.ts forces an "actions" array. We might need to adapt it 
       // or create a raw call function. Let's look at aiCaller.ts again.
-      
+
       // Since aiCaller.ts is designed for agent execution, I'll bypass its action validation
       // and just parse the raw response if possible, or adapt the prompt.
-      
+
       const parsed = JSON.parse(response.rawResponse);
       return parsed as IGeneratedBlueprint;
     } catch (error: any) {

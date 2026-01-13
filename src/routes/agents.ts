@@ -9,6 +9,7 @@ import { authMiddleware } from "../middleware/auth";
 import { AgentBlueprintGenerator } from "../services/AgentBlueprintGenerator";
 import { RuleEngine } from "../services/RuleEngine";
 import { removeScheduleTrigger } from "../triggers/scheduleHandler";
+import { env } from "../config/env";
 
 // ============================================
 // AGENTS ROUTES
@@ -131,7 +132,7 @@ router.post("/", async (req: Request, res: Response) => {
             instructions,  // Plain English instructions
             status: "active",
             brain: {
-                model: "gemini-1.5-pro-002",
+                model: env.MODEL,
                 // systemPrompt will be generated at runtime from instructions
                 temperature: 0.7,
                 maxTokens: 2048

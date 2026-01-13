@@ -1,4 +1,5 @@
 import { callAI } from "../worker/aiCaller";
+import { env } from "../config/env";
 import { Agent } from "../models/Agent";
 import { Integration } from "../models/Integration";
 
@@ -17,7 +18,7 @@ export const humanizeTime = (date: Date): string => {
   const diffMins = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
+
   if (diffMins < 1) return "just now";
   if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
   if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
@@ -63,12 +64,12 @@ export const explainIntegrationStatus = (
   if (!connected) {
     return `❌ Not connected - connect your ${provider} account in Settings`;
   }
-  
+
   if (expiresAt) {
     const daysUntilExpiry = Math.floor(
       (new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
     );
-    
+
     if (daysUntilExpiry <= 0) {
       return `❌ Token expired - reconnect your ${provider} account`;
     }
@@ -76,7 +77,7 @@ export const explainIntegrationStatus = (
       return `⚠️ Token expires in ${daysUntilExpiry} days - consider reconnecting`;
     }
   }
-  
+
   return `✅ Connected and healthy`;
 };
 
@@ -89,7 +90,7 @@ export const generateExecutionSummary = async (execution: any): Promise<string> 
     const actionsText = execution.actionsExecuted
       ?.map((a: any) => `${a.type}${a.error ? ' (failed)' : ' (success)'}`)
       .join(', ') || 'none';
-    
+
     const prompt = `Generate a single, natural sentence summarizing this agent execution:
 - Agent: ${execution.agentId?.name || 'Unknown'}
 - Status: ${execution.status}
@@ -103,8 +104,8 @@ Example good summaries:
 
 Generate ONE concise sentence (max 15 words) that a non-technical user would understand:`;
 
-    const response = await callAI(prompt, "gemini-1.5-pro-002", 0.7, 150);
-    
+    const response = await callAI(prompt, env.MODEL, 0.7, 150);
+
     // Extract just the summary text
     return response.reasoning || "Execution completed";
   } catch {
@@ -121,7 +122,7 @@ Generate ONE concise sentence (max 15 words) that a non-technical user would und
  */
 export const enhanceExecution = async (execution: any): Promise<any> => {
   const agentName = execution.agentId?.name || await getAgentName(execution.agentId);
-  
+
   return {
     ...execution,
     // Natural language additions
@@ -129,7 +130,7 @@ export const enhanceExecution = async (execution: any): Promise<any> => {
     statusExplained: explainStatus(execution.status),
     createdAtHuman: humanizeTime(execution.createdAt),
     finishedAtHuman: execution.finishedAt ? humanizeTime(execution.finishedAt) : null,
-    durationHuman: execution.finishedAt 
+    durationHuman: execution.finishedAt
       ? `${Math.round((new Date(execution.finishedAt).getTime() - new Date(execution.createdAt).getTime()) / 1000)}s`
       : null,
     summary: await generateExecutionSummary(execution),
@@ -146,7 +147,7 @@ export const enhanceAgent = async (agent: any): Promise<any> => {
   return {
     ...agent,
     // Natural language additions
-    statusExplained: agent.status === "active" 
+    statusExplained: agent.status === "active"
       ? "✅ This agent is active and will run when triggered"
       : "⏸️ This agent is paused and won't run",
     createdAtHuman: humanizeTime(agent.createdAt),
@@ -166,11 +167,11 @@ export const enhanceIntegration = async (integration: any): Promise<any> => {
     statusExplained: explainIntegrationStatus(
       integration.provider,
       true,
-      integration.expiresAt
+      integration.tokenExpiresAt
     ),
     createdAtHuman: humanizeTime(integration.createdAt),
-    lastUsedHuman: integration.lastUsedAt 
-      ? humanizeTime(integration.lastUsedAt) 
+    lastUsedHuman: integration.lastUsedAt
+      ? humanizeTime(integration.lastUsedAt)
       : "Never used",
     providerExplained: `${integration.provider.charAt(0).toUpperCase() + integration.provider.slice(1)} integration for automating ${integration.provider} actions`
   };
@@ -180,42 +181,42 @@ export const enhanceIntegration = async (integration: any): Promise<any> => {
  * Enhance audit log
  */
 export const enhanceAuditLog = (log: any): any => {
-    let description = log.actionType;
-    const p = log.params || {};
+  let description = log.actionType;
+  const p = log.params || {};
 
-    // Simple rule-based formatter for common actions
-    switch (log.actionType) {
-        case 'agent_run':
-            description = `Agent '${p.agentName || 'Unknown'}' started running`;
-            break;
-        case 'agent_created':
-            description = `Created new agent '${p.name || 'Untitled'}'`;
-            break;
-        case 'agent_updated':
-             description = `Updated configuration for agent '${p.name || 'Unknown'}'`;
-             break;
-        case 'agent_deleted':
-             description = `Deleted agent '${p.name || 'Unknown'}'`;
-             break;
-        case 'user_login':
-             description = `Logged in via ${p.method || 'unknown method'}`;
-             break;
-        case 'api_key_created':
-             description = `Generated new API key '${p.label || 'Untitled'}'`;
-             break;
-        case 'integration_connected':
-             description = `Connected ${p.provider} account`;
-             break;
-        case 'cron_trigger_fired':
-             description = `Scheduled run triggered for '${p.agentName || 'Unknown Agent'}'`;
-             break;
-    }
+  // Simple rule-based formatter for common actions
+  switch (log.actionType) {
+    case 'agent_run':
+      description = `Agent '${p.agentName || 'Unknown'}' started running`;
+      break;
+    case 'agent_created':
+      description = `Created new agent '${p.name || 'Untitled'}'`;
+      break;
+    case 'agent_updated':
+      description = `Updated configuration for agent '${p.name || 'Unknown'}'`;
+      break;
+    case 'agent_deleted':
+      description = `Deleted agent '${p.name || 'Unknown'}'`;
+      break;
+    case 'user_login':
+      description = `Logged in via ${p.method || 'unknown method'}`;
+      break;
+    case 'api_key_created':
+      description = `Generated new API key '${p.label || 'Untitled'}'`;
+      break;
+    case 'integration_connected':
+      description = `Connected ${p.provider} account`;
+      break;
+    case 'cron_trigger_fired':
+      description = `Scheduled run triggered for '${p.agentName || 'Unknown Agent'}'`;
+      break;
+  }
 
-    return {
-        ...log,
-        description,
-        timestampHuman: humanizeTime(log.timestamp)
-    };
+  return {
+    ...log,
+    description,
+    timestampHuman: humanizeTime(log.timestamp)
+  };
 };
 
 export default {

@@ -228,7 +228,7 @@ export class CalendarToolSuite extends BaseGoogleTool {
   }
 
   // Get free busy tool
-  createGetFreeBusyTool() {
+  createGetFreeBusyToolLegacy() {
     return this.createTool(
       "get_free_busy",
       "Check free/busy times for calendars without revealing private details",

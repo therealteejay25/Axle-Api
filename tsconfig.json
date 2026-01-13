@@ -9,6 +9,12 @@
     "outDir": "./dist",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "index.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*",
+    "index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/scripts/**/*"
+  ]
 }

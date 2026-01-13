@@ -25,7 +25,8 @@ router.get("/", async (req: Request, res: Response) => {
 
     res.json({ threads });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(500).json({ error: message });
   }
 });
 
@@ -42,7 +43,8 @@ router.post("/", async (req: Request, res: Response) => {
 
     res.json({ thread });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(500).json({ error: message });
   }
 });
 
@@ -57,7 +59,8 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json({ thread });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(500).json({ error: message });
   }
 });
 
@@ -80,7 +83,8 @@ router.put("/:id/github-repo", async (req: Request, res: Response) => {
 
     res.json({ thread });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(500).json({ error: message });
   }
 });
 
@@ -105,7 +109,8 @@ router.patch("/:id", async (req: Request, res: Response) => {
     await thread.save();
     res.json({ thread });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const message = err instanceof Error ? err.message : "Unknown error";
+    res.status(500).json({ error: message });
   }
 });
 

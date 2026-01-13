@@ -243,7 +243,7 @@ export class GmailToolSuite extends BaseGoogleTool {
   }
 
   // Reply to thread tool
-  createReplyToThreadTool() {
+  createReplyToThreadToolLegacy() {
     return this.createTool(
       "reply_to_thread",
       "Reply to an existing email thread in Gmail",
@@ -324,7 +324,7 @@ export class GmailToolSuite extends BaseGoogleTool {
   }
 
   // Forward message tool
-  createForwardMessageTool() {
+  createForwardMessageToolLegacy() {
     return this.createTool(
       "forward_message",
       "Forward an email message to a new recipient",
@@ -417,8 +417,7 @@ export class GmailToolSuite extends BaseGoogleTool {
       }),
       async ({ messageIds, markAsRead }) => {
         logger.info(
-          `[GMAIL] Marking ${messageIds.length} messages as ${
-            markAsRead ? "read" : "unread"
+          `[GMAIL] Marking ${messageIds.length} messages as ${markAsRead ? "read" : "unread"
           }`
         );
 
@@ -443,9 +442,8 @@ export class GmailToolSuite extends BaseGoogleTool {
 
         return {
           success: true,
-          message: `Marked ${messageIds.length} messages as ${
-            markAsRead ? "read" : "unread"
-          }`,
+          message: `Marked ${messageIds.length} messages as ${markAsRead ? "read" : "unread"
+            }`,
           modifiedCount: messageIds.length,
         };
       }
@@ -854,8 +852,7 @@ export class GmailToolSuite extends BaseGoogleTool {
       async ({ messageIds, markAsRead }) => {
         try {
           logger.info(
-            `[GMAIL] Marking ${messageIds.length} messages as ${
-              markAsRead ? "read" : "unread"
+            `[GMAIL] Marking ${messageIds.length} messages as ${markAsRead ? "read" : "unread"
             }`
           );
 

@@ -49,19 +49,19 @@ export interface AIAction {
 export interface AIResponse {
   // ONE-SHOT MODE (backward compatible)
   actions?: AIAction[];
-  
+
   // ITERATIVE MODE fields (single action per iteration)
   action?: AIAction;           // Single action to execute
   observation?: string;        // AI's observation about previous result
   continue?: boolean;          // Should loop continue?
   goalAchieved?: boolean;      // Is the goal achieved?
-  
+
   // DYNAMIC REPLANNING fields (new)
   replanDecision?: ReplanDecision;  // Explicit decision: CONTINUE/ADJUST/RECOVER/ABORT
   replanReason?: string;            // Why this decision was made
   recoveryStrategy?: string;        // If RECOVER, what's the plan
   adjustments?: string[];           // If ADJUST, what changes
-  
+
   // COMMON FIELDS (both modes)
   executionName?: string;
   reasoning?: string;          // AI's decision-making explanation
@@ -73,8 +73,20 @@ export interface AIResponse {
 let _gemini: GoogleGenerativeAI | null = null;
 
 const normalizeGeminiModel = (model?: string) => {
-  // STRICT HARDCODE: Always return gemini-1.5-pro-002 regardless of input
-  return "gemini-1.5-pro-002";
+  const raw = typeof model === "string" ? model.trim() : "";
+  const cleaned = raw.includes("/") ? raw.split("/").pop() || "" : raw;
+  if (cleaned && /^gemini[\w\-\.]*$/i.test(cleaned)) return cleaned;
+  return env.MODEL;
+};
+
+const isGeminiModelNotFoundError = (err: any): boolean => {
+  const msg = (err?.message || "").toString();
+  const status = err?.status ?? err?.error?.status;
+  return (
+    status === 404 ||
+    /models\/[\w\-\.]+\s+is\s+not\s+found/i.test(msg) ||
+    /not\s+supported\s+for\s+generateContent/i.test(msg)
+  );
 };
 
 const getGeminiClient = (): GoogleGenerativeAI => {
@@ -100,12 +112,12 @@ const messagesToPrompt = (messages: any[]) => {
 
 export const callAI = async (
   systemPrompt: string,
-  model: string = "gemini-1.5-pro-002",
+  model: string = env.MODEL,
   temperature: number = 0.7,
   maxTokens: number = 4096
 ): Promise<AIResponse> => {
   const startTime = Date.now();
-  
+
   try {
     const gemini = getGeminiClient();
     const modelId = normalizeGeminiModel(model);
@@ -118,27 +130,54 @@ export const callAI = async (
         'You are an AI assistant that responds ONLY in valid JSON format. Your response must always be a JSON object with an "executionName" (short human-readable summary of the intent) and an "actions" array.',
     });
 
-    const response = await gModel.generateContent({
-      contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
-      generationConfig: {
-        temperature,
-        maxOutputTokens: maxTokens,
-        responseMimeType: "application/json",
-      },
-    });
+    let response;
+    try {
+      response = await gModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+        generationConfig: {
+          temperature,
+          maxOutputTokens: maxTokens,
+          responseMimeType: "application/json",
+        },
+      });
+    } catch (err: any) {
+      if (!isGeminiModelNotFoundError(err) || modelId === env.MODEL) throw err;
+
+      // Retry with env.MODEL as a safe fallback if the requested model is unavailable
+      logger.warn("Gemini model unavailable; retrying with fallback", {
+        requestedModel: modelId,
+        fallbackModel: env.MODEL,
+        error: err?.message || String(err),
+      });
+
+      const fallbackModel = gemini.getGenerativeModel({
+        model: env.MODEL,
+        systemInstruction:
+          'You are an AI assistant that responds ONLY in valid JSON format. Your response must always be a JSON object with an "executionName" (short human-readable summary of the intent) and an "actions" array.',
+      });
+
+      response = await fallbackModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+        generationConfig: {
+          temperature,
+          maxOutputTokens: maxTokens,
+          responseMimeType: "application/json",
+        },
+      });
+    }
 
     const rawResponse = response.response.text() || "{}";
     const tokensUsed = response.response.usageMetadata?.totalTokenCount || 0;
-    
+
     logger.debug("AI response received", {
       model: modelId,
       tokensUsed,
       latencyMs: Date.now() - startTime
     });
-    
+
     // Parse and validate response
     const parsed = parseAIResponse(rawResponse);
-    
+
     return {
       // One-shot mode fields
       actions: parsed.actions,
@@ -189,7 +228,7 @@ const validateAndParseMemory = (memory: any): MemoryEntry[] | undefined => {
     logger.warn("Memory is not an array, ignoring", { memory });
     return undefined;
   }
-  
+
   const validEntries: MemoryEntry[] = [];
   for (const entry of memory) {
     if (validateMemoryEntry(entry)) {
@@ -198,7 +237,7 @@ const validateAndParseMemory = (memory: any): MemoryEntry[] | undefined => {
       logger.warn("Invalid memory entry, skipping", { entry });
     }
   }
-  
+
   return validEntries.length > 0 ? validEntries : undefined;
 };
 
@@ -206,14 +245,14 @@ const validateAndParseMemory = (memory: any): MemoryEntry[] | undefined => {
 // Supports DUAL-MODE execution:
 // 1. ONE-SHOT: { actions: [...] } - Execute all at once
 // 2. ITERATIVE: { action: {...}, continue: true } - Execute one, loop back
-const parseAIResponse = (rawResponse: string): { 
-  actions: AIAction[], 
-  executionName?: string, 
-  reasoning?: string, 
+const parseAIResponse = (rawResponse: string): {
+  actions: AIAction[],
+  executionName?: string,
+  reasoning?: string,
   memory?: MemoryEntry[],
-  action?: AIAction, 
-  observation?: string, 
-  continue?: boolean, 
+  action?: AIAction,
+  observation?: string,
+  continue?: boolean,
   goalAchieved?: boolean,
   replanDecision?: ReplanDecision,
   replanReason?: string,
@@ -222,22 +261,22 @@ const parseAIResponse = (rawResponse: string): {
 } => {
   try {
     const parsed = JSON.parse(rawResponse);
-    
+
     // Validate structure
     if (!parsed || typeof parsed !== "object") {
       throw new Error("Response is not an object");
     }
-    
+
     // Validate and parse memory if present
     const validatedMemory = parsed.memory ? validateAndParseMemory(parsed.memory) : undefined;
-    
+
     // DETECT MODE: Check for iterative mode first (single action)
     if (parsed.action && typeof parsed.action === "object") {
       // ITERATIVE MODE: Single action with continuation control
       if (!validateAction(parsed.action)) {
         throw new Error("Invalid action in iterative mode");
       }
-      
+
       // Validate replan decision
       let replanDecision = parsed.replanDecision;
       if (replanDecision) {
@@ -247,7 +286,7 @@ const parseAIResponse = (rawResponse: string): {
           replanDecision = 'CONTINUE';
         }
       }
-      
+
       return {
         actions: [], // Empty for iterative mode
         action: {
@@ -266,7 +305,7 @@ const parseAIResponse = (rawResponse: string): {
         memory: validatedMemory
       };
     }
-    
+
     // ONE-SHOT MODE: Multiple actions (backward compatible)
     if (!Array.isArray(parsed.actions)) {
       // If no actions array but has action-like properties, wrap it
@@ -275,7 +314,7 @@ const parseAIResponse = (rawResponse: string): {
       }
       return { actions: [], executionName: parsed.executionName, reasoning: parsed.reasoning, memory: validatedMemory };
     }
-    
+
     // Validate each action in one-shot mode
     const validActions: AIAction[] = [];
     for (const action of parsed.actions) {
@@ -288,15 +327,15 @@ const parseAIResponse = (rawResponse: string): {
         logger.warn("Invalid action in AI response", { action });
       }
     }
-    
-    return { 
+
+    return {
       actions: validActions,
       executionName: parsed.executionName,
       reasoning: parsed.reasoning,
       memory: validatedMemory
     };
   } catch (error: any) {
-    logger.error("Failed to parse AI response", { 
+    logger.error("Failed to parse AI response", {
       error: error.message,
       rawResponse: rawResponse.substring(0, 500)
     });
@@ -315,15 +354,15 @@ const validateAction = (action: any): boolean => {
 
 export const callChat = async (
   messages: any[],
-  model: string = "gemini-1.5-pro-002",
+  model: string = env.MODEL,
   temperature: number = 0.7
 ): Promise<{ response: string; actions?: AIAction[] }> => {
   const startTime = Date.now();
-  
+
   try {
     const gemini = getGeminiClient();
     const modelId = normalizeGeminiModel(model);
-    
+
     // Add system instruction for JSON format if not present
     const systemInstruction = `
       You are an AI assistant.
@@ -336,7 +375,7 @@ export const callChat = async (
     // Ensure we don't duplicate system prompt if one exists, but effectively we want to enforce JSON
     // Best practice: Prepend a system message or append to the last user message if needed.
     // Here we'll just prepend a system message.
-    
+
     const prompt = `${systemInstruction}\n\n${messagesToPrompt(messages)}`;
 
     logger.debug("Calling Chat AI", { model: modelId, messageCount: (messages || []).length });
@@ -346,27 +385,51 @@ export const callChat = async (
       systemInstruction,
     });
 
-    const completion = await gModel.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature,
-        responseMimeType: "application/json",
-      },
-    });
+    let completion;
+    try {
+      completion = await gModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature,
+          responseMimeType: "application/json",
+        },
+      });
+    } catch (err: any) {
+      if (!isGeminiModelNotFoundError(err) || modelId === env.MODEL) throw err;
+
+      logger.warn("Gemini chat model unavailable; retrying with fallback", {
+        requestedModel: modelId,
+        fallbackModel: env.MODEL,
+        error: err?.message || String(err),
+      });
+
+      const fallbackModel = gemini.getGenerativeModel({
+        model: env.MODEL,
+        systemInstruction,
+      });
+
+      completion = await fallbackModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature,
+          responseMimeType: "application/json",
+        },
+      });
+    }
 
     const rawResponse = completion.response.text() || "{}";
-    
+
     let parsed;
     try {
-        parsed = JSON.parse(rawResponse);
+      parsed = JSON.parse(rawResponse);
     } catch (e) {
-        // Fallback if model fails to return JSON
-        return { response: rawResponse, actions: [] };
+      // Fallback if model fails to return JSON
+      return { response: rawResponse, actions: [] };
     }
 
     return {
-        response: parsed.response || "I processed your request.",
-        actions: Array.isArray(parsed.actions) ? parsed.actions : (parsed.action ? [parsed.action] : [])
+      response: parsed.response || "I processed your request.",
+      actions: Array.isArray(parsed.actions) ? parsed.actions : (parsed.action ? [parsed.action] : [])
     };
 
   } catch (error: any) {
@@ -377,7 +440,7 @@ export const callChat = async (
 
 export const callChatStream = async function* (
   messages: any[],
-  model: string = "gemini-1.5-pro-002",
+  model: string = env.MODEL,
   temperature: number = 0.7
 ): AsyncGenerator<string, void, unknown> {
   try {
@@ -387,11 +450,28 @@ export const callChatStream = async function* (
     logger.debug("Calling Chat AI (Stream)", { model: modelId, messageCount: messages.length });
 
     const prompt = messagesToPrompt(messages);
-    const gModel = gemini.getGenerativeModel({ model: modelId });
-    const stream = await gModel.generateContentStream({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature },
-    });
+    let stream;
+    try {
+      const gModel = gemini.getGenerativeModel({ model: modelId });
+      stream = await gModel.generateContentStream({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature },
+      });
+    } catch (err: any) {
+      if (!isGeminiModelNotFoundError(err) || modelId === env.MODEL) throw err;
+
+      logger.warn("Gemini stream model unavailable; retrying with fallback", {
+        requestedModel: modelId,
+        fallbackModel: env.MODEL,
+        error: err?.message || String(err),
+      });
+
+      const fallbackModel = gemini.getGenerativeModel({ model: env.MODEL });
+      stream = await fallbackModel.generateContentStream({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature },
+      });
+    }
 
     for await (const chunk of stream.stream) {
       const text = chunk.text();

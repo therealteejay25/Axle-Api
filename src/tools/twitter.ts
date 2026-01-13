@@ -125,11 +125,11 @@ export class XToolSuite extends BaseXTool {
                 text: tweet,
                 ...(isReply &&
                   postedTweets.length > 0 && {
-                    reply: {
-                      in_reply_to_tweet_id:
-                        postedTweets[postedTweets.length - 1].id,
-                    },
-                  }),
+                  reply: {
+                    in_reply_to_tweet_id:
+                      postedTweets[postedTweets.length - 1].id,
+                  },
+                }),
               }),
             });
 
@@ -572,7 +572,7 @@ export class XToolSuite extends BaseXTool {
   }
 
   // Get user info tool
-  createGetUserInfoTool() {
+  createGetUserInfoToolLegacy() {
     return this.createTool(
       "twitter_get_user_info",
       "Get profile data and follower counts for a user",
@@ -633,7 +633,7 @@ export class XToolSuite extends BaseXTool {
   }
 
   // Retweet tool
-  createRetweetTool() {
+  createRetweetToolLegacy() {
     return this.createTool(
       "twitter_retweet",
       "Reshare content on X (Twitter)",
@@ -665,7 +665,7 @@ export class XToolSuite extends BaseXTool {
   }
 
   // Follow user tool
-  createFollowUserTool() {
+  createFollowUserToolLegacy() {
     return this.createTool(
       "twitter_follow_user",
       "Follow a user on X (Twitter) for growth automation",

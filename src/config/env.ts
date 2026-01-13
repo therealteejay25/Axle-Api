@@ -62,7 +62,7 @@ export const env = {
   // OpenRouter AI
   OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-  MODEL: process.env.MODEL || "gemini-1.5-pro-002",
+  MODEL: "gemini-2.0-flash",
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID!,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET!,
   GITHUB_REDIRECT_URI: process.env.GITHUB_REDIRECT_URI!,
@@ -85,12 +85,8 @@ export const env = {
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
   SMTP_FROM: process.env.SMTP_FROM,
-  // // Rate limiting
-  // RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 min
-  // RATE_LIMIT_MAX_REQUESTS: parseInt(
-  //   process.env.RATE_LIMIT_MAX_REQUESTS || "100"
-  // ),
-  // // Agent execution
-  // AGENT_TIMEOUT_MS: parseInt(process.env.AGENT_TIMEOUT_MS || "30000"), // 30 sec
-  // AGENT_MAX_RETRIES: parseInt(process.env.AGENT_MAX_RETRIES || "3"),
+  RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"),
+  RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"),
+  AGENT_TIMEOUT_MS: parseInt(process.env.AGENT_TIMEOUT_MS || "30000"),
+  AGENT_MAX_RETRIES: parseInt(process.env.AGENT_MAX_RETRIES || "3"),
 };

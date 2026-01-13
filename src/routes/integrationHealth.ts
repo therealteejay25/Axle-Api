@@ -17,18 +17,18 @@ router.use(authMiddleware);
 router.get("/", async (req: Request, res: Response) => {
   try {
     const integrations = await Integration.find({ userId: req.user!.id }).lean();
-    
+
     const healthChecks = integrations.map(int => {
       const now = Date.now();
-      const expiresAt = int.expiresAt ? new Date(int.expiresAt).getTime() : null;
-      
+      const expiresAt = int.tokenExpiresAt ? new Date(int.tokenExpiresAt).getTime() : null;
+
       let status: "healthy" | "warning" | "expired" = "healthy";
       let message = "Integration is healthy";
-      
+
       if (expiresAt) {
         const timeUntilExpiry = expiresAt - now;
         const daysUntilExpiry = Math.floor(timeUntilExpiry / (1000 * 60 * 60 * 24));
-        
+
         if (timeUntilExpiry <= 0) {
           status = "expired";
           message = "Token has expired. Reconnect this integration.";
@@ -37,7 +37,7 @@ router.get("/", async (req: Request, res: Response) => {
           message = `Token expires in ${daysUntilExpiry} day(s). Consider reconnecting soon.`;
         }
       }
-      
+
       // Check for common missing scopes
       const commonScopes: Record<string, string[]> = {
         github: ["repo", "read:org", "user"],
@@ -46,43 +46,43 @@ router.get("/", async (req: Request, res: Response) => {
         twitter: ["tweet.read", "tweet.write"],
         instagram: ["instagram_basic", "instagram_content_publish"]
       };
-      
+
       const expectedScopes = commonScopes[int.provider] || [];
-      const missingScopes = expectedScopes.filter(scope => 
+      const missingScopes = expectedScopes.filter(scope =>
         !int.scopes.some(s => s.includes(scope) || scope.includes(s))
       );
-      
+
       if (missingScopes.length > 0 && status === "healthy") {
         status = "warning";
         message = `Some recommended scopes are missing: ${missingScopes.join(", ")}`;
       }
-      
+
       return {
         provider: int.provider,
         connected: true,
         status,
         message,
-        expiresAt: int.expiresAt,
+        expiresAt: int.tokenExpiresAt,
         expiresInDays: expiresAt ? Math.floor((expiresAt - now) / (1000 * 60 * 60 * 24)) : null,
         scopes: int.scopes,
         missingRecommendedScopes: missingScopes,
         lastUsed: int.lastUsedAt || int.createdAt
       };
     });
-    
+
     const summary = {
       total: healthChecks.length,
       healthy: healthChecks.filter(h => h.status === "healthy").length,
       warnings: healthChecks.filter(h => h.status === "warning").length,
       expired: healthChecks.filter(h => h.status === "expired").length
     };
-    
+
     res.json({
       summary,
       integrations: healthChecks
     });
-    
-  } catch(err: any) {
+
+  } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -94,23 +94,23 @@ router.get("/:provider", async (req: Request, res: Response) => {
       userId: req.user!.id,
       provider: req.params.provider
     }).lean();
-    
+
     if (!integration) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: `${req.params.provider} integration not found`,
         connected: false
       });
     }
-    
+
     res.json({
       provider: integration.provider,
       connected: true,
       scopes: integration.scopes,
-      expiresAt: integration.expiresAt,
+      expiresAt: integration.tokenExpiresAt,
       createdAt: integration.createdAt,
       lastUsed: integration.lastUsedAt
     });
-    
+
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

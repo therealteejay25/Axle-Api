@@ -18,7 +18,7 @@ import {
     createCreateFolderTool,
     createUploadFileTool,
     createExportDocAsPdfTool,
-    createDeleteFileTool,
+    createDeleteFileTool as createDriveDeleteFileTool,
     createShareFileTool,
     createGetFileMetadataTool,
     createListChangesTool
@@ -60,7 +60,7 @@ import {
     createAddIssueCommentTool,
     createCreateRepoTool,
     createUpdateFileTool,
-    createDeleteFileTool
+    createDeleteFileTool as createGithubDeleteFileTool
 } from "./github";
 
 // X (Twitter) tools
@@ -105,7 +105,7 @@ export const createUserTools = (userId: string) => [
     createCreateFolderTool(userId),        // ✅ drive_create_folder
     createUploadFileTool(userId),          // ✅ drive_upload_file
     createExportDocAsPdfTool(userId),      // ✅ drive_export_pdf
-    createDeleteFileTool(userId),          // ✅ drive_delete_file
+    createDriveDeleteFileTool(userId),     // ✅ drive_delete_file
     createShareFileTool(userId),           // ✅ drive_share_file
     createGetFileMetadataTool(userId),     // ✅ drive_get_file_metadata
     createListChangesTool(userId),         // ✅ drive_list_changes
@@ -139,7 +139,7 @@ export const createUserTools = (userId: string) => [
     createAddIssueCommentTool(userId),     // ✅ github_add_issue_comment
     createCreateRepoTool(userId),          // ✅ github_create_repo
     createUpdateFileTool(userId),          // ✅ github_update_file
-    createDeleteFileTool(userId),          // ✅ github_delete_file
+    createGithubDeleteFileTool(userId),    // ✅ github_delete_file
 
     // X (Twitter) Suite (10 working tools)
     createPostTweetTool(userId),           // ✅ twitter_post_tweet

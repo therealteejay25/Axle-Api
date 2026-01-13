@@ -5,6 +5,7 @@ import { Execution } from "../models/Execution";
 import { Types } from "mongoose";
 import { randomUUID } from "crypto";
 import { scanGoogleContext } from "./googleScanner";
+import { env } from "../config/env";
 
 export interface SmartNotification {
   id: string;
@@ -27,13 +28,13 @@ export const generateSmartNotifications = async (userId: string): Promise<SmartN
 
     // 1. Gather Context
     const [integrations, recentFailures, googleContext] = await Promise.all([
-        Integration.find({ userId, status: 'connected' }).select('provider metadata lastUsedAt').lean(),
-        Execution.find({ 
-            agentId: { $in: await getAgentIds(userId) },
-            status: 'failed',
-            createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24h
-        }).limit(5).populate('agentId', 'name').lean(),
-        scanGoogleContext(userId)
+      Integration.find({ userId, status: 'connected' }).select('provider metadata lastUsedAt').lean(),
+      Execution.find({
+        agentId: { $in: await getAgentIds(userId) },
+        status: 'failed',
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Last 24h
+      }).limit(5).populate('agentId', 'name').lean(),
+      scanGoogleContext(userId)
     ]);
 
     // 2. Prepare Prompt
@@ -73,61 +74,61 @@ export const generateSmartNotifications = async (userId: string): Promise<SmartN
     `;
 
     // 3. Call AI
-    const aiResponse = await callAI(systemPrompt, "gemini-1.5-pro-002", 0.7);
-    
+    const aiResponse = await callAI(systemPrompt, env.MODEL, 0.7);
+
     // Debug log
     console.log("DEBUG: AI Raw Response", JSON.stringify(aiResponse, null, 2));
 
     // 4. Parse AI Response
     let notifications: any[] = [];
-    
+
     // Handle both 'actions' (new schema) and 'notifications' (fallback/old schema)
     if (aiResponse.actions && Array.isArray(aiResponse.actions)) {
-        notifications = aiResponse.actions
-            .filter(a => a.type === 'smart_notification')
-            .map(a => a.params);
+      notifications = aiResponse.actions
+        .filter(a => a.type === 'smart_notification')
+        .map(a => a.params);
     } else if ((aiResponse as any).notifications) {
-        // Fallback if AI returned raw object despite prompt
-        notifications = (aiResponse as any).notifications;
+      // Fallback if AI returned raw object despite prompt
+      notifications = (aiResponse as any).notifications;
     } else {
-        // Try parsing raw string if it's a string (though callAI usually parses json)
-         try {
-            if (typeof aiResponse === 'string') {
-                 const parsed = JSON.parse(aiResponse);
-                 if (parsed.notifications) notifications = parsed.notifications;
-            }
-         } catch(e) {}
+      // Try parsing raw string if it's a string (though callAI usually parses json)
+      try {
+        if (typeof aiResponse === 'string') {
+          const parsed = JSON.parse(aiResponse);
+          if (parsed.notifications) notifications = parsed.notifications;
+        }
+      } catch (e) { }
     }
 
     // 5. Format for Frontend
     return notifications.map(n => ({
-        id: randomUUID(),
-        title: n.title || "Notification",
-        description: n.description || "Update available",
-        type: (['info', 'warning', 'success', 'alert'].includes(n.type) ? n.type : 'info') as any,
-        timestamp: new Date().toISOString(),
-        action: n.action,
-        actionUrl: n.actionUrl,
-        sourceApp: n.sourceApp || 'axle'
+      id: randomUUID(),
+      title: n.title || "Notification",
+      description: n.description || "Update available",
+      type: (['info', 'warning', 'success', 'alert'].includes(n.type) ? n.type : 'info') as any,
+      timestamp: new Date().toISOString(),
+      action: n.action,
+      actionUrl: n.actionUrl,
+      sourceApp: n.sourceApp || 'axle'
     }));
 
   } catch (error) {
     console.error("Error generating smart notifications:", error);
     // Return graceful fallback
     return [{
-        id: randomUUID(),
-        title: "Welcome to Axle",
-        description: "Your comprehensive automation dashboard is ready.",
-        type: "info",
-        timestamp: new Date().toISOString(),
-        sourceApp: "axle"
+      id: randomUUID(),
+      title: "Welcome to Axle",
+      description: "Your comprehensive automation dashboard is ready.",
+      type: "info",
+      timestamp: new Date().toISOString(),
+      sourceApp: "axle"
     }];
   }
 };
 
 // Helper
 async function getAgentIds(userId: string) {
-    const { Agent } = await import("../models/Agent");
-    const agents = await Agent.find({ ownerId: userId }).select('_id');
-    return agents.map(a => a._id);
+  const { Agent } = await import("../models/Agent");
+  const agents = await Agent.find({ ownerId: userId }).select('_id');
+  return agents.map(a => a._id);
 }

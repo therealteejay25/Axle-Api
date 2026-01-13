@@ -22,7 +22,7 @@ export abstract class BaseGoogleTool {
     return new FunctionTool({
       name,
       description,
-      parameters: schema,
+      parameters: schema as any,
       execute: async (input: unknown) => {
         try {
           const params = schema.parse(input);
@@ -32,7 +32,7 @@ export abstract class BaseGoogleTool {
 
           // Handle integration/connection errors
           if (error.message?.includes("not connected") ||
-              error.message?.includes("authentication expired")) {
+            error.message?.includes("authentication expired")) {
             return {
               success: false,
               error: "Please connect your Google account to use this action.",
@@ -75,7 +75,7 @@ export abstract class BaseGithubTool {
     return new FunctionTool({
       name,
       description,
-      parameters: schema,
+      parameters: schema as any,
       execute: async (input: unknown) => {
         try {
           const params = schema.parse(input);
@@ -85,7 +85,7 @@ export abstract class BaseGithubTool {
 
           // Handle integration/connection errors
           if (error.message?.includes("not connected") ||
-              error.message?.includes("authentication")) {
+            error.message?.includes("authentication")) {
             return {
               success: false,
               error: "Please connect your GitHub account to use this action.",
@@ -129,7 +129,7 @@ export abstract class BaseXTool {
     return new FunctionTool({
       name,
       description,
-      parameters: schema,
+      parameters: schema as any,
       execute: async (input: unknown) => {
         try {
           const params = schema.parse(input);
@@ -139,7 +139,7 @@ export abstract class BaseXTool {
 
           // Handle integration/connection errors
           if (error.message?.includes("not connected") ||
-              error.message?.includes("authentication")) {
+            error.message?.includes("authentication")) {
             return {
               success: false,
               error: "Please connect your X (Twitter) account to use this action.",

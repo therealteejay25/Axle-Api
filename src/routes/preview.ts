@@ -52,17 +52,18 @@ router.post("/:id", async (req: Request, res: Response) => {
         );
 
         // Calculate estimated cost
+        const plannedActions = aiResponse.actions ?? [];
         const estimatedCredits = calculateCredits(
             aiResponse.tokensUsed,
-            aiResponse.actions.length
+            plannedActions.length
         );
 
         res.json({
             preview: true,
             executionName: aiResponse.executionName,
             reasoning: aiResponse.reasoning,
-            plannedActions: aiResponse.actions,
-            actionCount: aiResponse.actions.length,
+            plannedActions,
+            actionCount: plannedActions.length,
             estimatedCredits,
             tokensUsed: aiResponse.tokensUsed,
             note: "These actions were NOT executed. This is a preview only."

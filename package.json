@@ -62,6 +62,8 @@
     "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^7.0.4",
     "typescript": "^5.9.3"
   }
