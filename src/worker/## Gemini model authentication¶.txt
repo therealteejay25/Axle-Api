@@ -1,0 +1,28 @@
+## Gemini model authentication¶
+
+¶
+This section covers authenticating with Google's Gemini models, either through Google AI Studio for rapid development or Google Cloud Vertex AI for enterprise applications. This is the most direct way to use Google's flagship models within ADK.
+Integration Method: Once you are authenticated using one of the below methods, you can pass the model's identifier string directly to the model parameter of LlmAgent.
+
+```
+model
+```
+
+
+```
+LlmAgent
+```
+
+Tip
+The google-genai library, used internally by ADK for Gemini models, can connect through either Google AI Studio or Vertex AI.
+
+```
+google-genai
+```
+
+Model support for voice/video streaming
+In order to use voice/video streaming in ADK, you will need to use Gemini models that support the Live API. You can find the model ID(s) that support the Gemini Live API in the documentation:
+- [Google AI Studio: Gemini Live API](https://ai.google.dev/gemini-api/docs/models)
+- [Vertex AI: Gemini Live API](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api)
+[Google AI Studio: Gemini Live API](https://ai.google.dev/gemini-api/docs/models)
+[Vertex AI: Gemini Live API](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api)

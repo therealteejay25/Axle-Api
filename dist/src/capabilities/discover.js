@@ -227,6 +227,5 @@ exports.discoverActions = {
                 count: result.messages?.total || 0
             };
         }
-    }
 };
 exports.default = exports.discoverActions;

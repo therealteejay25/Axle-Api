@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.scanGoogleContext = void 0;
 const Integration_1 = require("../models/Integration");
 const crypto_1 = require("./crypto");
-const google_1 = require("../adapters/google");
 const nlFormatter_1 = require("./nlFormatter");
 const scanGoogleContext = async (userId) => {
     try {
@@ -20,13 +19,8 @@ const scanGoogleContext = async (userId) => {
             scopes: integration.scopes,
             metadata: integration.metadata
         };
-        // 3. Parallel Fetch
-        // We limit results to keep prompt size manageable but rich
-        const [emails, events, files] = await Promise.all([
-            (0, google_1.listGmailMessages)({ query: 'is:unread category:primary', maxResults: 10 }, integrationData).catch(e => ({ messages: [] })),
-            (0, google_1.listCalendarEvents)({ timeMin: new Date().toISOString(), maxResults: 10 }, integrationData).catch(e => ({ items: [] })),
-            (0, google_1.listDriveFiles)({ query: "modifiedTime > '" + new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() + "'", pageSize: 5 }, integrationData).catch(e => ({ files: [] }))
-        ]);
+        // 3. No adapter calls - adapters removed
+        const [emails, events, files] = [{ messages: [] }, { items: [] }, { files: [] }];
         // 4. Format Data for AI
         // We need to extract meaningful bits (Snippet, Subject, Summary, Time)
         // Gmail

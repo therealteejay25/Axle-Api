@@ -3,7 +3,6 @@ import { Agent } from "../models/Agent";
 import { Execution } from "../models/Execution";
 import { AuditLog } from "../models/AuditLog";
 import { User } from "../models/User";
-import { executeAction } from "../adapters/registry";
 import { Integration } from "../models/Integration";
 import { decryptToken } from "./crypto";
 import { logger } from "./logger";
@@ -19,81 +18,11 @@ export class GodAgentService {
     actionType: string,
     params: Record<string, any>
   ): Promise<any> {
-    // 1. Safety Check: Destructive actions
-    const highRiskPrefixes = ["delete", "remove", "archive", "unstar", "unfollow"];
-    const isHighRisk = highRiskPrefixes.some(p => actionType.toLowerCase().includes(p));
+    void userId;
+    void actionType;
+    void params;
 
-    if (isHighRisk && !params.confirmed) {
-      return {
-        status: "awaiting_approval",
-        message: `The action "${actionType}" is destructive. Please confirm execution.`,
-        actionType,
-        params
-      };
-    }
-
-    const integrations = await Integration.find({
-      userId: new Types.ObjectId(userId),
-      status: "connected"
-    }).lean();
-
-    const integrationMap = new Map(
-      integrations.map((i: any) => [
-        i.provider,
-        {
-          provider: i.provider,
-          accessToken: decryptToken(i.accessToken),
-          refreshToken: i.refreshToken ? decryptToken(i.refreshToken) : undefined,
-          scopes: i.scopes || [],
-          metadata: i.metadata || {}
-        }
-      ])
-    );
-
-    try {
-      logger.info("God Agent executing tool", { userId, actionType });
-
-      const capabilityExecutor = require("../capabilities/executor");
-      const capabilityAction = capabilityExecutor.getAction(actionType);
-
-      let result;
-      if (capabilityAction) {
-        const execContext = {
-          integrations: integrationMap,
-          previousResults: {}
-        };
-        const execResult = await capabilityExecutor.executeAction(actionType, params, execContext);
-        if (!execResult.success) {
-          throw new Error(execResult.error || "Action failed in capability layer");
-        }
-        result = execResult.data;
-      } else {
-        result = await executeAction(actionType, params, integrationMap as any);
-      }
-
-      // 4. Audit Log
-      await AuditLog.create({
-        userId: new Types.ObjectId(userId),
-        actionType,
-        params,
-        result,
-        timestamp: new Date()
-      });
-
-      return result;
-    } catch (error: any) {
-      logger.error("God Agent tool execution failed", { actionType, error: error.message });
-      
-      await AuditLog.create({
-        userId: new Types.ObjectId(userId),
-        actionType,
-        params,
-        error: error.message,
-        timestamp: new Date()
-      });
-
-      throw error;
-    }
+    throw new Error("Tool execution is disabled");
   }
 
   /**

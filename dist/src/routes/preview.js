@@ -33,7 +33,7 @@ router.post("/:id", async (req, res) => {
         // Load full agent context (integrations, user, etc.)
         const loaded = await (0, agentLoader_1.loadAgent)(req.params.id, req.user.id);
         // Build execution context (no previous executions for preview)
-        const context = (0, contextBuilder_1.buildContext)(loaded, "manual", payload, []);
+        const context = (0, contextBuilder_1.buildContext)(loaded, "manual", payload);
         const systemPrompt = (0, contextBuilder_1.buildSystemPrompt)(loaded, context);
         // Call AI to get planned actions (without executing)
         const aiResponse = await (0, aiCaller_1.callAI)(systemPrompt, agent.brain.model, agent.brain.temperature, agent.brain.maxTokens || 2048);

@@ -9,3 +9,6 @@ export { Trigger, ITrigger, TriggerType } from "./Trigger";
 export { Integration, IIntegration, IntegrationProvider, IntegrationStatus } from "./Integration";
 export { Execution, IExecution, IExecutionAction, ExecutionStatus } from "./Execution";
 export { User, IUser, PlanType, PLAN_LIMITS } from "./User";
+export { Message, IMessage, MessageRole } from "./Message";
+export { Memory, IAgentMemory } from "./Memory";
+export { Thread, IThread } from "./Thread";

@@ -1,6 +1,5 @@
 import { Integration } from "../models/Integration";
 import { decryptToken } from "./crypto";
-import { listGmailMessages, listCalendarEvents, listDriveFiles } from "../adapters/google";
 import { humanizeTime } from "./nlFormatter";
 
 // ============================================
@@ -34,13 +33,8 @@ export const scanGoogleContext = async (userId: string): Promise<string> => {
             metadata: integration.metadata
         };
 
-        // 3. Parallel Fetch
-        // We limit results to keep prompt size manageable but rich
-        const [emails, events, files] = await Promise.all([
-            listGmailMessages({ query: 'is:unread category:primary', maxResults: 10 }, integrationData).catch(e => ({ messages: []})),
-            listCalendarEvents({ timeMin: new Date().toISOString(), maxResults: 10 }, integrationData).catch(e => ({ items: [] })),
-            listDriveFiles({ query: "modifiedTime > '" + new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() + "'", pageSize: 5 }, integrationData).catch(e => ({ files: [] }))
-        ]);
+        // 3. No adapter calls - adapters removed
+        const [emails, events, files] = [{ messages: [] }, { items: [] }, { files: [] }];
 
         // 4. Format Data for AI
         // We need to extract meaningful bits (Snippet, Subject, Summary, Time)

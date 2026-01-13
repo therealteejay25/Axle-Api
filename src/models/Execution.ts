@@ -50,8 +50,15 @@ export interface IExecution extends Document {
   aiResponse?: string;
   aiTokensUsed?: number;
   reasoning?: string; // AI's thought process and decision-making
+  // Deep model traces for debugging + UI playback
+  traces?: any[];
+  // Full-fidelity replay payload from Google ADK (stored for UI replay)
+  executionResult?: Record<string, any>;
   // Actions executed
   actionsExecuted: IExecutionAction[];
+  // Execution timeline data for UI playback
+  events?: any[];
+  turns?: any[];
   // Persistent memory across executions
   memory: Map<string, any>;
   // Error tracking
@@ -126,8 +133,25 @@ const ExecutionSchema = new Schema<IExecution>(
     aiResponse: { type: String },
     aiTokensUsed: { type: Number, default: 0 },
     reasoning: { type: String },
+    traces: {
+      type: [Schema.Types.Mixed],
+      default: []
+    },
+    executionResult: {
+      type: Schema.Types.Mixed,
+      select: false,
+      default: null
+    },
     actionsExecuted: {
       type: [ExecutionActionSchema],
+      default: []
+    },
+    events: {
+      type: [Schema.Types.Mixed],
+      default: []
+    },
+    turns: {
+      type: [Schema.Types.Mixed],
       default: []
     },
     memory: {

@@ -10,6 +10,7 @@ import { generateSmartNotifications } from "../services/smartNotifications";
 import { Execution } from "../models/Execution";
 import os from "os";
 import { getAllTemplates, getTemplateCategories } from "../lib/actionTemplates";
+import { syncNotifications } from "../services/notificationSync";
 
 // ============================================
 // DASHBOARD ROUTES
@@ -26,27 +27,27 @@ router.get("/overview", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.user!.id);
     if (!user) return res.status(404).json({ error: "User not found" });
-    
+
     const metrics = await getUserMetrics(req.user!.id, 30);
     const limits = PLAN_LIMITS[user.plan];
-    
+
     // Calculate days remaining in billing cycle
     const now = Date.now();
     const resetDate = new Date(user.creditsResetAt);
     const daysRemaining = Math.max(0, Math.ceil((resetDate.getTime() - now) / (1000 * 60 * 60 * 24)));
-    
+
     res.json({
       overview: {
         // Core metrics
         totalExecutions: metrics.totalExecutions,
         totalExecutionsExplained: "Number of times your agents have run in the past 30 days",
         successRate: metrics.successRate,
-        successRateExplained: metrics.successRate >= 90 
+        successRateExplained: metrics.successRate >= 90
           ? `✅ ${metrics.successRate}% success rate - excellent!`
           : metrics.successRate >= 75
-          ? `👍 ${metrics.successRate}% success rate - good, room for improvement`
-          : `⚠️ ${metrics.successRate}% success rate - needs attention`,
-        
+            ? `👍 ${metrics.successRate}% success rate - good, room for improvement`
+            : `⚠️ ${metrics.successRate}% success rate - needs attention`,
+
         // Credits
         creditsUsed: metrics.totalCreditsUsed,
         creditsRemaining: user.credits,
@@ -54,7 +55,7 @@ router.get("/overview", async (req: Request, res: Response) => {
         creditsExplained: `You've used ${Math.round((metrics.totalCreditsUsed / limits.monthlyCredits) * 100)}% of your monthly credits with ${daysRemaining} days remaining`,
         creditsResetDate: user.creditsResetAt,
         creditsResetHuman: `Resets ${humanizeTime(user.creditsResetAt)}`,
-        
+
         // Performance
         avgExecutionTime: metrics.avgExecutionTime,
         avgExecutionTimeExplained: `Average agent run takes ${metrics.avgExecutionTime} seconds`,
@@ -62,7 +63,7 @@ router.get("/overview", async (req: Request, res: Response) => {
         mostUsedAgentExplained: `Your '${metrics.mostUsedAgent}' agent runs most frequently`,
         mostUsedIntegration: metrics.mostUsedIntegration,
         mostUsedIntegrationExplained: `${metrics.mostUsedIntegration.charAt(0).toUpperCase() + metrics.mostUsedIntegration.slice(1)} is your most-used service`,
-        
+
         // Account
         currentPlan: user.plan,
         currentPlanExplained: `You're on the ${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)} plan`,
@@ -79,13 +80,13 @@ router.get("/overview", async (req: Request, res: Response) => {
 router.get("/analytics", async (req: Request, res: Response) => {
   try {
     const days = parseInt(req.query.days as string) || 30;
-    
+
     const [metrics, timeSeries, agentPerf] = await Promise.all([
       getUserMetrics(req.user!.id, days),
       getTimeSeriesData(req.user!.id, days),
       getAgentPerformance(req.user!.id)
     ]);
-    
+
     res.json({
       metrics,
       timeSeries,
@@ -95,8 +96,8 @@ router.get("/analytics", async (req: Request, res: Response) => {
         successRateExplained: agent.successRate >= 90
           ? '✅ Excellent'
           : agent.successRate >= 75
-          ? '👍 Good'
-          : '⚠️ Needs attention'
+            ? '👍 Good'
+            : '⚠️ Needs attention'
       })),
       period: `Last ${days} days`
     });
@@ -109,7 +110,7 @@ router.get("/analytics", async (req: Request, res: Response) => {
 router.get("/insights", async (req: Request, res: Response) => {
   try {
     const { insights, recommendations } = await generateDashboardInsights(req.user!.id);
-    
+
     res.json({
       insights,
       recommendations,
@@ -125,19 +126,19 @@ router.get("/quick-stats", async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.user!.id);
     if (!user) return res.status(404).json({ error: "User not found" });
-    
+
     const limits = PLAN_LIMITS[user.plan];
     const creditsPercent = Math.round((user.credits / limits.monthlyCredits) * 100);
-    
+
     res.json({
       credits: user.credits,
       creditsLimit: limits.monthlyCredits,
       creditsPercent,
-      creditsStatus: creditsPercent > 50 
-        ? '✅ Plenty of credits' 
+      creditsStatus: creditsPercent > 50
+        ? '✅ Plenty of credits'
         : creditsPercent > 20
-        ? '⚠️ Running low'
-        : '❌ Credits nearly depleted',
+          ? '⚠️ Running low'
+          : '❌ Credits nearly depleted',
       plan: user.plan,
       planEmoji: user.plan === 'free' ? '🆓' : user.plan === 'pro' ? '⭐' : user.plan === 'premium' ? '💎' : '🏢'
     });
@@ -154,17 +155,17 @@ router.get("/live", async (req: Request, res: Response) => {
     const AgentModel = await import("../models/Agent").then((m) => m.Agent);
     const agentDocs = await AgentModel.find({ ownerId: userId }).select("_id").lean();
     const agentIds = agentDocs.map((a: any) => a._id);
-    
+
     // Parallel fetch for potential performance, live dashboard needs to be snappy
     const [
-        user,
-        agents,
-        activeExecutions, 
-        recentExecutions,
-        recentActivityRaw, 
-        nextTriggers,
-        metrics,
-        integrations
+      user,
+      agents,
+      activeExecutions,
+      recentExecutions,
+      recentActivityRaw,
+      nextTriggers,
+      metrics,
+      integrations
     ] = await Promise.all([
       User.findById(userId).lean(),
       AgentModel.find({ ownerId: userId }).sort({ updatedAt: -1 }).lean(),
@@ -192,19 +193,19 @@ router.get("/live", async (req: Request, res: Response) => {
 
     // Enhance Audit Logs
     const enhancedActivity = recentActivityRaw.map(log => {
-         const p = log.params || {};
-         let description = log.actionType;
-         switch (log.actionType) {
-            case 'agent_run': description = `Agent '${p.agentName || 'Unknown'}' started running`; break;
-            case 'agent_created': description = `Created new agent '${p.name || 'Untitled'}'`; break;
-            case 'agent_updated': description = `Updated agent '${p.name || 'Unknown'}'`; break;
-            case 'agent_deleted': description = `Deleted agent '${p.name || 'Unknown'}'`; break;
-            case 'user_login': description = `Logged in via ${p.method || 'unknown method'}`; break;
-            case 'integration_connected': description = `Connected ${p.provider} account`; break;
-            case 'credits_deducted': description = `Used ${p.amount} credits`; break;
-            default: description = log.actionType.replace(/_/g, ' '); 
-         }
-         return { ...log, description, timestampHuman: humanizeTime(log.timestamp) };
+      const p = log.params || {};
+      let description = log.actionType;
+      switch (log.actionType) {
+        case 'agent_run': description = `Agent '${p.agentName || 'Unknown'}' started running`; break;
+        case 'agent_created': description = `Created new agent '${p.name || 'Untitled'}'`; break;
+        case 'agent_updated': description = `Updated agent '${p.name || 'Unknown'}'`; break;
+        case 'agent_deleted': description = `Deleted agent '${p.name || 'Unknown'}'`; break;
+        case 'user_login': description = `Logged in via ${p.method || 'unknown method'}`; break;
+        case 'integration_connected': description = `Connected ${p.provider} account`; break;
+        case 'credits_deducted': description = `Used ${p.amount} credits`; break;
+        default: description = log.actionType.replace(/_/g, ' ');
+      }
+      return { ...log, description, timestampHuman: humanizeTime(log.timestamp) };
     });
 
     const limits = PLAN_LIMITS[user.plan];
@@ -212,39 +213,39 @@ router.get("/live", async (req: Request, res: Response) => {
     res.json({
       // 1. User Economy
       user: {
-          plan: user.plan,
-          credits: user.credits,
-          creditsLimit: limits.monthlyCredits,
-          creditsResetAt: user.creditsResetAt,
-          stripeStatus: user.subscriptionStatus || 'free',
-          daysRemaining: Math.max(0, Math.ceil((new Date(user.creditsResetAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+        plan: user.plan,
+        credits: user.credits,
+        creditsLimit: limits.monthlyCredits,
+        creditsResetAt: user.creditsResetAt,
+        stripeStatus: user.subscriptionStatus || 'free',
+        daysRemaining: Math.max(0, Math.ceil((new Date(user.creditsResetAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
       },
 
       // 2. Agent Intelligence
       agents: agents.map((a: any) => ({
-          _id: a._id,
-          name: a.name,
-          status: a.status,
-          model: a.brain?.model,
-          temperature: a.brain?.temperature,
-          instructions: a.instructions || a.description || "No specific instructions",
-          lastRun: a.updatedAt // Approximation if no exec history linked directly here easily
+        _id: a._id,
+        name: a.name,
+        status: a.status,
+        model: a.brain?.model,
+        temperature: a.brain?.temperature,
+        instructions: a.instructions || a.description || "No specific instructions",
+        lastRun: a.updatedAt // Approximation if no exec history linked directly here easily
       })),
 
       // 3. Analytics & Performance
       analytics: {
-          successRate: metrics.successRate,
-          totalExecutions: metrics.totalExecutions,
-          avgExecutionTime: metrics.avgExecutionTime,
-          mostUsedAgent: metrics.mostUsedAgent
+        successRate: metrics.successRate,
+        totalExecutions: metrics.totalExecutions,
+        avgExecutionTime: metrics.avgExecutionTime,
+        mostUsedAgent: metrics.mostUsedAgent
       },
 
       // 4. Integrations Status
       integrations: integrations.map((i: any) => ({
-          provider: i.provider,
-          status: i.status,
-          connectedAt: i.connectedAt,
-          metadata: i.metadata
+        provider: i.provider,
+        status: i.status,
+        connectedAt: i.connectedAt,
+        metadata: i.metadata
       })),
 
       // 5. Live Activity
@@ -277,15 +278,15 @@ router.get("/live", async (req: Request, res: Response) => {
       }),
       recentActivity: enhancedActivity,
       nextTriggers: nextTriggers,
-      
+
       // 6. System Health
       systemHealth: {
-          cpuLoad1m: os.loadavg()[0] || 0,
-          memoryRssBytes: process.memoryUsage().rss,
-          memoryHeapUsedBytes: process.memoryUsage().heapUsed,
-          memoryHeapTotalBytes: process.memoryUsage().heapTotal,
-          uptime: process.uptime(),
-          status: 'operational'
+        cpuLoad1m: os.loadavg()[0] || 0,
+        memoryRssBytes: process.memoryUsage().rss,
+        memoryHeapUsedBytes: process.memoryUsage().heapUsed,
+        memoryHeapTotalBytes: process.memoryUsage().heapTotal,
+        uptime: process.uptime(),
+        status: 'operational'
       }
     });
   } catch (err: any) {
@@ -299,6 +300,16 @@ router.get("/notifications", async (req: Request, res: Response) => {
     // In a real prod app, you might cache this or store generated notifications in DB
     // For now, we generate fresh ones for the "Live" feel
     const notifications = await generateSmartNotifications(req.user!.id);
+    res.json({ notifications });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Notification Sync (Gmail + GitHub + Twitter)
+router.get("/notifications/sync", async (req: Request, res: Response) => {
+  try {
+    const notifications = await syncNotifications(req.user!.id);
     res.json({ notifications });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

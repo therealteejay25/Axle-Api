@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { authMiddleware } from "../middleware/auth";
 import { AxleChatbot } from "../services/axleChatbot";
 import { ChatSession } from "../models/ChatSession";
+import { UiMappingService } from "../services/UiMappingService";
 
 const router = Router();
 
@@ -31,10 +32,10 @@ router.post("/stream", async (req: Request, res: Response) => {
     res.end();
   } catch (err: any) {
     if (!res.headersSent) {
-       res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err.message });
     } else {
-       res.write(`data: ${JSON.stringify({ type: "error", data: err.message })}\n\n`);
-       res.end();
+      res.write(`data: ${JSON.stringify({ type: "error", data: err.message })}\n\n`);
+      res.end();
     }
   }
 });
@@ -64,35 +65,36 @@ router.post("/message", async (req: Request, res: Response) => {
         // Just track that a tool was called, results come in tool_result
         // For legacy response, we might want to show the tool call details
         tools.push({
-            tool: event.data.tool,
-            params: event.data.params,
-            status: "pending"
+          tool: event.data.tool,
+          params: event.data.params,
+          status: "pending"
         });
       } else if (event.type === "tool_result") {
         // Find the pending tool (or just push result)
         const toolIdx = tools.findIndex(t => t.tool === event.data.tool && t.status === "pending");
+        const mapped = UiMappingService.wrap({ toolName: event.data.tool, output: event.data.result });
         if (toolIdx !== -1) {
-            tools[toolIdx].result = event.data.result;
-            tools[toolIdx].status = "success";
+          tools[toolIdx].result = mapped;
+          tools[toolIdx].status = "success";
         } else {
-             tools.push({
-                tool: event.data.tool,
-                result: event.data.result,
-                status: "success"
-            });
+          tools.push({
+            tool: event.data.tool,
+            result: mapped,
+            status: "success"
+          });
         }
       } else if (event.type === "tool_error") {
-         const toolIdx = tools.findIndex(t => t.tool === event.data.tool && t.status === "pending");
-         if (toolIdx !== -1) {
-            tools[toolIdx].error = event.data.error;
-            tools[toolIdx].status = "error";
-         } else {
-             tools.push({
-                tool: event.data.tool,
-                error: event.data.error,
-                status: "error"
-             });
-         }
+        const toolIdx = tools.findIndex(t => t.tool === event.data.tool && t.status === "pending");
+        if (toolIdx !== -1) {
+          tools[toolIdx].error = event.data.error;
+          tools[toolIdx].status = "error";
+        } else {
+          tools.push({
+            tool: event.data.tool,
+            error: event.data.error,
+            status: "error"
+          });
+        }
       }
     }
 

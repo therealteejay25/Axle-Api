@@ -5,80 +5,16 @@ const mongoose_1 = require("mongoose");
 const Agent_1 = require("../models/Agent");
 const Execution_1 = require("../models/Execution");
 const AuditLog_1 = require("../models/AuditLog");
-const registry_1 = require("../adapters/registry");
 const Integration_1 = require("../models/Integration");
-const crypto_1 = require("./crypto");
-const logger_1 = require("./logger");
 class GodAgentService {
     /**
      * Executes a tool on behalf of a user with auditing and safety checks.
      */
     static async executeTool(userId, actionType, params) {
-        // 1. Safety Check: Destructive actions
-        const highRiskPrefixes = ["delete", "remove", "archive", "unstar", "unfollow"];
-        const isHighRisk = highRiskPrefixes.some(p => actionType.toLowerCase().includes(p));
-        if (isHighRisk && !params.confirmed) {
-            return {
-                status: "awaiting_approval",
-                message: `The action "${actionType}" is destructive. Please confirm execution.`,
-                actionType,
-                params
-            };
-        }
-        const integrations = await Integration_1.Integration.find({
-            userId: new mongoose_1.Types.ObjectId(userId),
-            status: "connected"
-        }).lean();
-        const integrationMap = new Map(integrations.map((i) => [
-            i.provider,
-            {
-                provider: i.provider,
-                accessToken: (0, crypto_1.decryptToken)(i.accessToken),
-                refreshToken: i.refreshToken ? (0, crypto_1.decryptToken)(i.refreshToken) : undefined,
-                scopes: i.scopes || [],
-                metadata: i.metadata || {}
-            }
-        ]));
-        try {
-            logger_1.logger.info("God Agent executing tool", { userId, actionType });
-            const capabilityExecutor = require("../capabilities/executor");
-            const capabilityAction = capabilityExecutor.getAction(actionType);
-            let result;
-            if (capabilityAction) {
-                const execContext = {
-                    integrations: integrationMap,
-                    previousResults: {}
-                };
-                const execResult = await capabilityExecutor.executeAction(actionType, params, execContext);
-                if (!execResult.success) {
-                    throw new Error(execResult.error || "Action failed in capability layer");
-                }
-                result = execResult.data;
-            }
-            else {
-                result = await (0, registry_1.executeAction)(actionType, params, integrationMap);
-            }
-            // 4. Audit Log
-            await AuditLog_1.AuditLog.create({
-                userId: new mongoose_1.Types.ObjectId(userId),
-                actionType,
-                params,
-                result,
-                timestamp: new Date()
-            });
-            return result;
-        }
-        catch (error) {
-            logger_1.logger.error("God Agent tool execution failed", { actionType, error: error.message });
-            await AuditLog_1.AuditLog.create({
-                userId: new mongoose_1.Types.ObjectId(userId),
-                actionType,
-                params,
-                error: error.message,
-                timestamp: new Date()
-            });
-            throw error;
-        }
+        void userId;
+        void actionType;
+        void params;
+        throw new Error("Tool execution is disabled");
     }
     /**
      * Fetches unified data summary for a user.

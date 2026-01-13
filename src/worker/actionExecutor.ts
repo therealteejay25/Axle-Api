@@ -1,6 +1,5 @@
 import { AIAction } from "./aiCaller";
 import { LoadedAgent } from "./agentLoader";
-import { executeAction } from "../adapters/registry";
 import { logger } from "../services/logger";
 import { IExecutionAction } from "../models/Execution";
 import { SocketService } from "../services/SocketService";
@@ -32,272 +31,50 @@ export const executeActions = async (
   executionId?: string,
   agentId?: string
 ): Promise<ActionResult[]> => {
+  // Since all adapters and tools are removed, return empty results with errors
   const results: ActionResult[] = [];
-  
-  // SIMPLIFIED UX: If allowedActions is empty, allow ALL actions
-  const checkActionAllowed = allowedActions.length > 0;
-  
+
   for (let i = 0; i < actions.length; i++) {
     const action = actions[i];
     const startedAt = new Date();
+
+    const actionResult = {
+      type: action.type,
+      params: action.params,
+      error: `Action "${action.type}" not available - all tools and adapters have been removed`,
+      startedAt,
+      finishedAt: new Date()
+    };
+
+    results.push(actionResult);
+
+    // Emit progress event - action failed
+    if (executionId && agentId) {
+      SocketService.getInstance().emitToAgent(agentId, "execution:action_completed", {
+        executionId,
+        actionType: action.type,
+        success: false,
+        error: actionResult.error
+      });
+    }
 
     if (executionId) {
       await ExecutionEventService.log({
         executionId,
         agentId,
         userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
-        type: "action_started",
-        level: "info",
+        type: "action_failed",
+        level: "error",
         message: action.type,
         actionType: action.type,
         actionIndex: i,
-        data: { params: action.params }
-      });
-    }
-    
-    // Emit progress event - action started
-    if (executionId && agentId) {
-      SocketService.getInstance().emitToAgent(agentId, "execution:action_started", {
-        executionId,
-        actionType: action.type,
-        actionIndex: i,
-        totalActions: actions.length
-      });
-    }
-    
-    // Validate action is allowed (only if specific actions are configured)
-    if (checkActionAllowed && !allowedActions.includes(action.type)) {
-      logger.warn("Action not allowed", { 
-        type: action.type, 
-        allowed: allowedActions 
-      });
-      
-      const result = {
-        type: action.type,
-        params: action.params,
-        error: `Action "${action.type}" is not allowed for this agent`,
-        startedAt,
-        finishedAt: new Date()
-      };
-      
-      results.push(result);
-      
-      // Emit progress event - action failed
-      if (executionId && agentId) {
-        SocketService.getInstance().emitToAgent(agentId, "execution:action_completed", {
-          executionId,
-          actionType: action.type,
-          success: false,
-          error: result.error
-        });
-      }
-      
-      continue;
-    }
-    
-    try {
-      // Resolve params using results from previous actions
-      const resolvedParams = resolveParams(action.params, results, loaded);
-
-      // ============================================
-      // CAPABILITY LAYER INTERCEPTION
-      // ============================================
-      // Check if this is a new capability-based action
-      const capabilityExecutor = require('../capabilities/executor');
-      const capabilityAction = capabilityExecutor.getAction(action.type);
-      
-      let result: any;
-      let toolsCalled: string[] = [];
-      let verified: boolean | undefined = undefined;
-      
-      if (capabilityAction) {
-        // Execute via capability layer
-        logger.info("Routing to capability layer", { 
-          type: action.type, 
-          capability: capabilityAction.capability 
-        });
-
-        if (executionId) {
-          await ExecutionEventService.log({
-            executionId,
-            agentId,
-            userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
-            type: "action_routed_capability",
-            level: "debug",
-            message: action.type,
-            actionType: action.type,
-            actionIndex: i,
-            data: { capability: capabilityAction.capability }
-          });
+        data: {
+          error: actionResult.error
         }
-        
-        const execContext = {
-          integrations: loaded.integrations,
-          executionId,
-          agentId,
-          previousResults: results.reduce((acc, r) => ({ ...acc, [r.type]: r.result }), {})
-        };
-        
-        const execResult = await capabilityExecutor.executeAction(
-          action.type,
-          resolvedParams,
-          execContext
-        );
-        
-        if (!execResult.success) {
-          throw new Error(execResult.error || 'Action failed in capability layer');
-        }
-        
-        result = execResult.data;
-        toolsCalled = execResult.metadata?.toolsCalled || [];
-        verified = execResult.metadata?.verified;
-        
-      } else {
-        // Fallback to legacy registry
-        // Execute the action via adapter registry
-        result = await executeAction(
-          action.type,
-          resolvedParams,
-          loaded.integrations
-        );
-      }
-      
-      // ============================================
-      // VALIDATE OUTPUT
-      // ============================================
-      const { validateActionOutput } = require('./dataIntegrity');
-      const { getOutputContract } = require('./outputContracts');
-      
-      const contract = getOutputContract(action.type);
-      let outputValidation = null;
-      
-      if (contract.length > 0) {
-        outputValidation = validateActionOutput(action.type, result, contract);
-        
-        if (!outputValidation.valid) {
-          logger.warn('Output validation failed', {
-            action: action.type,
-            errors: outputValidation.errors,
-            warnings: outputValidation.warnings
-          });
-        }
-      }
-      // ============================================
-      
-      const finishedAt = new Date();
-      const durationMs = finishedAt.getTime() - startedAt.getTime();
-      
-      const actionResult = {
-        type: action.type,
-        params: resolvedParams,
-        result,
-        outputValidation,  // NEW: Include validation results
-        startedAt,
-        finishedAt,
-        durationMs
-      };
-      
-      results.push(actionResult);
-      
-      logger.info("Action completed", { 
-        type: action.type,
-        success: true,
-        durationMs,
-        outputValid: outputValidation?.valid ?? true
       });
-      
-      // Emit progress event - action completed successfully
-      if (executionId && agentId) {
-        SocketService.getInstance().emitToAgent(agentId, "execution:action_completed", {
-          executionId,
-          actionType: action.type,
-          success: true,
-          durationMs,
-          outputValidation: outputValidation?.valid ?? true
-        });
-      }
-
-      if (executionId) {
-        await ExecutionEventService.log({
-          executionId,
-          agentId,
-          userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
-          type: "action_completed",
-          level: outputValidation?.valid === false ? "warn" : "info",
-          message: action.type,
-          actionType: action.type,
-          actionIndex: i,
-          data: {
-            durationMs,
-            outputValidation,
-            toolsCalled,
-            verified,
-            result
-          }
-        });
-      }
-      
-    } catch (error: any) {
-      // Get smart suggestion for this error
-      const { getSuggestion } = await import("../lib/errorSuggestions");
-      const errorSuggestion = getSuggestion(error, action.type);
-      
-      const enhancedError = {
-        message: error.message,
-        suggestion: errorSuggestion.suggestion,
-        category: errorSuggestion.category,
-        actionable: errorSuggestion.actionable
-      };
-      
-      logger.error("Action failed with context", {
-        type: action.type,
-        error: error.message,
-        suggestion: errorSuggestion.suggestion,
-        category: errorSuggestion.category
-      });
-      
-      const actionResult = {
-        type: action.type,
-        params: action.params,
-        error: `${error.message}\n\n💡 ${errorSuggestion.suggestion}`,
-        startedAt,
-        finishedAt: new Date()
-      };
-      
-      results.push(actionResult);
-      
-      // Emit progress event - action failed
-      if (executionId && agentId) {
-        SocketService.getInstance().emitToAgent(agentId, "execution:action_completed", {
-          executionId,
-          actionType: action.type,
-          success: false,
-          error: enhancedError.message,
-          suggestion: enhancedError.suggestion
-        });
-      }
-
-      if (executionId) {
-        await ExecutionEventService.log({
-          executionId,
-          agentId,
-          userId: (loaded.user as any)?._id?.toString?.() || (loaded.user as any)?.id,
-          type: "action_failed",
-          level: "error",
-          message: action.type,
-          actionType: action.type,
-          actionIndex: i,
-          data: {
-            error: error.message,
-            suggestion: errorSuggestion.suggestion,
-            category: errorSuggestion.category,
-            actionable: errorSuggestion.actionable
-          }
-        });
-      }
     }
   }
-  
+
   return results;
 };
 

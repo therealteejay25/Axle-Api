@@ -19,3 +19,10 @@ export {
   hashValue,
   verifyHmac
 } from "./crypto";
+
+export { AgentMemoryService } from "./AgentMemoryService";
+export { GithubContextProvider } from "./GithubContextProvider";
+export { ContextManagerService } from "./ContextManagerService";
+export { UiMappingService } from "./UiMappingService";
+
+export { CreditManagerService, InsufficientCreditsError } from "./CreditManagerService";

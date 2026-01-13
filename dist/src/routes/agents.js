@@ -39,7 +39,6 @@ const Trigger_1 = require("../models/Trigger");
 const Execution_1 = require("../models/Execution");
 const billing_1 = require("../services/billing");
 const manualHandler_1 = require("../triggers/manualHandler");
-const registry_1 = require("../adapters/registry");
 const auth_1 = require("../middleware/auth");
 const RuleEngine_1 = require("../services/RuleEngine");
 const scheduleHandler_1 = require("../triggers/scheduleHandler");
@@ -268,11 +267,10 @@ router.get("/:id/actions", async (req, res) => {
         if (!agent) {
             return res.status(404).json({ error: "Agent not found" });
         }
-        const availableActions = (0, registry_1.getActionsForIntegrations)(agent.integrations);
         res.json({
             configured: agent.actions,
-            available: availableActions,
-            all: (0, registry_1.getAvailableActions)()
+            available: [], // No tools/capabilities available
+            all: [] // No tools/capabilities available
         });
     }
     catch (err) {

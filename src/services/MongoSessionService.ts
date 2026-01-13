@@ -8,8 +8,9 @@ export class MongoSessionService implements SessionService {
     return this.load(sessionId);
   }
 
-  async createSession(session: Session): Promise<void> {
+  async createSession(session: Session): Promise<Session> {
     await this.save(session);
+    return session;
   }
 
   async listSessions(): Promise<Session[]> {
@@ -77,6 +78,13 @@ export class MongoSessionService implements SessionService {
     await this.save(session);
   }
 
+  async updateSessionState(request: { session: Session; stateDelta: Record<string, any> }): Promise<void> {
+    const { session, stateDelta } = request;
+    if (!session.state) session.state = {};
+    Object.assign(session.state, stateDelta);
+    await this.save(session);
+  }
+
   async save(session: Session): Promise<void> {
     if (!session.id) {
         // Fallback
@@ -88,7 +96,7 @@ export class MongoSessionService implements SessionService {
             return;
         }
     }
-    
+
     // Ensure state exists
     const newState = session.state || {};
     // Save history/events inside state

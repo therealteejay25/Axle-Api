@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Agent } from "../models/Agent";
 import { Execution } from "../models/Execution";
 import { enqueueExecution } from "../queue/executionQueue";
@@ -24,6 +25,11 @@ export const triggerManualRun = async (
   options: ManualTriggerOptions
 ): Promise<{ success: boolean; executionId?: string; error?: string }> => {
   const { agentId, ownerId, payload = {} } = options;
+  
+  // Validate ObjectId format
+  if (!Types.ObjectId.isValid(agentId)) {
+    return { success: false, error: "Invalid agent ID format" };
+  }
   
   // Verify agent exists and belongs to user
   const agent = await Agent.findOne({

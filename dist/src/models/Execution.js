@@ -56,6 +56,14 @@ const ExecutionSchema = new mongoose_1.Schema({
         type: [ExecutionActionSchema],
         default: []
     },
+    events: {
+        type: [mongoose_1.Schema.Types.Mixed],
+        default: []
+    },
+    turns: {
+        type: [mongoose_1.Schema.Types.Mixed],
+        default: []
+    },
     memory: {
         type: Map,
         of: mongoose_1.Schema.Types.Mixed,

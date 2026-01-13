@@ -64,6 +64,13 @@ class MongoSessionService {
         session.history = session.events;
         await this.save(session);
     }
+    async updateSessionState(request) {
+        const { session, stateDelta } = request;
+        if (!session.state)
+            session.state = {};
+        Object.assign(session.state, stateDelta);
+        await this.save(session);
+    }
     async save(session) {
         if (!session.id) {
             // Fallback

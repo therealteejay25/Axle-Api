@@ -14,6 +14,7 @@ import previewRoutes from "./preview";
 import integrationHealthRoutes from "./integrationHealth";
 import stripeWebhooksRoutes from "./stripeWebhooks";
 import dashboardRoutes from "./dashboard";
+import threadsRoutes from "./threads";
 import { handleCallback } from "../controllers/oauth";
 
 // ============================================
@@ -45,6 +46,7 @@ router.use("/dashboard", dashboardRoutes);
 router.use("/profile", profileRoutes);
 router.use("/chatbot", chatbotRoutes);
 router.use("/platform", platformRoutes);
+router.use("/threads", threadsRoutes);
 
 // OAuth callbacks (public - provider redirects here)
 router.get("/oauth/:provider/callback", handleCallback);
