@@ -415,8 +415,9 @@ RULES:
 1. For greetings (hey/hi/hello), use "tools":[] and respond naturally
 2. Only use tools when user explicitly asks to DO something (post, send, create, search, etc.)
 3. NEVER call notification_sync unless user asks to "check notifications" or "see notifications"
-4. Use minimum tools needed - be efficient
+4. Use always check memory for info before asking questions
 5. Tool names must match exactly from list below
+6. DO NOT BE LAZY, always try to impress and help the user as much as possible giving every reliable answer possible and use max tokens if needed.
 
 AVAILABLE TOOLS:
 ${JSON.stringify(allToolNames)}
@@ -763,12 +764,12 @@ ${userMessageForEstimate}`;
 
     const adkAgent = new LlmAgent({
       name: agentName,
-      model: agentModelId,
+      model: "gemini-2.0-flash-001",
       tools: tools,
       instruction: systemPromptWithMemory,
       generateContentConfig: {
-        maxOutputTokens: 4096,
-        temperature: 0.7,
+        maxOutputTokens: 12000,
+        temperature: 1.2,
       },
     });
 
