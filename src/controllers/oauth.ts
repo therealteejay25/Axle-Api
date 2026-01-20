@@ -260,10 +260,10 @@ export const handleCallback = async (req: Request, res: Response) => {
     });
     
     // Redirect to frontend success page
-    res.redirect(`https://heyaxle.vercel.app/dashboard/integrations`);
+    res.redirect(`https://heyaxle.vercel.app/app/apps`);
   } catch (err: any) {
     logger.error("OAuth callback failed", { error: err.message });
-    res.redirect(`https://heyaxle.vercel.app/dashboard/integrations`);
+    res.redirect(`https://heyaxle.vercel.app/app/apps`);
   }
 };
 
