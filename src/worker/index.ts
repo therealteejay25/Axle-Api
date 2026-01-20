@@ -1320,7 +1320,7 @@ const processJob = async (
     execution.actionsExecuted = actionsExecuted;
     await execution.save();
 
-    // Persist assistant response into agent-scoped Messages collection
+    // Persist assistant response into agent-scopped Messages collection
     const assistantMessage = responseText || finalResponse;
     if (assistantMessage && typeof assistantMessage === "string") {
       await AgentMemoryService.appendMessage({
