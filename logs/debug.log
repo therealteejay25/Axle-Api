@@ -23102,3 +23102,23 @@
 {"timestamp":"2026-01-20 13:56:55","level":"info","message":"[WORKER] Initializing agent with 81 tools:","agentId":"696bd5e6b4ee27344caa6fb6","toolCount":81}
 {"timestamp":"2026-01-20 13:56:57","level":"info","message":"MongoSessionService.load success","id":"696f7b938b371265afabfa10","historyLength":0}
 {"timestamp":"2026-01-20 13:57:11","level":"info","message":"Job completed","jobId":"706","executionId":"696f7b938b371265afabfa10","success":true}
+{"timestamp":"2026-01-20 13:57:42","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-01-20 13:57:42","level":"debug","message":"Loaded integration: github"}
+{"timestamp":"2026-01-20 13:57:43","level":"debug","message":"Loaded integration: twitter"}
+{"timestamp":"2026-01-20 13:57:43","level":"info","message":"[WORKER] Initializing agent with 81 tools:","agentId":"696bd5e6b4ee27344caa6fb6","toolCount":81}
+{"timestamp":"2026-01-20 13:57:44","level":"info","message":"MongoSessionService.load success","id":"696f7bc38b371265afabfa32","historyLength":0}
+{"timestamp":"2026-01-20 13:57:47","level":"info","message":"[CALENDAR] Listing events for calendar: primary"}
+{"timestamp":"2026-01-20 13:57:48","level":"info","message":"[CALENDAR] Found 2 events"}
+{"timestamp":"2026-01-20 13:57:53","level":"info","message":"MongoSessionService.load success","id":"696f7bc38b371265afabfa32","historyLength":10}
+{"timestamp":"2026-01-20 13:57:56","level":"info","message":"Job completed","jobId":"707","executionId":"696f7bc38b371265afabfa32","success":true}
+{"timestamp":"2026-01-20 13:58:17","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-01-20 13:58:17","level":"debug","message":"Loaded integration: github"}
+{"timestamp":"2026-01-20 13:58:17","level":"debug","message":"Loaded integration: twitter"}
+{"timestamp":"2026-01-20 13:58:18","level":"info","message":"[WORKER] Initializing agent with 81 tools:","agentId":"696bd5e6b4ee27344caa6fb6","toolCount":81}
+{"timestamp":"2026-01-20 13:58:19","level":"info","message":"MongoSessionService.load success","id":"696f7be68b371265afabfa57","historyLength":0}
+{"timestamp":"2026-01-20 13:58:21","level":"info","message":"[CALENDAR] Listing events for calendar: primary"}
+{"timestamp":"2026-01-20 13:58:22","level":"info","message":"[CALENDAR] Found 0 events"}
+{"timestamp":"2026-01-20 13:58:25","level":"info","message":"[CALENDAR] Listing events for calendar: primary"}
+{"timestamp":"2026-01-20 13:58:26","level":"info","message":"[CALENDAR] Found 0 events"}
+{"timestamp":"2026-01-20 13:58:30","level":"info","message":"MongoSessionService.load success","id":"696f7be68b371265afabfa57","historyLength":14}
+{"timestamp":"2026-01-20 13:58:33","level":"info","message":"Job completed","jobId":"708","executionId":"696f7be68b371265afabfa57","success":true}

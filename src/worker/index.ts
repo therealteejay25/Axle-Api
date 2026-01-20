@@ -13,22 +13,10 @@ import {
 import { PLAN_LIMITS, PlanType } from "../models/User";
 import { SocketService } from "../services/SocketService";
 import { ExecutionEventService } from "../services/ExecutionEventService";
-import { MongoSessionService } from "../services/MongoSessionService";
 import { AgentMemoryService } from "../services/AgentMemoryService";
-import { GithubContextProvider } from "../services/GithubContextProvider";
-import { ContextManagerService } from "../services/ContextManagerService";
-import { UiMappingService } from "../services/UiMappingService";
 import { User } from "../models/User";
-import { Thread } from "../models/Thread";
-import { LlmAgent, Runner } from "@google/adk";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, FunctionDeclaration, FunctionCall, Part } from "@google/generative-ai";
 import { env } from "../config/env";
-
-// ============================================
-// WORKER - ADK AGENT WITH REASONING & MEMORY
-// ============================================
-// Orchestrated agent execution with tools, reasoning loop, and persistent memory
-// ============================================
 
 const QUEUE_NAME = "execution-queue";
 let worker: Worker<ExecutionJobData, ExecutionJobResult> | null = null;
@@ -42,11 +30,8 @@ export const startWorker = (): Worker<ExecutionJobData, ExecutionJobResult> => {
     {
       connection: redis,
       concurrency: 5,
-      limiter: {
-        max: 100,
-        duration: 60000,
-      },
-    },
+      limiter: { max: 100, duration: 60000 },
+    }
   );
 
   worker.on("completed", (job, result) => {
@@ -74,146 +59,28 @@ export const startWorker = (): Worker<ExecutionJobData, ExecutionJobResult> => {
 };
 
 const processJob = async (
-  job: Job<ExecutionJobData, ExecutionJobResult>,
+  job: Job<ExecutionJobData, ExecutionJobResult>
 ): Promise<ExecutionJobResult> => {
   const { executionId, agentId, ownerId, triggerType, payload } = job.data;
-
   const runStartedAtMs = Date.now();
 
-  const effectivePayload: Record<string, any> = { ...(payload || {}) };
+  // CRITICAL: Declare all variables at function scope
+  let taskComplete = false;
+  let iterationCount = 0;
+  let finalResponse = "";
+  let tokensUsed = 0;
+  let creditsDeductedTotal = 0;
+  let toolCallsCompleted = 0;
+  const actionsExecuted: Array<{
+    type: string;
+    params?: any;
+    result?: any;
+    startedAt?: Date;
+    finishedAt?: Date;
+    durationMs?: number;
+  }> = [];
 
-  const extractConversationText = (msgs: any, maxChars: number): string => {
-    if (!Array.isArray(msgs) || msgs.length === 0) return "";
-
-    const lines: string[] = [];
-    for (const m of msgs) {
-      const role = typeof m?.role === "string" ? m.role : "";
-      const content = typeof m?.content === "string" ? m.content : "";
-      if (!role || !content) continue;
-      // Keep tool messages too, but label them clearly.
-      lines.push(`${role.toUpperCase()}: ${content}`);
-    }
-
-    const joined = lines.join("\n\n");
-    if (joined.length <= maxChars) return joined;
-    return joined.slice(joined.length - maxChars);
-  };
-
-  const getLatestUserInput = (msgs: any): string | null => {
-    if (!Array.isArray(msgs) || msgs.length === 0) return null;
-    for (let i = msgs.length - 1; i >= 0; i--) {
-      const m = msgs[i];
-      if (
-        m?.role === "user" &&
-        typeof m?.content === "string" &&
-        m.content.trim()
-      ) {
-        return m.content;
-      }
-    }
-    return null;
-  };
-
-  const getFirstMeaningfulUserInput = (msgs: any): string | null => {
-    if (!Array.isArray(msgs) || msgs.length === 0) return null;
-    for (const m of msgs) {
-      if (m?.role !== "user") continue;
-      const text = typeof m?.content === "string" ? m.content.trim() : "";
-      if (!text) continue;
-      const isGreeting = /^(hey|hi|hello|greetings|sup|what's up|howdy)[\s!.,]*$/i.test(
-        text,
-      );
-      if (isGreeting) continue;
-      if (text.length < 12) continue;
-      return text;
-    }
-    return null;
-  };
-
-  const normalizeTitleCandidate = (text: string): string => {
-    const cleaned = String(text || "")
-      .replace(/\s+/g, " ")
-      .replace(/[`*_#>\[\]()-]/g, " ")
-      .trim();
-    const words = cleaned.split(" ").filter(Boolean);
-    return words.slice(0, 8).join(" ");
-  };
-
-  const shouldReplaceThreadTitle = (title: any): boolean => {
-    const t = typeof title === "string" ? title.trim() : "";
-    if (!t) return true;
-    const looksGreeting = /^(hey|hi|hello|greetings)[\s!.,]*$/i.test(t);
-    if (looksGreeting) return true;
-    if (t.length <= 10) return true;
-    return false;
-  };
-
-  // If a thread is provided, load cached repo context unless the caller explicitly overrides.
-  if (effectivePayload.threadId && !effectivePayload.githubRepo) {
-    try {
-      const thread = await ContextManagerService.getThread({
-        ownerId,
-        threadId: effectivePayload.threadId,
-      });
-
-      const threadGithubRepo = (thread as any)?.metadata?.githubRepo;
-      const threadCurrentContext = (thread as any)?.metadata?.currentContext;
-
-      if (threadGithubRepo?.owner && threadGithubRepo?.repo) {
-        effectivePayload.githubRepo = {
-          owner: threadGithubRepo.owner,
-          repo: threadGithubRepo.repo,
-          ref: threadGithubRepo.ref,
-        };
-      }
-
-      if (
-        !effectivePayload.requestedFiles &&
-        Array.isArray(threadGithubRepo?.requestedFiles)
-      ) {
-        effectivePayload.requestedFiles = threadGithubRepo.requestedFiles;
-      }
-
-      if (threadCurrentContext && !effectivePayload.currentContext) {
-        effectivePayload.currentContext = threadCurrentContext;
-      }
-    } catch {
-      // If thread context fails to load, continue without it.
-    }
-  }
-
-  // Planning client removed - no planning phase needed
-
-  const emitAxleLog = async (
-    level: "debug" | "info" | "warn" | "error",
-    line: string,
-    data?: Record<string, any>,
-  ) => {
-    SocketService.getInstance().emitToAgent(agentId, "execution:event", {
-      executionId,
-      event: {
-        type: "axle_log",
-        level,
-        line,
-        data,
-        timestamp: Date.now(),
-      },
-    });
-
-    await ExecutionEventService.log({
-      executionId,
-      agentId,
-      userId: ownerId,
-      type: "axle_log",
-      level,
-      message: line,
-      data,
-    });
-  };
-
-  // Error conversion removed - use real errors for transparency
-
-  // 1. Mark execution as running
+  // Mark execution as running
   const execution = await Execution.findById(executionId);
   if (!execution) {
     throw new Error(`Execution not found: ${executionId}`);
@@ -238,1095 +105,305 @@ const processJob = async (
     status: "running",
   });
 
-  // CRITICAL: Declare execution variables at function scope
-  // These must be accessible throughout the entire function
-  let finalResponse = "";
-  let reasoningText = "";
-  let responseText = "";
-  let tokensUsed = 0;
-  const traces: any[] = [];
-  let traceSeq = 0;
-  let inThoughtBlock = false;
-  let adkEventSeq = 0;
-  const adkEventStream: any[] = [];
-  const candidatePartsStream: Array<{
-    seq: number;
-    timestamp: number;
-    parts: any[];
-  }> = [];
-  let latestUsageMetadata: any = null;
-  let latestGroundingMetadata: any = null;
-  const groundingSources: Array<{ uri?: string; title?: string }> = [];
-
-  // Execution control variables - MUST be at function scope
-  let taskComplete = false;
-  let iterationCount = 0;
-  let creditsDeductedTotal = 0;
-  let toolCallsCompleted = 0;
-  let tokenCreditsCharged = 0;
-
   try {
-    // 2. Load Agent & Integrations
+    // Load agent and build context
     const loaded = await loadAgent(agentId, ownerId);
+    const userMessage = payload?.input || payload?.task || "Execute the assigned task";
 
-    const userMessageForEstimate =
-      effectivePayload?.input ||
-      effectivePayload?.task ||
-      "Execute the assigned task";
-
-    if (effectivePayload.threadId) {
-      try {
-        const thread = await Thread.findOne({
-          _id: effectivePayload.threadId,
-          ownerId,
-        });
-        if (thread && shouldReplaceThreadTitle(thread.title)) {
-          const baseText =
-            getFirstMeaningfulUserInput(effectivePayload?.messages) ||
-            (typeof effectivePayload?.input === "string"
-              ? effectivePayload.input
-              : "") ||
-            (typeof effectivePayload?.task === "string"
-              ? effectivePayload.task
-              : "") ||
-            "Conversation";
-          const nextTitle = normalizeTitleCandidate(baseText);
-          if (nextTitle && nextTitle !== thread.title) {
-            thread.title = nextTitle;
-            await thread.save();
-          }
-        }
-      } catch {
-        // ignore thread title updates
-      }
-    }
-
-    // Pre-flight credit guardrail (before planning / runner)
-    const preflightEstimate = CreditManagerService.estimateTaskCredits({
-      userMessage: userMessageForEstimate,
-    });
-    await CreditManagerService.assertHasCredits({
-      userId: ownerId,
-      required: preflightEstimate,
-    });
+    // Credit check
+    const estimate = CreditManagerService.estimateTaskCredits({ userMessage });
+    await CreditManagerService.assertHasCredits({ userId: ownerId, required: estimate });
 
     if (loaded.agent.status === "paused") {
       execution.status = "failed";
       execution.error = "Agent is paused";
       await execution.save();
-      return {
-        success: false,
-        actionsExecuted: 0,
-        creditsUsed: 0,
-        error: "Agent is paused",
-      };
+      return { success: false, actionsExecuted: 0, creditsUsed: 0, error: "Agent is paused" };
     }
 
-    // 3. Initialize ADK Agent with tools and memory
-    const agentName = loaded.agent.name.replace(/[^a-zA-Z0-9_]/g, "_");
+    // Create tools
+    const tools = createUserTools(ownerId, agentId);
+    logger.info(`[WORKER] Initialized with ${tools.length} tools`, { agentId, toolCount: tools.length });
 
-    // Create user-specific tools - each tool gets the userId embedded
-    const allTools = createUserTools(ownerId, agentId);
+    // Build system prompt
+    const systemPrompt = await buildFocusedContext(loaded, payload || {});
 
-    // Always use all tools - context should not restrict tool availability
-    const tools = allTools;
+    // Detect greeting vs task
+    const isSimpleGreeting = /^(hey|hi|hello|yo|sup|what's up|howdy|greetings)[\s!.,]*$/i.test(
+      userMessage.trim()
+    );
+    const MAX_ITERATIONS = isSimpleGreeting ? 2 : 20;
 
-    // Repo scoping: if a thread-selected repo exists, default missing owner/repo
-    // and block any GitHub tool call attempting to target a different repo.
-    const selectedRepo = effectivePayload?.githubRepo;
-    if (selectedRepo?.owner && selectedRepo?.repo) {
-      const githubToolsNeedingRepo = new Set<string>([
-        "create_issue",
-        "list_pull_requests",
-        "get_file_contents",
-        "create_or_update_file",
-        "github_get_readme",
-        "github_list_issues",
-        "github_add_issue_comment",
-        "github_update_file",
-        "github_delete_file",
-      ]);
-
-      for (const t of tools as any[]) {
-        const toolName = (t as any)?.name;
-        if (!toolName || !githubToolsNeedingRepo.has(toolName)) continue;
-
-        const originalExecute = (t as any).execute;
-        if (typeof originalExecute !== "function") continue;
-
-        (t as any).execute = async (input: any, context: any) => {
-          let params: any = input;
-          if (typeof input === "string") {
-            try {
-              params = JSON.parse(input);
-            } catch {
-              params = input;
-            }
-          }
-
-          if (params && typeof params === "object") {
-            const hasOwner =
-              typeof params.owner === "string" && params.owner.trim();
-            const hasRepo =
-              typeof params.repo === "string" && params.repo.trim();
-
-            if (!hasOwner) params.owner = selectedRepo.owner;
-            if (!hasRepo) params.repo = selectedRepo.repo;
-
-            if (
-              params.owner !== selectedRepo.owner ||
-              params.repo !== selectedRepo.repo
-            ) {
-              throw new Error(
-                `GitHub tool call blocked: ${toolName} attempted to access ${params.owner}/${params.repo} but thread is scoped to ${selectedRepo.owner}/${selectedRepo.repo}`,
-              );
-            }
-          }
-
-          return originalExecute(params, context);
-        };
-      }
+    // Deduct base credits
+    const baseRes = await CreditManagerService.deductCreditsAtomic({
+      userId: ownerId,
+      amount: CreditManagerService.BASE_TASK_WEIGHT,
+    });
+    if (!baseRes.ok) {
+      throw new InsufficientCreditsError({
+        available: await CreditManagerService.getUserCredits(ownerId),
+        required: CreditManagerService.BASE_TASK_WEIGHT,
+      });
     }
-
-    logger.info(`[WORKER] Initializing agent with ${tools.length} tools:`, {
-      agentId,
-      toolCount: tools.length,
-    });
-
-    // Build focused context with semantic memory search (no overwhelming dumps)
-    // Context builder now handles memory search and GitHub context internally
-    const systemPrompt = await buildFocusedContext(loaded, effectivePayload);
-
-    // Get agent model
-    const brainModelRaw =
-      typeof loaded?.agent?.brain?.model === "string"
-        ? loaded.agent.brain.model.trim()
-        : "";
-    const brainModel = brainModelRaw.includes("/")
-      ? brainModelRaw.split("/").pop() || ""
-      : brainModelRaw;
-    const agentModelId =
-      brainModel && /^gemini[\w\-\.]*$/i.test(brainModel)
-        ? brainModel
-        : "gemini-2.0-flash-001";
+    creditsDeductedTotal += CreditManagerService.BASE_TASK_WEIGHT;
 
     // ============================================
-    // AUTONOMOUS EXECUTION - NO PLANNING PHASE
-    // ============================================
-    // Agent starts working immediately, uses tools freely
+    // STREAMING EXECUTION WITH GEMINI SDK DIRECTLY
     // ============================================
 
-    const adkAgent = new LlmAgent({
-      name: agentName,
-      model: "gemini-2.0-flash-001",
-      tools: tools,
-      instruction: systemPrompt,
-      generateContentConfig: {
-        maxOutputTokens: 18000,
-        temperature: 1.8, // Higher for more human-like spontaneity
-      },
-      // Enable streaming for real-time text emission
-      stream: true,
+    const genAI = new GoogleGenerativeAI(env.GOOGLE_API_KEY || env.GEMINI_API_KEY);
+
+    // Convert tools to Gemini function declarations
+    const functionDeclarations: FunctionDeclaration[] = tools.map((tool: any) => ({
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.parameters,
+    }));
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash-exp-0111",
+      systemInstruction: systemPrompt,
+      tools: [{ functionDeclarations }],
     });
 
-    // 4. Initialize Runner with session service for memory
-    const sessionService = new MongoSessionService();
-    const runner = new Runner({
-      agent: adkAgent,
-      sessionService,
-      appName: "axle-agent",
-      // Try to enable streaming at the runner level
-      stream: true,
+    const chat = model.startChat({
+      history: [],
     });
 
-    // 5. Execute withy reasoning loop using runAsync
-    const userMessage = userMessageForEstimate;
-
-    // Persist user message into agent-scoped Messages collection
-    await AgentMemoryService.appendMessage({
-      agentId,
-      role: "user",
-      content: userMessage,
-      metadata: { source: "worker", executionId },
-    });
-
-    finalResponse = "";
-    reasoningText = "";
-    responseText = "";
-    tokensUsed = 0;
-    traces.length = 0;
-    traceSeq = 0;
-    inThoughtBlock = false;
-    adkEventSeq = 0;
-    adkEventStream.length = 0;
-    candidatePartsStream.length = 0;
-    latestUsageMetadata = null;
-    latestGroundingMetadata = null;
-    groundingSources.length = 0;
-
-    const emitTrace = async (trace: any) => {
-      const enriched = { seq: ++traceSeq, timestamp: Date.now(), ...trace };
-      traces.push(enriched);
-      SocketService.getInstance().emitToAgent(agentId, "execution:trace", {
-        executionId,
-        trace: enriched,
-      });
-    };
-
-    const parseAndEmitTextDelta = async (delta: string) => {
-      if (!delta) return;
-
-      // Heuristic separation:
-      // - If the model emits a "Thought:" block, treat it as reasoning until a "Response:" marker appears.
-      // - Otherwise treat as response.
-      let remaining = delta;
-      while (remaining.length) {
-        if (!inThoughtBlock) {
-          const thoughtIdx = remaining.search(/\bThought\s*:/i);
-          if (thoughtIdx === -1) {
-            responseText += remaining;
-            SocketService.getInstance().emitToAgent(
-              agentId,
-              "execution:response_delta",
-              {
-                executionId,
-                delta: remaining,
-              },
-            );
-            return;
-          }
-
-          const before = remaining.slice(0, thoughtIdx);
-          if (before) {
-            responseText += before;
-            SocketService.getInstance().emitToAgent(
-              agentId,
-              "execution:response_delta",
-              {
-                executionId,
-                delta: before,
-              },
-            );
-          }
-
-          // Skip the marker and enter thought mode
-          const afterMarker = remaining
-            .slice(thoughtIdx)
-            .replace(/\bThought\s*:/i, "");
-          inThoughtBlock = true;
-          remaining = afterMarker;
-          continue;
-        }
-
-        // inThoughtBlock
-        const responseIdx = remaining.search(/\bResponse\s*:/i);
-        if (responseIdx === -1) {
-          reasoningText += remaining;
-          SocketService.getInstance().emitToAgent(
-            agentId,
-            "execution:reasoning_delta",
-            {
-              executionId,
-              delta: remaining,
-            },
-          );
-          return;
-        }
-
-        const thoughtPart = remaining.slice(0, responseIdx);
-        if (thoughtPart) {
-          reasoningText += thoughtPart;
-          SocketService.getInstance().emitToAgent(
-            agentId,
-            "execution:reasoning_delta",
-            {
-              executionId,
-              delta: thoughtPart,
-            },
-          );
-        }
-
-        const afterMarker = remaining
-          .slice(responseIdx)
-          .replace(/\bResponse\s*:/i, "");
-        inThoughtBlock = false;
-        remaining = afterMarker;
-      }
-    };
-    const toolStartTimes = new Map<string, number>();
-    const userStartCredits = loaded.user.credits;
-    // Safely get plan limit with fallback to free plan if plan is invalid
-    const userPlan = (loaded.user.plan as PlanType) || "free";
-    const planLimit =
-      PLAN_LIMITS[userPlan]?.monthlyCredits || PLAN_LIMITS.free.monthlyCredits;
-    const toolOutputs: Array<{
-      tool: string;
-      output: any;
-      timestamp: number;
-    }> = [];
-    const actionsExecuted: Array<{
-      type: string;
-      params?: Record<string, unknown>;
-      result?: unknown;
-      error?: string;
-      startedAt?: Date;
-      finishedAt?: Date;
-      durationMs?: number;
-    }> = [];
-
-    // Real-time credit tracking
-    let toolCallsCompleted = 0;
-    let tokenCreditsCharged = 0;
-    let creditsDeductedTotal = 0;
-
-    const emitCreditsUpdated = async (params: {
-      reason: "estimate" | "tool" | "tokens" | "final";
-      delta: number;
-      creditsRemaining: number;
-      creditsUsed: number;
-      tokensUsed?: number;
-      toolCallsCompleted?: number;
-    }) => {
-      SocketService.getInstance().emitToAgent(agentId, "credits-updated", {
-        executionId,
-        ...params,
-        creditsLimit: planLimit,
-        timestamp: Date.now(),
-      });
-    };
-
-    try {
-      // Simple credit check before execution
-      const simpleEstimate = CreditManagerService.estimateTaskCredits({
-        userMessage: userMessageForEstimate,
-      });
-      await CreditManagerService.assertHasCredits({
-        userId: ownerId,
-        required: simpleEstimate,
-      });
-
-      // Deduct base execution cost up-front (enables immediate roll-down UX)
-      {
-        const baseRes = await CreditManagerService.deductCreditsAtomic({
-          userId: ownerId,
-          amount: CreditManagerService.BASE_TASK_WEIGHT,
-        });
-        if (!baseRes.ok) {
-          const available = await CreditManagerService.getUserCredits(ownerId);
-          throw new InsufficientCreditsError({
-            available,
-            required: CreditManagerService.BASE_TASK_WEIGHT,
-          });
-        }
-        creditsDeductedTotal += CreditManagerService.BASE_TASK_WEIGHT;
-        await emitCreditsUpdated({
-          reason: "estimate",
-          delta: CreditManagerService.BASE_TASK_WEIGHT,
-          creditsRemaining:
-            baseRes.credits ??
-            Math.max(0, userStartCredits - creditsDeductedTotal),
-          creditsUsed: creditsDeductedTotal,
-          toolCallsCompleted,
-        });
-      }
-
-      // AUTONOMOUS EXECUTION LOOP
-      // Agent works until it signals completion via complete_task tool
-
-      // Detect if this is casual chat vs actual task
-      const isSimpleGreeting = /^(hey|hi|hello|yo|sup|what's up|howdy|greetings)[\s!.,]*$/i.test(
-        userMessageForEstimate.trim(),
-      );
-
-      const hasActionWords = (text: string): boolean => {
-        const actionWords = [
-          "create",
-          "make",
-          "send",
-          "post",
-          "schedule",
-          "check",
-          "find",
-          "search",
-          "get",
-          "fetch",
-          "update",
-          "delete",
-          "list",
-          "show",
-          "tell me",
-          "summarize",
-          "write",
-          "generate",
-          "build",
-          "compile",
-          "run",
-          "execute",
-          "analyze",
-        ];
-        const lower = text.toLowerCase();
-        return actionWords.some((word) => lower.includes(word));
-      };
-
-      const isCasualChat =
-        userMessageForEstimate.trim().length < 15 &&
-        !hasActionWords(userMessageForEstimate);
-
-      // Limit casual conversations to 2 exchanges max
-      const MAX_ITERATIONS = isSimpleGreeting || isCasualChat ? 2 : 20;
-      let conversationHistory = [
-        { role: "user", parts: [{ text: userMessageForEstimate }] },
-      ];
-      let lastIterationHadTools = false;
-      let lastIterationTextLength = 0;
-
-      while (!taskComplete && iterationCount < MAX_ITERATIONS) {
-        iterationCount++;
-
-        SocketService.getInstance().emitToAgent(agentId, "execution:status", {
-          executionId,
-          status: "running",
-          message: iterationCount === 1 ? "Starting…" : "Continuing…",
-          timestamp: Date.now(),
-        });
-
-        // Get the next message for this iteration
-        const nextMessage = conversationHistory[conversationHistory.length - 1];
-
-        const runResult = runner.runAsync({
-          userId: ownerId,
-          sessionId: executionId,
-          newMessage: nextMessage,
-        });
-
-        // Track this iteration's activity
-        let iterationHadTools = false;
-        let iterationTextLength = finalResponse.length;
-
-        // Process the event stream - handle reasoning and tool execution
-        for await (const event of runResult) {
-          const eventSeq = ++adkEventSeq;
-          const eventTs = Date.now();
-          adkEventStream.push({ seq: eventSeq, timestamp: eventTs, event });
-
-          // Log raw ADK event for debugging
-          console.log(`[RAW ADK EVENT]`, JSON.stringify(event));
-
-          const eventContent = (event as any).content;
-          const contentStr =
-            typeof eventContent === "string"
-              ? eventContent?.substring(0, 100) || "N/A"
-              : eventContent
-              ? JSON.stringify(eventContent).substring(0, 100)
-              : "N/A";
-          console.log(
-            `[ADK EVENT] Type: ${(event as any).type}, Content: ${contentStr}`,
-          );
-
-          const partsFromCandidate =
-            (event as any)?.candidate?.content?.parts ||
-            (event as any)?.candidates?.[0]?.content?.parts ||
-            (event as any)?.content?.parts ||
-            null;
-          if (Array.isArray(partsFromCandidate) && partsFromCandidate.length) {
-            candidatePartsStream.push({
-              seq: eventSeq,
-              timestamp: eventTs,
-              parts: partsFromCandidate,
-            });
-          }
-
-          // Capture deep metadata (usage/finishReason/grounding) if present on any event
-          const usageMetadata =
-            (event as any).usageMetadata ||
-            (event as any).content?.usageMetadata ||
-            (event as any).response?.usageMetadata ||
-            null;
-          const finishReason =
-            (event as any).finishReason || (event as any).content?.finishReason;
-          const groundingMetadata =
-            (event as any).groundingMetadata ||
-            (event as any).content?.groundingMetadata ||
-            (event as any)?.candidate?.groundingMetadata ||
-            (event as any)?.candidates?.[0]?.groundingMetadata ||
-            null;
-
-          if (usageMetadata) {
-            latestUsageMetadata = usageMetadata;
-          }
-
-          if (groundingMetadata) {
-            latestGroundingMetadata = groundingMetadata;
-            const chunks =
-              (groundingMetadata as any)?.groundingChunks ||
-              (groundingMetadata as any)?.grounding_chunks ||
-              [];
-            if (Array.isArray(chunks)) {
-              for (const ch of chunks) {
-                const web =
-                  (ch as any)?.web ||
-                  (ch as any)?.webChunk ||
-                  (ch as any)?.source;
-                const uri = web?.uri || web?.url;
-                const title = web?.title;
-                if (uri && !groundingSources.some((s) => s.uri === uri)) {
-                  groundingSources.push({ uri, title });
-                }
-              }
-            }
-          }
-
-          if (usageMetadata || finishReason) {
-            await emitTrace({
-              kind: "model_metadata",
-              usageMetadata,
-              finishReason,
-              groundingMetadata,
-              rawEvent: event,
-            });
-          }
-
-          // Handle different event types - text responses
-          // Check for direct text content or text in parts
-          let textDelta: string | null = null;
-
-          if ((event as any).type === "text" && (event as any).content) {
-            textDelta =
-              typeof (event as any).content === "string"
-                ? (event as any).content
-                : null;
-          } else if ((event as any).content?.parts) {
-            // Handle ADK format: content.parts[].text
-            const parts = (event as any).content.parts;
-            if (Array.isArray(parts)) {
-              for (const part of parts) {
-                if (part?.text && typeof part.text === "string") {
-                  textDelta = (textDelta || "") + part.text;
-                }
-              }
-            }
-          }
-
-          if (textDelta) {
-            // IMMEDIATE streaming - emit each delta as it arrives
-            finalResponse += textDelta;
-            responseText += textDelta;
-
-            // Stream immediately to UI (don't buffer)
-            SocketService.getInstance().emitToAgent(
-              agentId,
-              "execution:response_delta",
-              {
-                executionId,
-                delta: textDelta,
-                timestamp: Date.now(),
-              },
-            );
-
-            const contentPreview = textDelta.substring(0, 50);
-            console.log(
-              `[AGENT RESPONSE] Streaming text delta: ${contentPreview}...`,
-            );
-          }
-
-          // Handle tool calls - check for 'call' event type and function calls
-          if (
-            (event as any).type === "tool_call" ||
-            (event as any).type === "call" ||
-            ((event as any).content?.parts &&
-              (event as any).content.parts[0]?.functionCall)
-          ) {
-            const functionCall = (event as any).content?.parts?.[0]
-              ?.functionCall;
-            const functionCallId =
-              functionCall?.id ||
-              functionCall?.callId ||
-              (event as any).functionCallId ||
-              (event as any).callId;
-            const toolName =
-              functionCall?.name ||
-              (event as any).toolName ||
-              (event as any).name ||
-              (event as any).function?.name;
-
-            // AUTONOMOUS MODE: No tool restrictions
-            // Check for task completion signal
-            if (toolName === "complete_task") {
-              taskComplete = true;
-              const completeArgs = functionCall?.args || {};
-              if (
-                completeArgs.summary &&
-                typeof completeArgs.summary === "string"
-              ) {
-                finalResponse = completeArgs.summary;
-              }
-              logger.info("Agent signaled task completion", {
-                executionId,
-                summary: completeArgs.summary,
-              });
-              break; // Exit event processing loop immediately
-            }
-
-            if (toolName) {
-              iterationHadTools = true;
-              SocketService.getInstance().emitToAgent(
-                agentId,
-                "execution:status",
-                {
-                  executionId,
-                  status: "tool_calling",
-                  message: `Running ${toolName}…`,
-                  toolName,
-                  timestamp: Date.now(),
-                },
-              );
-              const startTime = Date.now();
-              toolStartTimes.set(toolName, startTime);
-
-              // Track tool call start
-              actionsExecuted.push({
-                type: toolName,
-                params: functionCall?.args || {},
-                startedAt: new Date(startTime),
-              });
-            }
-
-            console.log(`[TOOL CALL] Agent calling tool: ${toolName}`);
-
-            if (functionCall) {
-              console.log(`[TOOL CALL] Function call args:`, functionCall.args);
-            }
-
-            SocketService.getInstance().emitToAgent(
-              agentId,
-              "execution:action",
-              {
-                executionId,
-                type: toolName || "tool_call",
-                status: "running",
-                toolCall: event,
-                functionCall: functionCall,
-              },
-            );
-
-            await emitTrace({
-              kind: "function_call",
-              toolName,
-              functionCallId,
-              functionCall,
-              rawEvent: event,
-            });
-          }
-
-          // Handle tool responses and step events
-          if (
-            (event as any).type === "tool_response" ||
-            (event as any).type === "tool_result" ||
-            (event as any).type === "step" ||
-            ((event as any).content?.parts &&
-              (event as any).content.parts[0]?.functionResponse)
-          ) {
-            const functionResponse = (event as any).content?.parts?.[0]
-              ?.functionResponse;
-
-            const functionCallId =
-              functionResponse?.id ||
-              functionResponse?.callId ||
-              (event as any).functionCallId ||
-              (event as any).callId;
-
-            const toolName =
-              functionResponse?.name ||
-              (event as any).toolName ||
-              (event as any).name ||
-              (event as any).function?.name;
-
-            if (toolName && toolStartTimes.has(toolName)) {
-              const startedAt = toolStartTimes.get(toolName)!;
-              const finishedAt = Date.now();
-              const durationMs = finishedAt - startedAt;
-              toolStartTimes.delete(toolName);
-              await emitAxleLog(
-                "info",
-                `[TOOL] ${toolName} completed in ${(durationMs / 1000).toFixed(
-                  1,
-                )}s`,
-                { tool: toolName, durationMs },
-              );
-
-              // Update the action with completion info
-              const actionIndex = actionsExecuted.findIndex(
-                (a) => a.type === toolName && !a.finishedAt,
-              );
-              if (actionIndex >= 0) {
-                actionsExecuted[actionIndex].finishedAt = new Date(finishedAt);
-                actionsExecuted[actionIndex].durationMs = durationMs;
-              }
-            }
-
-            let uiWrapped: any = null;
-            let parsedResult: any = null;
-
-            // Best-effort: capture tool output and emit any research logs.
-            if (toolName && functionResponse) {
-              const raw = (functionResponse as any).response;
-              parsedResult = raw;
-              if (typeof raw === "string") {
-                try {
-                  parsedResult = JSON.parse(raw);
-                } catch {
-                  parsedResult = raw;
-                }
-              }
-
-              uiWrapped = UiMappingService.wrap({
-                toolName,
-                output: parsedResult,
-              });
-
-              toolOutputs.push({
-                tool: toolName,
-                output: uiWrapped,
-                timestamp: Date.now(),
-              });
-
-              // Update the action with result
-              const actionIndex = actionsExecuted.findIndex(
-                (a) => a.type === toolName && !a.result,
-              );
-              if (actionIndex >= 0) {
-                actionsExecuted[actionIndex].result = parsedResult;
-              }
-
-              // Store raw functionResponse (entire object) for trace/debug
-              await emitTrace({
-                kind: "function_response",
-                toolName,
-                functionCallId,
-                functionResponse,
-                rawEvent: event,
-              });
-
-              const maybeLogs = parsedResult?.researchLogs;
-              if (Array.isArray(maybeLogs)) {
-                for (const l of maybeLogs) {
-                  if (typeof l === "string" && l.startsWith("[RESEARCH]")) {
-                    await emitAxleLog("info", l);
-                  }
-                }
-              }
-            }
-            console.log(`[TOOL RESPONSE] Tool execution completed`);
-            if (functionResponse) {
-              console.log(
-                `[TOOL RESPONSE] Function response:`,
-                functionResponse,
-              );
-            }
-
-            SocketService.getInstance().emitToAgent(
-              agentId,
-              "execution:action",
-              {
-                executionId,
-                type: toolName || (event as any).type || "tool_result",
-                status: "completed",
-                result: parsedResult || functionResponse,
-                output: uiWrapped,
-                functionResponse: functionResponse,
-                durationMs:
-                  toolName && toolStartTimes.has(toolName)
-                    ? Date.now() - toolStartTimes.get(toolName)!
-                    : undefined,
-                ...(uiWrapped ? { toolOutput: uiWrapped } : {}),
-              },
-            );
-
-            if (toolName) {
-              toolCallsCompleted += 1;
-              const delta = CreditManagerService.TOOL_TASK_WEIGHT;
-              const res = await CreditManagerService.deductCreditsAtomic({
-                userId: ownerId,
-                amount: delta,
-              });
-              if (!res.ok) {
-                const available = await CreditManagerService.getUserCredits(
-                  ownerId,
-                );
-                throw new InsufficientCreditsError({
-                  available,
-                  required: delta,
-                });
-              }
-              creditsDeductedTotal += delta;
-              await emitCreditsUpdated({
-                reason: "tool",
-                delta,
-                creditsRemaining:
-                  res.credits ??
-                  Math.max(0, userStartCredits - creditsDeductedTotal),
-                creditsUsed: creditsDeductedTotal,
-                tokensUsed,
-                toolCallsCompleted,
-              });
-            }
-          }
-
-          // Extract token usage if available
-          if ((event as any).usage) {
-            tokensUsed = (event as any).usage.totalTokens || tokensUsed;
-            console.log(`[TOKEN USAGE] Updated to: ${tokensUsed}`);
-
-            // Token credits are charged based on *total tokens so far* (delta-billed)
-            const tokenCreditsTotal = CreditManagerService.calculateTokenCredits(
-              tokensUsed,
-            );
-            const delta = Math.max(0, tokenCreditsTotal - tokenCreditsCharged);
-            if (delta > 0) {
-              const res = await CreditManagerService.deductCreditsAtomic({
-                userId: ownerId,
-                amount: delta,
-              });
-              if (!res.ok) {
-                const available = await CreditManagerService.getUserCredits(
-                  ownerId,
-                );
-                throw new InsufficientCreditsError({
-                  available,
-                  required: delta,
-                });
-              }
-              tokenCreditsCharged = tokenCreditsTotal;
-              creditsDeductedTotal += delta;
-              await emitCreditsUpdated({
-                reason: "tokens",
-                delta,
-                creditsRemaining:
-                  res.credits ??
-                  Math.max(0, userStartCredits - creditsDeductedTotal),
-                creditsUsed: creditsDeductedTotal,
-                tokensUsed,
-                toolCallsCompleted,
-              });
-            }
-
-            const creditsSoFar = creditsDeductedTotal;
-            const remaining = Math.max(0, userStartCredits - creditsSoFar);
-            await emitAxleLog(
-              "debug",
-              `[BILLING] ${tokensUsed} tokens used. Balance: ${remaining}/${planLimit}`,
-              {
-                tokensUsed,
-                creditsSoFar,
-                creditsRemaining: remaining,
-                creditsLimit: planLimit,
-              },
-            );
-          }
-
-          // Emit real-time events for all event types
-          SocketService.getInstance().emitToAgent(agentId, "execution:event", {
-            executionId,
-            event: {
-              ...event,
-              timestamp: Date.now(),
-            },
-          });
-        }
-
-        // After processing events, check if we should auto-complete
-
-        // Update iteration tracking
-        lastIterationHadTools = iterationHadTools;
-        lastIterationTextLength = finalResponse.length;
-        iterationTextLength = finalResponse.length;
-
-        // Auto-complete logic for casual chat - MUST complete after first response
-        if ((isSimpleGreeting || isCasualChat) && iterationCount >= 1) {
-          // For simple greetings/casual chat, complete immediately after first response
-          if (finalResponse.length > 5) {
-            // Even if no tools were called, if we got any response, we're done
-            taskComplete = true;
-            await emitAxleLog(
-              "info",
-              "[AUTO-COMPLETE] Simple conversation completed",
-              {
-                iterationCount,
-                responseLength: finalResponse.length,
-                isGreeting: isSimpleGreeting,
-                isCasual: isCasualChat,
-                hadTools: iterationHadTools,
-              },
-            );
-            break;
-          }
-        }
-
-        // Auto-complete if agent hasn't called tools in this iteration and has substantial response
-        if (!iterationHadTools && finalResponse.length > 20) {
-          // Agent gave text response without tools - probably answering a question or done
-          // For tasks, wait 2 iterations; for casual chat, complete immediately (handled above)
-          if (
-            !isSimpleGreeting &&
-            !isCasualChat &&
-            iterationCount >= 2 &&
-            !lastIterationHadTools
-          ) {
-            // Only for actual tasks - wait 2 iterations of no tool activity
-            taskComplete = true;
-            await emitAxleLog(
-              "info",
-              "[AUTO-COMPLETE] No recent tool activity, completing",
-              {
-                iterationCount,
-                responseLength: finalResponse.length,
-              },
-            );
-            break;
-          }
-        }
-
-        // If task is complete (via complete_task tool), exit loop
-        if (taskComplete) {
-          break;
-        }
-
-        // Safety: Don't continue if we have no new content and no tools
-        if (
-          !iterationHadTools &&
-          finalResponse.length === lastIterationTextLength &&
-          iterationCount > 1
-        ) {
-          // No new text, no tools - we're stuck, complete
-          taskComplete = true;
-          await emitAxleLog(
-            "info",
-            "[AUTO-COMPLETE] No new activity detected, completing",
-            {
-              iterationCount,
-              responseLength: finalResponse.length,
-            },
-          );
-          break;
-        }
-
-        // For next iteration: if we got tool responses, ADK session will handle context
-        // We don't need to manually manage conversation history - ADK Runner handles it via sessionService
-        // Just continue with the next iteration if needed
-      }
-
-      // Cleanup marker from any surfaced text
-      if (finalResponse.includes("<TASK_DONE/>")) {
-        finalResponse = finalResponse.replaceAll("<TASK_DONE/>", "");
-      }
+    // Execution loop with TRUE STREAMING
+    while (!taskComplete && iterationCount < MAX_ITERATIONS) {
+      iterationCount++;
+
+      logger.info(`[EXECUTION] Starting iteration ${iterationCount}/${MAX_ITERATIONS}`);
 
       SocketService.getInstance().emitToAgent(agentId, "execution:status", {
         executionId,
-        status: "completed",
-        message: taskComplete
-          ? "Done."
-          : `Stopped (max iterations: ${MAX_ITERATIONS}).`,
+        status: "running",
+        message: iterationCount === 1 ? "Starting…" : "Continuing…",
         timestamp: Date.now(),
       });
-    } catch (error) {
-      logger.error("ADK Runner runAsync execution failed", { error });
-      throw error;
-    }
 
-    // 6. Process Result & Billing
-    // Use ADK token usage if available, otherwise estimate
-    const actualTokensUsed =
-      tokensUsed > 0 ? tokensUsed : Math.ceil(finalResponse.length / 4);
-
-    const tokenCreditsTotal = CreditManagerService.calculateTokenCredits(
-      actualTokensUsed,
-    );
-    const targetTotalCredits =
-      CreditManagerService.BASE_TASK_WEIGHT +
-      toolCallsCompleted * CreditManagerService.TOOL_TASK_WEIGHT +
-      tokenCreditsTotal;
-
-    const finalDelta = Math.max(0, targetTotalCredits - creditsDeductedTotal);
-    if (finalDelta > 0) {
-      const res = await CreditManagerService.deductCreditsAtomic({
-        userId: ownerId,
-        amount: finalDelta,
-      });
-      if (!res.ok) {
-        const available = await CreditManagerService.getUserCredits(ownerId);
-        throw new InsufficientCreditsError({ available, required: finalDelta });
-      }
-      creditsDeductedTotal += finalDelta;
-      await emitCreditsUpdated({
-        reason: "final",
-        delta: finalDelta,
-        creditsRemaining:
-          res.credits ?? Math.max(0, userStartCredits - creditsDeductedTotal),
-        creditsUsed: creditsDeductedTotal,
-        tokensUsed: actualTokensUsed,
-        toolCallsCompleted,
-      });
-    }
-
-    const creditsUsed = creditsDeductedTotal;
-
-    const refreshedUser = await User.findById(ownerId).lean();
-    if (refreshedUser) {
-      const refreshedPlan = (refreshedUser.plan as PlanType) || "free";
-      const refreshedLimit =
-        PLAN_LIMITS[refreshedPlan]?.monthlyCredits ||
-        PLAN_LIMITS.free.monthlyCredits;
-      await emitAxleLog(
-        "info",
-        `[BILLING] ${actualTokensUsed} tokens used. Balance: ${refreshedUser.credits}/${refreshedLimit}`,
-        {
-          tokensUsed: actualTokensUsed,
-          creditsDeducted: creditsUsed,
-          creditsRemaining: refreshedUser.credits,
-          creditsLimit: refreshedLimit,
-        },
+      // Send message with streaming enabled
+      const result = await chat.sendMessageStream(
+        iterationCount === 1 ? userMessage : "Continue with the task"
       );
+
+      let iterationResponse = "";
+      let functionCalls: FunctionCall[] = [];
+      let iterationHadTools = false;
+
+      // REAL STREAMING - word by word as it's generated
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        
+        // Stream text immediately - TRUE word-by-word streaming
+        if (chunkText) {
+          iterationResponse += chunkText;
+          finalResponse += chunkText;
+
+          // IMMEDIATE emit - no buffering
+          SocketService.getInstance().emitToAgent(agentId, "execution:response_delta", {
+            executionId,
+            delta: chunkText,
+            timestamp: Date.now(),
+          });
+
+          logger.debug(`[STREAMING] ${chunkText.substring(0, 30)}...`);
+        }
+
+        // Collect function calls
+        const calls = chunk.functionCalls();
+        if (calls && calls.length > 0) {
+          functionCalls.push(...calls);
+        }
+      }
+
+      // Update token usage
+      const response = await result.response;
+      const usage = response.usageMetadata;
+      if (usage) {
+        tokensUsed = usage.totalTokenCount || tokensUsed;
+        logger.info(`[TOKENS] Used ${tokensUsed} tokens so far`);
+      }
+
+      // Process function calls
+      if (functionCalls.length > 0) {
+        iterationHadTools = true;
+
+        for (const call of functionCalls) {
+          const toolName = call.name;
+
+          // Check for completion signal
+          if (toolName === "complete_task") {
+            taskComplete = true;
+            const summary = call.args?.summary;
+            if (summary) {
+              finalResponse = summary;
+            }
+            logger.info("[COMPLETE_TASK] Agent signaled completion", {
+              executionId,
+              summary,
+            });
+            break;
+          }
+
+          logger.info(`[TOOL CALL] Executing ${toolName}`, { args: call.args });
+
+          // Find and execute the tool
+          const tool = tools.find((t: any) => t.name === toolName);
+          if (!tool) {
+            logger.error(`[TOOL] Not found: ${toolName}`);
+            continue;
+          }
+
+          const startTime = Date.now();
+
+          SocketService.getInstance().emitToAgent(agentId, "execution:action", {
+            executionId,
+            type: toolName,
+            status: "running",
+            timestamp: Date.now(),
+          });
+
+          try {
+            // Execute the tool
+            const toolResult = await (tool as any).execute(call.args, {
+              userId: ownerId,
+              agentId,
+            });
+
+            const endTime = Date.now();
+            const durationMs = endTime - startTime;
+
+            logger.info(`[TOOL] ${toolName} completed in ${(durationMs / 1000).toFixed(1)}s`, {
+              result: toolResult,
+            });
+
+            // Track action
+            actionsExecuted.push({
+              type: toolName,
+              params: call.args,
+              result: toolResult,
+              startedAt: new Date(startTime),
+              finishedAt: new Date(endTime),
+              durationMs,
+            });
+
+            SocketService.getInstance().emitToAgent(agentId, "execution:action", {
+              executionId,
+              type: toolName,
+              status: "completed",
+              result: toolResult,
+              durationMs,
+              timestamp: Date.now(),
+            });
+
+            // Deduct tool credits
+            toolCallsCompleted++;
+            const delta = CreditManagerService.TOOL_TASK_WEIGHT;
+            const res = await CreditManagerService.deductCreditsAtomic({
+              userId: ownerId,
+              amount: delta,
+            });
+            if (!res.ok) {
+              throw new InsufficientCreditsError({
+                available: await CreditManagerService.getUserCredits(ownerId),
+                required: delta,
+              });
+            }
+            creditsDeductedTotal += delta;
+
+            // Send tool result back to model
+            const functionResponse: Part = {
+              functionResponse: {
+                name: toolName,
+                response: toolResult,
+              },
+            };
+
+            // Continue the conversation with tool result
+            const followUpResult = await chat.sendMessageStream([functionResponse]);
+
+            // Stream the follow-up response
+            for await (const chunk of followUpResult.stream) {
+              const chunkText = chunk.text();
+              if (chunkText) {
+                finalResponse += chunkText;
+
+                SocketService.getInstance().emitToAgent(agentId, "execution:response_delta", {
+                  executionId,
+                  delta: chunkText,
+                  timestamp: Date.now(),
+                });
+              }
+            }
+
+          } catch (error) {
+            logger.error(`[TOOL] ${toolName} failed`, { error });
+
+            actionsExecuted.push({
+              type: toolName,
+              params: call.args,
+              result: { error: error.message },
+              startedAt: new Date(startTime),
+              finishedAt: new Date(),
+            });
+
+            SocketService.getInstance().emitToAgent(agentId, "execution:action", {
+              executionId,
+              type: toolName,
+              status: "failed",
+              error: error.message,
+              timestamp: Date.now(),
+            });
+          }
+        }
+      }
+
+      // Auto-completion logic
+      if (taskComplete) {
+        logger.info("[EXECUTION] Task marked complete by agent");
+        break;
+      }
+
+      // Auto-complete for simple greetings after first response
+      if (isSimpleGreeting && iterationCount >= 1 && finalResponse.length > 5) {
+        taskComplete = true;
+        logger.info("[AUTO-COMPLETE] Simple greeting completed", {
+          iterationCount,
+          responseLength: finalResponse.length,
+        });
+        break;
+      }
+
+      // Auto-complete if agent responded without tools
+      if (!iterationHadTools && finalResponse.length > 20 && iterationCount >= 1) {
+        taskComplete = true;
+        logger.info("[AUTO-COMPLETE] Text-only response, completing", {
+          iterationCount,
+          responseLength: finalResponse.length,
+        });
+        break;
+      }
     }
 
-    // Update Execution
+    // Finalize execution
+    const actualTokensUsed = tokensUsed > 0 ? tokensUsed : Math.ceil(finalResponse.length / 4);
+
     execution.status = taskComplete ? "success" : "incomplete";
     execution.finishedAt = new Date();
-    execution.executionResult = {
-      version: 1,
-      run: {
-        startedAt: execution.startedAt || new Date(runStartedAtMs),
-        finishedAt: execution.finishedAt,
-        executionTimeMs: Date.now() - runStartedAtMs,
-      },
-      adk: {
-        eventStream: adkEventStream,
-        candidateParts: candidatePartsStream,
-        usageMetadata: latestUsageMetadata,
-        groundingMetadata: latestGroundingMetadata,
-        groundingSources,
-      },
-    };
-    execution.outputPayload = {
-      result: responseText || finalResponse || "Task completed",
-      reasoning: reasoningText,
-      confidence: "high",
-      toolOutputs,
-    };
-    execution.creditsUsed = creditsUsed;
+    execution.aiResponse = finalResponse;
+    execution.creditsUsed = creditsDeductedTotal;
     execution.aiTokensUsed = actualTokensUsed;
-    execution.aiResponse = responseText || finalResponse;
-    execution.reasoning = reasoningText;
-    execution.traces = traces;
     execution.actionsExecuted = actionsExecuted;
     await execution.save();
 
-    // Persist assistant response into agent-scopped Messages collection
-    const assistantMessage = responseText || finalResponse;
-    if (assistantMessage && typeof assistantMessage === "string") {
+    // Save assistant message to memory
+    if (finalResponse && typeof finalResponse === "string") {
       await AgentMemoryService.appendMessage({
         agentId,
         role: "assistant",
-        content: assistantMessage,
+        content: finalResponse,
         metadata: {
           source: "worker",
           executionId,
@@ -1335,39 +412,14 @@ const processJob = async (
       });
     }
 
-    try {
-      const latestUserText =
-        getLatestUserInput(effectivePayload?.messages) ||
-        (typeof effectivePayload?.input === "string"
-          ? effectivePayload.input
-          : "") ||
-        (typeof effectivePayload?.task === "string"
-          ? effectivePayload.task
-          : "");
-
-      if (
-        latestUserText &&
-        assistantMessage &&
-        typeof assistantMessage === "string"
-      ) {
-        const existingMemory =
-          (await AgentMemoryService.getLongTermMemory(agentId)) || "";
-
-        // Memory is now handled via remember/recall tools, not automatic updates
-        // Agents can explicitly store memories using the remember tool
-      }
-    } catch {
-      // ignore memory update failures
-    }
-
     await ExecutionEventService.log({
       executionId,
       agentId,
       userId: ownerId,
       type: "execution_completed",
       level: "info",
-      message: "ADK Agent execution completed successfully",
-      data: { creditsUsed, tokensUsed: actualTokensUsed },
+      message: "Execution completed successfully",
+      data: { creditsUsed: creditsDeductedTotal, tokensUsed: actualTokensUsed },
     });
 
     SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
@@ -1378,60 +430,30 @@ const processJob = async (
     return {
       success: taskComplete,
       actionsExecuted: toolCallsCompleted,
-      creditsUsed,
+      creditsUsed: creditsDeductedTotal,
     };
+
   } catch (error) {
     logger.error("Execution failed", { error });
-    execution.status = "failed";
-    const err: any = error;
-    const errorCode = err?.code;
-    // Use real error instead of converted
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    execution.error = errorMessage;
-    execution.finishedAt = new Date();
-    execution.executionResult = {
-      version: 1,
-      run: {
-        startedAt: execution.startedAt || new Date(runStartedAtMs),
-        finishedAt: execution.finishedAt,
-        executionTimeMs: Date.now() - runStartedAtMs,
-      },
-      adk: {
-        eventStream: adkEventStream,
-        candidateParts: candidatePartsStream,
-        usageMetadata: latestUsageMetadata,
-        groundingMetadata: latestGroundingMetadata,
-        groundingSources,
-      },
-    };
-    // Preserve partial model telemetry on failures
-    execution.aiResponse = responseText || finalResponse;
-    execution.reasoning = reasoningText;
-    execution.traces = traces;
-    await execution.save();
 
-    await ExecutionEventService.log({
-      executionId,
-      agentId,
-      userId: ownerId,
-      type: "execution_failed",
-      level: "error",
-      message: error.message,
-    });
+    execution.status = "failed";
+    execution.error = error instanceof Error ? error.message : String(error);
+    execution.finishedAt = new Date();
+    await execution.save();
 
     SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
       executionId: execution._id,
       status: "failed",
-      error: errorMessage,
-      ...(errorCode === "INSUFFICIENT_CREDITS"
-        ? {
-            required: err?.required,
-            available: err?.available,
-          }
-        : {}),
+      error: execution.error,
     });
 
-    throw error;
+    // Don't throw - return failure to prevent retries
+    return {
+      success: false,
+      actionsExecuted: toolCallsCompleted,
+      creditsUsed: creditsDeductedTotal,
+      error: execution.error,
+    };
   }
 };
 
