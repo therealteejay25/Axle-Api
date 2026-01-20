@@ -1,7 +1,7 @@
 import { Agent, IAgent } from "../models/Agent";
 import { Integration, IIntegration } from "../models/Integration";
 import { User, IUser } from "../models/User";
-import { decryptToken } from "../services/crypto";
+import { decryptTokenIfNeeded } from "../services/crypto";
 import { logger } from "../services/logger";
 import { IntegrationIdentityService } from "../services/IntegrationIdentityService";
 
@@ -73,9 +73,9 @@ export const loadAgent = async (
     
     for (const integration of allUserIntegrations) {
       try {
-        const accessToken = decryptToken(integration.accessToken);
+        const accessToken = decryptTokenIfNeeded(integration.accessToken);
         const refreshToken = integration.refreshToken 
-          ? decryptToken(integration.refreshToken)
+          ? decryptTokenIfNeeded(integration.refreshToken)
           : undefined;
 
         const hydrated = await IntegrationIdentityService.hydrateIfNeeded(integration, {
@@ -116,9 +116,9 @@ export const loadAgent = async (
       if (integration) {
         try {
           // Decrypt tokens
-          const accessToken = decryptToken(integration.accessToken);
+          const accessToken = decryptTokenIfNeeded(integration.accessToken);
           const refreshToken = integration.refreshToken 
-            ? decryptToken(integration.refreshToken)
+            ? decryptTokenIfNeeded(integration.refreshToken)
             : undefined;
 
           const hydrated = await IntegrationIdentityService.hydrateIfNeeded(integration, {

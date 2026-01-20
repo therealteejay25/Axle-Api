@@ -47,7 +47,7 @@ export class DocsToolSuite extends BaseGoogleTool {
           logger.error("[DOCS] Get content failed:", error);
           return {
             success: false,
-            error: error.message || "Failed to get document content",
+            error: (error as Error).message || "Failed to get document content",
           };
         }
       }
@@ -116,7 +116,7 @@ export class DocsToolSuite extends BaseGoogleTool {
           logger.error("[DOCS] Append text failed:", error);
           return {
             success: false,
-            error: error.message || "Failed to append text to document",
+            error: (error as Error).message || "Failed to append text to document",
           };
         }
       }
@@ -176,6 +176,76 @@ export class DocsToolSuite extends BaseGoogleTool {
     // Fallback: calculate based on content length
     return Math.max(1, content.length * 10);
   }
+  // Create document tool
+  createCreateDocumentTool() {
+    return this.createTool(
+      "docs_create_document",
+      "Create a new Google Doc with optional content",
+      z.object({
+        title: z.string().min(1, "Title is required"),
+        content: z.string().optional().describe("Initial content to insert"),
+      }),
+      async ({ title, content }) => {
+        try {
+          logger.info(`[DOCS] Creating document: ${title}`);
+
+          const result = await this.executeGoogleRequest(async (oauth2Client) => {
+            const { google } = await import("googleapis");
+            const docs = google.docs({ version: "v1", auth: oauth2Client });
+
+            const doc = await docs.documents.create({
+              requestBody: {
+                title,
+              },
+            });
+
+            if (!doc.data.documentId) {
+              throw new Error("Failed to create document - no document ID returned");
+            }
+
+            if (content) {
+              await docs.documents.batchUpdate({
+                documentId: doc.data.documentId,
+                requestBody: {
+                  requests: [
+                    {
+                      insertText: {
+                        location: {
+                          index: 1,
+                        },
+                        text: content,
+                      },
+                    },
+                  ],
+                },
+              });
+            }
+
+            return doc;
+          });
+
+          if (!result.data.documentId) {
+            throw new Error("Failed to create document - no document ID returned from content insertion");
+          }
+
+          logger.info(`[DOCS] Document created successfully: ${result.data.documentId}`);
+
+          return {
+            success: true,
+            documentId: result.data.documentId,
+            title: result.data.title,
+            url: `https://docs.google.com/document/d/${result.data.documentId}/edit`,
+          };
+        } catch (error) {
+          logger.error("[DOCS] Create document failed:", error);
+          return {
+            success: false,
+            error: (error as Error).message || "Failed to create document",
+          };
+        }
+      }
+    );
+  }
 }
 
 // Factory functions for registry
@@ -184,3 +254,6 @@ export const createDocsGetContentTool = (userId: string) =>
 
 export const createDocsAppendTextTool = (userId: string) =>
   new DocsToolSuite(userId).createAppendTextTool();
+
+export const createDocsCreateDocumentTool = (userId: string) =>
+  new DocsToolSuite(userId).createCreateDocumentTool();

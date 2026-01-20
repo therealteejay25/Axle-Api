@@ -11,4 +11,5 @@ export { Execution, IExecution, IExecutionAction, ExecutionStatus } from "./Exec
 export { User, IUser, PlanType, PLAN_LIMITS } from "./User";
 export { Message, IMessage, MessageRole } from "./Message";
 export { Memory, IAgentMemory } from "./Memory";
+export { MemoryItem, IMemoryItem } from "./MemoryItem";
 export { Thread, IThread } from "./Thread";

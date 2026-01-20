@@ -238,6 +238,8 @@ const processJob = async (
     status: "running",
   });
 
+  // CRITICAL: Declare execution variables at function scope
+  // These must be accessible throughout the entire function
   let finalResponse = "";
   let reasoningText = "";
   let responseText = "";
@@ -255,6 +257,13 @@ const processJob = async (
   let latestUsageMetadata: any = null;
   let latestGroundingMetadata: any = null;
   const groundingSources: Array<{ uri?: string; title?: string }> = [];
+
+  // Execution control variables - MUST be at function scope
+  let taskComplete = false;
+  let iterationCount = 0;
+  let creditsDeductedTotal = 0;
+  let toolCallsCompleted = 0;
+  let tokenCreditsCharged = 0;
 
   try {
     // 2. Load Agent & Integrations
@@ -414,8 +423,10 @@ const processJob = async (
       instruction: systemPrompt,
       generateContentConfig: {
         maxOutputTokens: 16000,
-        temperature: 1.5, // Higher for more human-like spontaneity
+        temperature: 1.7, // Higher for more human-like spontaneity
       },
+      // Enable streaming for real-time text emission
+      stream: true,
     });
 
     // 4. Initialize Runner with session service for memory
@@ -424,6 +435,8 @@ const processJob = async (
       agent: adkAgent,
       sessionService,
       appName: "axle-agent",
+      // Try to enable streaming at the runner level
+      stream: true,
     });
 
     // 5. Execute withy reasoning loop using runAsync
@@ -661,9 +674,6 @@ const processJob = async (
 
       // Limit casual conversations to 2 exchanges max
       const MAX_ITERATIONS = isSimpleGreeting || isCasualChat ? 2 : 20;
-
-      let iterationCount = 0;
-      let taskComplete = false;
       let conversationHistory = [
         { role: "user", parts: [{ text: userMessageForEstimate }] },
       ];
@@ -854,7 +864,7 @@ const processJob = async (
                 executionId,
                 summary: completeArgs.summary,
               });
-              // Will exit loop after event processing completes
+              break; // Exit event processing loop immediately
             }
 
             if (toolName) {
@@ -1362,7 +1372,7 @@ const processJob = async (
 
     SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
       executionId: execution._id,
-      status: "success",
+      status: taskComplete ? "success" : "incomplete",
     });
 
     return {

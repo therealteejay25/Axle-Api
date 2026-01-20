@@ -14,13 +14,13 @@ export class GithubToolSuite extends BaseGithubTool {
   // Search repositories tool
   createSearchReposTool() {
     return this.createTool(
-      "search_repos",
-      "Search for repositories on GitHub",
+      "github_search_repos",
+      "Search for repositories on GitHub. Use 'stars:>10000' to find top repos. Example queries: 'machine learning', 'react stars:>5000', 'language:python'",
       z.object({
-        query: z.string().min(1, "Search query cannot be empty"),
+        query: z.string().min(1, "Search query cannot be empty").describe("Search query. Use 'stars:>10000' for top repos, or topic names like 'react', 'python', 'ai'"),
         sort: z.enum(["stars", "forks", "help-wanted-issues", "updated"]).optional().default("stars"),
         order: z.enum(["asc", "desc"]).optional().default("desc"),
-        perPage: z.number().min(1).max(100).default(30).describe("Results per page"),
+        perPage: z.number().min(1).max(100).default(5).describe("Results per page (default 5)"),
       }),
       async ({ query, sort, order, perPage }) => {
         logger.info(`[GITHUB] Searching repositories: ${query}`);
@@ -57,7 +57,7 @@ export class GithubToolSuite extends BaseGithubTool {
   // Create issue tool
   createCreateIssueTool() {
     return this.createTool(
-      "create_issue",
+      "github_create_issue",
       "Create a new issue in a GitHub repository",
       z.object({
         owner: z.string().min(1, "Repository owner is required"),
@@ -105,7 +105,7 @@ export class GithubToolSuite extends BaseGithubTool {
   // List pull requests tool
   createListPullRequestsTool() {
     return this.createTool(
-      "list_pull_requests",
+      "github_list_pull_requests",
       "List pull requests in a GitHub repository",
       z.object({
         owner: z.string().min(1, "Repository owner is required"),
@@ -149,7 +149,7 @@ export class GithubToolSuite extends BaseGithubTool {
   // Get file contents tool
   createGetFileContentsTool() {
     return this.createTool(
-      "get_file_contents",
+      "github_get_file_contents",
       "Get the contents of a file from a GitHub repository",
       z.object({
         owner: z.string().min(1, "Repository owner is required"),
@@ -189,7 +189,7 @@ export class GithubToolSuite extends BaseGithubTool {
   // Create or update file tool
   createCreateOrUpdateFileTool() {
     return this.createTool(
-      "create_or_update_file",
+      "github_create_or_update_file",
       "Create or update a file in a GitHub repository",
       z.object({
         owner: z.string().min(1, "Repository owner is required"),
@@ -520,7 +520,335 @@ export class GithubToolSuite extends BaseGithubTool {
       }
     );
   }
+  // List User Repos Tool
+  createListReposTool() {
+    return this.createTool(
+      "github_list_repos",
+      "List repositories for the authenticated user",
+      z.object({
+        type: z.enum(["all", "owner", "public", "private", "member"]).optional().default("all"),
+        sort: z.enum(["created", "updated", "pushed", "full_name"]).optional().default("updated"),
+        direction: z.enum(["asc", "desc"]).optional().default("desc"),
+        perPage: z.number().min(1).max(100).default(30),
+      }),
+      async ({ type, sort, direction, perPage }) => {
+        logger.info(`[GITHUB] Listing user repositories`);
+        const result = await this.executeGithubRequest(
+          `/user/repos?type=${type}&sort=${sort}&direction=${direction}&per_page=${perPage}`
+        );
+        logger.info(`[GITHUB] Found ${result.length} repositories`);
+        return {
+          success: true,
+          repositories: result.map((repo: any) => ({
+            id: repo.id,
+            name: repo.name,
+            fullName: repo.full_name,
+            private: repo.private,
+            url: repo.html_url,
+            description: repo.description,
+            language: repo.language,
+            stars: repo.stargazers_count,
+            forks: repo.forks_count,
+            updatedAt: repo.updated_at
+          })),
+        };
+      }
+    );
+  }
+
+  // Get Repo Info Tool
+  createGetRepoInfoTool() {
+    return this.createTool(
+      "github_get_repo_info",
+      "Get detailed information about a specific repository",
+      z.object({
+        owner: z.string().min(1, "Owner is required"),
+        repo: z.string().min(1, "Repo name is required"),
+      }),
+      async ({ owner, repo }) => {
+        logger.info(`[GITHUB] Getting repo info: ${owner}/${repo}`);
+        const result = await this.executeGithubRequest(`/repos/${owner}/${repo}`);
+        return {
+          success: true,
+          repository: {
+            id: result.id,
+            name: result.name,
+            fullName: result.full_name,
+            private: result.private,
+            url: result.html_url,
+            description: result.description,
+            language: result.language,
+            stars: result.stargazers_count,
+            forks: result.forks_count,
+            openIssues: result.open_issues_count,
+            defaultBranch: result.default_branch,
+            createdAt: result.created_at,
+            updatedAt: result.updated_at,
+            pushedAt: result.pushed_at,
+          },
+        };
+      }
+    );
+  }
+
+  // List Commits Tool
+  createListCommitsTool() {
+    return this.createTool(
+      "github_list_commits",
+      "List commits on a repository",
+      z.object({
+        owner: z.string().min(1, "Owner is required"),
+        repo: z.string().min(1, "Repo name is required"),
+        sha: z.string().optional().describe("SHA or branch to start listing from"),
+        path: z.string().optional().describe("Only commits containing this file path"),
+        author: z.string().optional().describe("GitHub login or email of author"),
+        perPage: z.number().min(1).max(100).default(30),
+      }),
+      async ({ owner, repo, sha, path, author, perPage }) => {
+        logger.info(`[GITHUB] Listing commits for ${owner}/${repo}`);
+        const params = new URLSearchParams({ per_page: perPage.toString() });
+        if (sha) params.append('sha', sha);
+        if (path) params.append('path', path);
+        if (author) params.append('author', author);
+
+        const result = await this.executeGithubRequest(`/repos/${owner}/${repo}/commits?${params}`);
+        logger.info(`[GITHUB] Found ${result.length} commits`);
+        
+        return {
+          success: true,
+          commits: result.map((commit: any) => ({
+            sha: commit.sha,
+            message: commit.commit.message,
+            author: { 
+              name: commit.commit.author.name,
+              email: commit.commit.author.email,
+              date: commit.commit.author.date,
+              login: commit.author?.login 
+            },
+            url: commit.html_url,
+          })),
+        };
+      }
+    );
+  }
+
+  // List Branches Tool
+  createListBranchesTool() {
+    return this.createTool(
+      "github_list_branches",
+      "List branches in a repository",
+      z.object({
+        owner: z.string().min(1, "Owner is required"),
+        repo: z.string().min(1, "Repo name is required"),
+        perPage: z.number().min(1).max(100).default(30),
+      }),
+      async ({ owner, repo, perPage }) => {
+        logger.info(`[GITHUB] Listing branches for ${owner}/${repo}`);
+        const result = await this.executeGithubRequest(`/repos/${owner}/${repo}/branches?per_page=${perPage}`);
+        return {
+          success: true,
+          branches: result.map((branch: any) => ({
+            name: branch.name,
+            sha: branch.commit.sha,
+            protected: branch.protected,
+          })),
+        };
+      }
+    );
+  }
+
+  // Create Branch Tool
+  createCreateBranchTool() {
+    return this.createTool(
+      "github_create_branch",
+      "Create a new branch from an existing branch or sha",
+      z.object({
+        owner: z.string().min(1, "Owner is required"),
+        repo: z.string().min(1, "Repo name is required"),
+        branch: z.string().min(1, "New branch name is required"),
+        from: z.string().optional().describe("Source branch or SHA (defaults to default branch)"),
+      }),
+      async ({ owner, repo, branch, from }) => {
+        logger.info(`[GITHUB] Creating branch ${branch} in ${owner}/${repo}`);
+        
+        // If 'from' is not provided, get default branch SHA
+        let sha = from;
+        if (!sha) {
+           const repoInfo = await this.executeGithubRequest(`/repos/${owner}/${repo}`);
+           const defaultBranch = repoInfo.default_branch;
+           const ref = await this.executeGithubRequest(`/repos/${owner}/${repo}/git/ref/heads/${defaultBranch}`);
+           sha = ref.object.sha;
+        } else if (!sha.match(/^[0-9a-f]{40}$/)) {
+            // If 'from' is a branch name, resolve to SHA
+            const ref = await this.executeGithubRequest(`/repos/${owner}/${repo}/git/ref/heads/${sha}`);
+            sha = ref.object.sha;
+        }
+
+        const result = await this.executeGithubRequest(
+          `/repos/${owner}/${repo}/git/refs`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              ref: `refs/heads/${branch}`,
+              sha: sha
+            })
+          }
+        );
+
+        return {
+          success: true,
+          branch: {
+            name: branch,
+            ref: result.ref,
+            url: result.url,
+            sha: result.object.sha
+          }
+        };
+      }
+    );
+  }
+
+  // Get User Profile Tool
+  createGetUserProfileTool() {
+    return this.createTool(
+      "github_get_user_profile",
+      "Get public profile information for a user",
+      z.object({
+        username: z.string().optional().describe("Username (empty for authenticated user)"),
+      }),
+      async ({ username }) => {
+        logger.info(`[GITHUB] Getting profile for ${username || "me"}`);
+        const endpoint = username ? `/users/${username}` : "/user";
+        const result = await this.executeGithubRequest(endpoint);
+        
+        return {
+          success: true,
+          user: {
+            login: result.login,
+            id: result.id,
+            name: result.name,
+            company: result.company,
+            blog: result.blog,
+            location: result.location,
+            email: result.email,
+            bio: result.bio,
+            publicRepos: result.public_repos,
+            followers: result.followers,
+            following: result.following,
+            createdAt: result.created_at,
+            url: result.html_url,
+          }
+        };
+      }
+    );
+  }
+  // Create Pull Request Tool
+  createCreatePullRequestTool() {
+    return this.createTool(
+      "github_create_pull_request",
+      "Create a pull request",
+      z.object({
+        owner: z.string().min(1, "Owner is required"),
+        repo: z.string().min(1, "Repo name is required"),
+        title: z.string().min(1, "Title is required"),
+        head: z.string().min(1, "Head branch (containing changes) is required"),
+        base: z.string().min(1, "Base branch (target) is required"),
+        body: z.string().optional().describe("PR description"),
+        draft: z.boolean().optional().default(false),
+      }),
+      async ({ owner, repo, title, head, base, body, draft }) => {
+        logger.info(`[GITHUB] Creating PR in ${owner}/${repo}: ${title}`);
+        
+        const result = await this.executeGithubRequest(
+          `/repos/${owner}/${repo}/pulls`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              title,
+              head,
+              base,
+              body,
+              draft
+            })
+          }
+        );
+
+        return {
+          success: true,
+          pullRequest: {
+            number: result.number,
+            url: result.html_url,
+            title: result.title,
+            state: result.state,
+          }
+        };
+      }
+    );
+  }
+
+  // Merge Pull Request Tool
+  createMergePullRequestTool() {
+    return this.createTool(
+      "github_merge_pull_request",
+      "Merge a pull request",
+      z.object({
+        owner: z.string().min(1, "Owner is required"),
+        repo: z.string().min(1, "Repo name is required"),
+        pullNumber: z.number().min(1, "PR number is required"),
+        commitTitle: z.string().optional().describe("Title for the merge commit"),
+        commitMessage: z.string().optional().describe("Message for the merge commit"),
+        mergeMethod: z.enum(["merge", "squash", "rebase"]).optional().default("merge"),
+      }),
+      async ({ owner, repo, pullNumber, commitTitle, commitMessage, mergeMethod }) => {
+        logger.info(`[GITHUB] Merging PR #${pullNumber} in ${owner}/${repo}`);
+        
+        const result = await this.executeGithubRequest(
+          `/repos/${owner}/${repo}/pulls/${pullNumber}/merge`,
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              commit_title: commitTitle,
+              commit_message: commitMessage,
+              merge_method: mergeMethod
+            })
+          }
+        );
+
+        return {
+          success: true,
+          message: result.message,
+          merged: result.merged,
+          sha: result.sha
+        };
+      }
+    );
+  }
 }
+
+// Factory functions for registry (New Exports)
+export const createListReposTool = (userId: string) =>
+  new GithubToolSuite(userId).createListReposTool();
+
+export const createGetRepoInfoTool = (userId: string) =>
+  new GithubToolSuite(userId).createGetRepoInfoTool();
+
+export const createListCommitsTool = (userId: string) =>
+  new GithubToolSuite(userId).createListCommitsTool();
+
+export const createListBranchesTool = (userId: string) =>
+  new GithubToolSuite(userId).createListBranchesTool();
+
+export const createCreateBranchTool = (userId: string) =>
+  new GithubToolSuite(userId).createCreateBranchTool();
+
+export const createGetUserProfileTool = (userId: string) =>
+  new GithubToolSuite(userId).createGetUserProfileTool();
+
+export const createCreatePullRequestTool = (userId: string) =>
+  new GithubToolSuite(userId).createCreatePullRequestTool();
+
+export const createMergePullRequestTool = (userId: string) =>
+  new GithubToolSuite(userId).createMergePullRequestTool();
 
 // Factory functions for registry
 export const createSearchReposTool = (userId: string) =>

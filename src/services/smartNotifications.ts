@@ -7,15 +7,47 @@ import { randomUUID } from "crypto";
 import { scanGoogleContext } from "./googleScanner";
 import { env } from "../config/env";
 
+import { NotificationCategory, NotificationPriority, GlobalNotificationActionButton } from './notificationSync';
+
 export interface SmartNotification {
   id: string;
   title: string;
   description: string;
   type: 'info' | 'warning' | 'success' | 'alert';
+  category: NotificationCategory;
+  priority: NotificationPriority;
   timestamp: string;
   action?: string;
   actionUrl?: string;
-  sourceApp?: string; // 'github', 'slack', 'axle', etc.
+  sourceApp?: string;
+  richContent?: {
+    author?: {
+      name: string;
+      avatar?: string;
+      handle?: string;
+    };
+    threadId?: string;
+    threadTitle?: string;
+    repository?: {
+      owner: string;
+      name: string;
+      url: string;
+    };
+    eventDetails?: {
+      startTime: string;
+      endTime?: string;
+      location?: string;
+      attendees?: string[];
+    };
+    attachments?: Array<{
+      name: string;
+      type: string;
+      url: string;
+    }>;
+    labels?: string[];
+    isRead: boolean;
+  };
+  actionButtons?: GlobalNotificationActionButton[];
 }
 
 /**
@@ -106,10 +138,18 @@ export const generateSmartNotifications = async (userId: string): Promise<SmartN
       title: n.title || "Notification",
       description: n.description || "Update available",
       type: (['info', 'warning', 'success', 'alert'].includes(n.type) ? n.type : 'info') as any,
+      category: (['messages', 'mentions', 'updates', 'reminders', 'alerts', 'system'].includes(n.category) ? n.category : 'system') as any,
+      priority: (['low', 'normal', 'high', 'urgent'].includes(n.priority) ? n.priority : 'normal') as any,
       timestamp: new Date().toISOString(),
       action: n.action,
       actionUrl: n.actionUrl,
-      sourceApp: n.sourceApp || 'axle'
+      sourceApp: n.sourceApp || 'axle',
+      richContent: n.richContent || { isRead: false },
+      actionButtons: n.actionButtons || (n.actionUrl ? [{
+        label: n.action || "View",
+        action: "OPEN_URL" as const,
+        url: n.actionUrl,
+      }] : []),
     }));
 
   } catch (error) {

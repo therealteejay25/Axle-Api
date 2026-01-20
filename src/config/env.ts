@@ -53,6 +53,7 @@ export const env = {
   MONGODB_URI: process.env.MONGODB_URI!,
   API_VERSION: process.env.API_VERSION || "v1",
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || "http://localhost:3000",
+  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
   RESEND_API_KEY: process.env.RESEND_API_KEY!,
   RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL!,
   JWT_SECRET: process.env.JWT_SECRET!,

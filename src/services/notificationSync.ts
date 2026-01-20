@@ -2,19 +2,53 @@ import { randomUUID } from "crypto";
 import { google } from "googleapis";
 import { makeGoogleRequest, makeGithubRequest, makeTwitterRequest, getIntegration } from "../lib/api";
 
-export type GlobalNotificationSource = "gmail" | "github" | "x";
+export type GlobalNotificationSource = "gmail" | "github" | "x" | "calendar" | "drive" | "slack" | "axle";
+
+export type NotificationCategory = "messages" | "mentions" | "updates" | "reminders" | "alerts" | "system";
+
+export type NotificationPriority = "low" | "normal" | "high" | "urgent";
 
 export type GlobalNotificationActionButton = {
     label: string;
-    action: "OPEN_URL";
-    url: string;
+    action: "OPEN_URL" | "REPLY" | "ARCHIVE" | "MARK_READ" | "SNOOZE";
+    url?: string;
+    payload?: any;
 };
 
 export interface GlobalNotification {
     id: string;
     source: GlobalNotificationSource;
+    category: NotificationCategory;
+    priority: NotificationPriority;
     title: string;
     snippet: string;
+    richContent?: {
+        author?: {
+            name: string;
+            avatar?: string;
+            handle?: string;
+        };
+        threadId?: string;
+        threadTitle?: string;
+        repository?: {
+            owner: string;
+            name: string;
+            url: string;
+        };
+        eventDetails?: {
+            startTime: string;
+            endTime?: string;
+            location?: string;
+            attendees?: string[];
+        };
+        attachments?: Array<{
+            name: string;
+            type: string;
+            url: string;
+        }>;
+        labels?: string[];
+        isRead: boolean;
+    };
     deepLink: string;
     timestamp: string;
     actionButtons: GlobalNotificationActionButton[];
@@ -82,16 +116,34 @@ async function fetchGmailMentionNotifications(userId: string): Promise<GlobalNot
             const from = headers.find((h) => h.name?.toLowerCase() === "from")?.value || "Unknown sender";
             const snippet = d.data.snippet || "";
 
+            // Parse sender email and name
+            const fromMatch = from.match(/^([^<]+)?\s*<(.+)>$/);
+            const senderName = fromMatch ? fromMatch[1]?.trim() : from;
+            const senderEmail = fromMatch ? fromMatch[2] : from;
+
             const deepLink = `https://mail.google.com/mail/u/0/#inbox/${id}`;
 
             return {
                 id: randomUUID(),
                 source: "gmail" as const,
-                title: `Mention: ${subject}`,
-                snippet: `${from}${snippet ? ` — ${snippet}` : ""}`,
+                category: "mentions" as const,
+                priority: "high" as const,
+                title: subject.startsWith("Re:") ? subject : `Mention: ${subject}`,
+                snippet: `${senderName}${snippet ? ` — ${snippet}` : ""}`,
                 deepLink,
                 timestamp: new Date().toISOString(),
-                actionButtons: [{ label: "Go to App", action: "OPEN_URL" as const, url: deepLink }],
+                richContent: {
+                    author: {
+                        name: senderName,
+                        handle: senderEmail,
+                    },
+                    isRead: false,
+                },
+                actionButtons: [
+                    { label: "Reply", action: "REPLY" as const },
+                    { label: "View Email", action: "OPEN_URL" as const, url: deepLink },
+                    { label: "Archive", action: "ARCHIVE" as const }
+                ],
                 raw: { messageId: id, query },
             };
         })
@@ -137,16 +189,39 @@ async function fetchGmailNotifications(userId: string): Promise<GlobalNotificati
             const from = headers.find((h) => h.name?.toLowerCase() === "from")?.value || "Unknown sender";
             const snippet = d.data.snippet || "";
 
+            // Parse sender email and name
+            const fromMatch = from.match(/^([^<]+)?\s*<(.+)>$/);
+            const senderName = fromMatch ? fromMatch[1]?.trim() : from;
+            const senderEmail = fromMatch ? fromMatch[2] : from;
+
             const deepLink = `https://mail.google.com/mail/u/0/#inbox/${id}`;
+
+            // Determine category based on content
+            const isReply = subject.toLowerCase().startsWith('re:');
+            const category: NotificationCategory = isReply ? "messages" : "updates";
 
             return {
                 id: randomUUID(),
                 source: "gmail" as const,
+                category,
+                priority: "normal" as const,
                 title: subject,
-                snippet: `${from}${snippet ? ` — ${snippet}` : ""}`,
+                snippet: `${senderName}${snippet ? ` — ${snippet}` : ""}`,
                 deepLink,
                 timestamp: new Date().toISOString(),
-                actionButtons: [{ label: "Go to App", action: "OPEN_URL" as const, url: deepLink }],
+                richContent: {
+                    author: {
+                        name: senderName,
+                        handle: senderEmail,
+                    },
+                    threadId: d.data.threadId,
+                    isRead: false,
+                },
+                actionButtons: [
+                    { label: "Reply", action: "REPLY" as const },
+                    { label: "View Email", action: "OPEN_URL" as const, url: deepLink },
+                    { label: "Archive", action: "ARCHIVE" as const }
+                ],
                 raw: { messageId: id },
             };
         })
@@ -163,11 +238,12 @@ async function fetchGithubNotifications(userId: string): Promise<GlobalNotificat
         notifications.map(async (n) => {
             const subjectUrl: string | undefined = n?.subject?.url;
             let actionUrl: string | undefined = n?.repository?.html_url;
+            let subjectData: any = null;
 
             if (subjectUrl) {
                 try {
-                    const subject = await makeGithubRequest(userId, subjectUrl);
-                    actionUrl = subject?.html_url || subject?.pull_request?.html_url || actionUrl;
+                    subjectData = await makeGithubRequest(userId, subjectUrl);
+                    actionUrl = subjectData?.html_url || subjectData?.pull_request?.html_url || actionUrl;
                 } catch {
                     // fall back
                 }
@@ -175,15 +251,54 @@ async function fetchGithubNotifications(userId: string): Promise<GlobalNotificat
 
             const deepLink = actionUrl || "https://github.com/notifications";
 
+            // Determine category and priority based on notification type
+            let category: NotificationCategory = "updates";
+            let priority: NotificationPriority = "normal";
+
+            const reason = n?.reason || "";
+            if (reason === "mention" || reason === "team_mention") {
+                category = "mentions";
+                priority = "high";
+            } else if (reason === "review_requested" || reason === "review_request_removed") {
+                category = "alerts";
+                priority = "high";
+            } else if (reason === "state_change" || reason === "closed") {
+                category = "updates";
+                priority = "normal";
+            }
+
+            // Extract author information
+            const author = subjectData?.user || n?.subject?.user;
+            const authorInfo = author ? {
+                name: author.login || author.name,
+                avatar: author.avatar_url,
+                handle: `@${author.login}`,
+            } : undefined;
+
             return {
                 id: randomUUID(),
                 source: "github" as const,
+                category,
+                priority,
                 title: n?.subject?.title || "GitHub notification",
-                snippet: `${n?.repository?.full_name || ""}${n?.reason ? ` • ${n.reason}` : ""}`.trim(),
+                snippet: `${n?.repository?.full_name || ""}${reason ? ` • ${reason.replace(/_/g, ' ')}` : ""}`.trim(),
                 deepLink,
                 timestamp: n?.updated_at ? new Date(n.updated_at).toISOString() : new Date().toISOString(),
-                actionButtons: [{ label: "Go to App", action: "OPEN_URL" as const, url: deepLink }],
-                raw: n,
+                richContent: {
+                    author: authorInfo,
+                    repository: n?.repository ? {
+                        owner: n.repository.owner?.login || "",
+                        name: n.repository.name,
+                        url: n.repository.html_url,
+                    } : undefined,
+                    labels: subjectData?.labels?.map((l: any) => l.name) || [],
+                    isRead: n?.unread === false,
+                },
+                actionButtons: [
+                    { label: "View", action: "OPEN_URL" as const, url: deepLink },
+                    { label: "Mark Read", action: "MARK_READ" as const }
+                ],
+                raw: { ...n, subjectData },
             };
         })
     );
@@ -199,14 +314,35 @@ async function fetchGithubNotifications(userId: string): Promise<GlobalNotificat
 
     const issueNotifs: GlobalNotification[] = issues.map((i) => {
         const deepLink = i?.html_url || "https://github.com/issues";
+        const isPullRequest = i?.pull_request !== undefined;
+
         return {
             id: randomUUID(),
             source: "github",
+            category: "updates" as const,
+            priority: "normal" as const,
             title: i?.title || "Assigned issue",
-            snippet: i?.repository?.full_name || deepLink,
+            snippet: `${i?.repository?.full_name || ""} • ${isPullRequest ? 'Pull Request' : 'Issue'} assigned to you`,
             deepLink,
             timestamp: i?.updated_at ? new Date(i.updated_at).toISOString() : new Date().toISOString(),
-            actionButtons: [{ label: "Go to App", action: "OPEN_URL" as const, url: deepLink }],
+            richContent: {
+                author: i?.user ? {
+                    name: i.user.login,
+                    avatar: i.user.avatar_url,
+                    handle: `@${i.user.login}`,
+                } : undefined,
+                repository: i?.repository ? {
+                    owner: i.repository.owner?.login || "",
+                    name: i.repository.name,
+                    url: i.repository.html_url,
+                } : undefined,
+                labels: i?.labels?.map((l: any) => l.name) || [],
+                isRead: false,
+            },
+            actionButtons: [
+                { label: "View", action: "OPEN_URL" as const, url: deepLink },
+                { label: "Mark Read", action: "MARK_READ" as const }
+            ],
             raw: i,
         };
     });
@@ -276,11 +412,25 @@ async function fetchTwitterMentions(userId: string): Promise<GlobalNotification[
         return {
             id: randomUUID(),
             source: "x" as const,
+            category: "mentions" as const,
+            priority: "high" as const,
             title: authorUsername ? `@${authorUsername} mentioned you` : "New mention",
             snippet: m.text || "",
             timestamp: m.created_at ? new Date(m.created_at).toISOString() : new Date().toISOString(),
             deepLink,
-            actionButtons: [{ label: "Go to App", action: "OPEN_URL" as const, url: deepLink }],
+            richContent: {
+                author: author ? {
+                    name: author.name || author.username,
+                    avatar: author.profile_image_url,
+                    handle: `@${author.username}`,
+                } : undefined,
+                isRead: false,
+            },
+            actionButtons: [
+                { label: "View Tweet", action: "OPEN_URL" as const, url: deepLink },
+                { label: "Reply", action: "REPLY" as const },
+                { label: "Like", action: "OPEN_URL" as const, url: deepLink }
+            ],
             raw: m,
         };
     });

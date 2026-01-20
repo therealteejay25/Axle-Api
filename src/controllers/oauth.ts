@@ -45,11 +45,29 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
         tokenUrl: "https://oauth2.googleapis.com/token",
         scopes: [
-          "https://www.googleapis.com/auth/gmail.send",
-          "https://www.googleapis.com/auth/calendar",
-          "https://www.googleapis.com/auth/userinfo.email",
-          "https://www.googleapis.com/auth/documents",
-          "https://www.googleapis.com/auth/drive.file"
+          // Gmail - full access for reading, sending, organizing emails
+          "https://www.googleapis.com/auth/gmail.readonly",    // Read emails and metadata
+          "https://www.googleapis.com/auth/gmail.send",        // Send emails
+          "https://www.googleapis.com/auth/gmail.modify",      // Modify emails (labels, trash, etc.)
+
+          // Google Drive - full file access
+          "https://www.googleapis.com/auth/drive",             // Full Drive access (includes drive.file)
+          "https://www.googleapis.com/auth/drive.file",        // Create/edit files
+          "https://www.googleapis.com/auth/drive.metadata",    // Read file metadata
+
+          // Google Docs - full document access
+          "https://www.googleapis.com/auth/documents",         // Read/write documents
+
+          // Google Sheets - full spreadsheet access
+          "https://www.googleapis.com/auth/spreadsheets",      // Read/write spreadsheets
+
+          // Google Calendar - full calendar access
+          "https://www.googleapis.com/auth/calendar",          // Read/write calendar events
+          "https://www.googleapis.com/auth/calendar.events",   // Full event management
+
+          // User Info - basic profile info
+          "https://www.googleapis.com/auth/userinfo.email",    // User's email address
+          "https://www.googleapis.com/auth/userinfo.profile"   // User's basic profile info
         ],
         userInfoUrl: "https://www.googleapis.com/oauth2/v2/userinfo"
       } : null;

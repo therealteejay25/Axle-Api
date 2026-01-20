@@ -1,34 +1,234 @@
 import { LoadedAgent } from "./agentLoader";
-import { TriggerType } from "../models/Trigger";
+import { AgentMemoryService } from "../services/AgentMemoryService";
 
 // ============================================
-// DYNAMIC PROMPT SYSTEM
+// AUTONOMOUS CONTEXT BUILDER
 // ============================================
-// Clean, modular prompt builder for agent execution
+// Focused, relevant context assembly for autonomous agents
 // ============================================
-export interface ExecutionContext {
-  agent: {
-    id: string;
-    name: string;
-    description?: string;
+
+/**
+ * Build focused context with semantic memory search
+ */
+export const buildFocusedContext = async (
+  loaded: LoadedAgent,
+  payload: Record<string, any>,
+): Promise<string> => {
+  const { agent, user } = loaded;
+
+  // Extract current task to find relevant memories
+  const currentTask = payload?.input || payload?.task || payload?.message || "";
+
+  // Detect task type for completion guidance
+  const isSimpleGreeting = /^(hey|hi|hello|yo|sup|what's up|howdy|greetings)[\s!.,]*$/i.test(
+    currentTask.trim(),
+  );
+
+  const hasActionWords = (text: string): boolean => {
+    const actionWords = [
+      "create",
+      "make",
+      "send",
+      "post",
+      "schedule",
+      "check",
+      "find",
+      "search",
+      "get",
+      "fetch",
+      "update",
+      "delete",
+      "list",
+      "show",
+      "tell me",
+      "summarize",
+      "write",
+      "generate",
+      "build",
+      "compile",
+      "run",
+      "execute",
+      "analyze",
+    ];
+    const lower = text.toLowerCase();
+    return actionWords.some((word) => lower.includes(word));
   };
-  trigger: {
-    type: TriggerType;
-    payload: Record<string, any>;
-  };
-  environment: {
-    timestamp: string;
-    timezone: string;
-  };
-  availableActions: string[];
-  availableIntegrations: string[];
+
+  const isCasualChat =
+    currentTask.trim().length < 15 && !hasActionWords(currentTask);
+
+  // Task guidance based on type
+  const taskGuidance = isSimpleGreeting
+    ? `The user just said "${currentTask}" which is a casual greeting, not a task. Respond warmly and briefly (1-2 sentences), then IMMEDIATELY call complete_task. Do not suggest things to do or ask questions - just greet them and complete.`
+    : isCasualChat
+    ? `The user said "${currentTask}" which appears to be casual conversation. Respond naturally and briefly, then call complete_task when done. Don't prolong the conversation unnecessarily.`
+    : `The user has given you a task: "${currentTask}". Work on it using available tools until it's complete, then call complete_task with a summary of what you accomplished.`;
+
+  // Get ONLY relevant memories (semantic search, not dump everything)
+  let relevantMemories: Array<{ content: string }> = [];
+  try {
+    relevantMemories = await AgentMemoryService.findRelevantMemories({
+      agentId: agent._id.toString(),
+      query: currentTask,
+      limit: 5, // Only top 5 most relevant
+    });
+  } catch (error) {
+    // If semantic search fails, continue without memories
+    console.warn("Failed to retrieve relevant memories:", error);
+  }
+
+  // Get recent conversation context (last 3 exchanges max, not 18k chars)
+  const recentMessages = Array.isArray(payload?.messages)
+    ? payload.messages.slice(-6) // Last 3 user-agent exchanges
+    : [];
+
+  const conversationContext =
+    recentMessages.length > 0
+      ? `\n\nRECENT CONVERSATION:\n${formatMessages(recentMessages)}\n`
+      : "";
+
+  const memoryContext =
+    relevantMemories.length > 0
+      ? `\n\nRELEVANT MEMORIES:\n${relevantMemories
+          .map((m) => `- ${m.content}`)
+          .join("\n")}\n`
+      : "";
+
+  // Build GitHub repo context if provided
+  const githubRepo = payload?.githubRepo;
+  const githubContext =
+    githubRepo && githubRepo.owner && githubRepo.repo
+      ? `\n\nGITHUB REPOSITORY CONTEXT:
+You are currently working with: ${githubRepo.owner}/${githubRepo.repo}${
+          githubRepo.ref ? ` (branch: ${githubRepo.ref})` : ""
+        }
+- Use this repository by default for GitHub actions
+- When user asks to "scan this repo", "read files", etc., they mean: ${
+          githubRepo.owner
+        }/${githubRepo.repo}\n`
+      : "";
+
+  // Build core instructions
+  return `You are ${agent.name}${
+    agent.description ? `: ${agent.description}` : ""
+  }.
+
+YOUR INSTRUCTIONS:
+${
+  agent.instructions ||
+  "Help the user accomplish their goals efficiently and proactively."
 }
 
+CURRENT TASK TYPE: ${
+    isSimpleGreeting
+      ? "Casual Greeting"
+      : isCasualChat
+      ? "Casual Conversation"
+      : "Task Execution"
+  }
+${taskGuidance}
+
+YOUR PERSONALITY:
+You are warm and efficient. You don't waste time asking permission or suggesting options when you can just do the work. You're enthusiastic and helpful, but you know when to complete a task and move on. When you've completed your task, you call complete_task immediately - you don't ask "what else can I do?" or suggest follow-ups unless specifically requested.
+
+You have been given powerful tools to help users accomplish their goals. Use them confidently and creatively. When you discover you need something, just use the appropriate tool - you don't need to ask permission or explain what you're about to do unless the user specifically asks.
+
+CURRENT DATE/TIME: ${new Date().toISOString()}
+USER TIMEZONE: ${user.timeZone || "UTC"}
+
+AVAILABLE INTEGRATIONS:
+${Array.from(loaded.integrations.keys()).join(", ") || "None"}
+
+INTEGRATION DETAILS:
+${Array.from(loaded.integrations.keys()).map(integration => {
+  if (integration === 'github') {
+    return `- GitHub: Full access to your repositories, issues, pull requests, and profile. Use 'github_list_repos' to see your repos, 'github_get_repo_info' for details.`;
+  }
+  if (integration === 'google') {
+    return `- Google: Access to Gmail, Drive, Docs, Calendar, and Sheets`;
+  }
+  if (integration === 'twitter') {
+    return `- X (Twitter): Post tweets, read timeline, manage account`;
+  }
+  return `- ${integration.charAt(0).toUpperCase() + integration.slice(1)}`;
+}).join('\n') || "No integrations configured"}
+${memoryContext}${conversationContext}${githubContext}
+
+IMPORTANT - WHEN TO COMPLETE:
+- If the user just greeted you ("hi", "hey", "yo"): Respond warmly in 1-2 sentences and IMMEDIATELY call complete_task
+- If you've finished the user's actual task: Call complete_task with a summary
+- If you've responded to a question: Call complete_task
+- If you're waiting for user input and there's no pending work: Call complete_task
+- For casual conversation: Respond naturally and briefly, then complete
+
+DO NOT keep the conversation going unnecessarily. Be helpful, do the work, then complete.
+
+UNDERSTANDING USER REFERENCES:
+- "my github/my repos" = Use github_list_repos to get authenticated user's repositories
+- "my github profile/me on github" = Use github_get_user_profile (no username needed)
+- "my emails" = Use gmail tools to access authenticated user's Gmail
+- "my drive/my files" = Use drive tools to access authenticated user's Google Drive
+- "my calendar" = Use calendar tools to access authenticated user's Google Calendar
+- "my tweets/my X" = Use twitter tools to access authenticated user's X/Twitter account
+
+WHEN USER SAYS "MY GITHUB":
+1. Use github_get_user_profile to learn the user's GitHub username and details
+2. Use github_list_repos to get their repositories
+3. Then analyze the repos as requested
+4. Don't ask for username - you have direct access to their authenticated account
+
+AVAILABLE TOOLS:
+- complete_task: Call this when you're done (REQUIRED for ending execution)
+- remember: Store important facts you learn
+- recall: Search your memory
+- schedule_task: Schedule future executions
+
+KEY GITHUB TOOLS (you have full access to user's GitHub):
+- github_get_user_profile: Get user's GitHub profile (use empty username for authenticated user)
+- github_list_repos: Get user's repositories (no username needed)
+- github_get_repo_info: Get repository details
+- github_list_issues: Get repository issues
+- github_list_pull_requests: Get pull requests
+- github_create_issue: Create new issues
+- github_search_code: Search code in repositories
+
+GMAIL TOOLS:
+- gmail_list_messages: Get user's emails
+- gmail_get_message: Read specific email
+- gmail_send_email: Send emails
+
+DRIVE TOOLS:
+- drive_search_files: Find files
+- drive_upload_file: Upload files
+- drive_create_folder: Create folders
+
+[... all other integration tools are available ...]
+
+CURRENT USER MESSAGE:
+"${currentTask}"
+
+Now execute the user's request. Be brilliant, then complete.`;
+};
+
+/**
+ * Format messages for context
+ */
+const formatMessages = (messages: any[]): string => {
+  return messages
+    .map((m) => {
+      const role = m.role === "user" ? "User" : "You";
+      const content = m.content || m.parts?.[0]?.text || "";
+      return `${role}: ${content}`;
+    })
+    .join("\n\n");
+};
+
+// Legacy exports for backward compatibility
 export const buildContext = (
   loaded: LoadedAgent,
-  triggerType: TriggerType,
-  triggerPayload: Record<string, any>
-): ExecutionContext => {
+  triggerType: any,
+  triggerPayload: Record<string, any>,
+) => {
   return {
     agent: {
       id: loaded.agent._id.toString(),
@@ -39,135 +239,19 @@ export const buildContext = (
       type: triggerType,
       payload: triggerPayload,
     },
-    environment: {
-      timestamp: new Date().toISOString(),
-      timezone: loaded.user.timeZone || "UTC",
-    },
-    availableActions: loaded.agent.actions,
-    availableIntegrations: Array.from(loaded.integrations.keys()),
   };
 };
 
-// ============================================
-// DYNAMIC PROMPT SYSTEM
-// ============================================
-// Clean, modular prompt builder for agent execution
-// ============================================
-
-export const buildSystemPrompt = (
+export const buildSystemPrompt = async (
   loaded: LoadedAgent,
-  context: ExecutionContext,
-  githubRepo?: { owner: string; repo: string; ref?: string }
-): string => {
-  const agent = loaded.agent;
-  const user = loaded.user;
-  const integrations = Array.from(loaded.integrations.keys());
-
-  // Build user context
-  const userContext = buildUserContext(user);
-
-  // Build integration context
-  const integrationContext = buildIntegrationContext(loaded.integrations);
-
-  // Build GitHub repo context if provided
-  const githubContext = githubRepo && githubRepo.owner && githubRepo.repo
-    ? `\nGITHUB REPOSITORY CONTEXT:
-You are currently working with the GitHub repository: ${githubRepo.owner}/${githubRepo.repo}${githubRepo.ref ? ` (branch: ${githubRepo.ref})` : ""}
-- When using GitHub tools (create_issue, get_file_contents, github_list_issues, etc.), use this repository by default
-- The owner is "${githubRepo.owner}" and the repository name is "${githubRepo.repo}"
-- You can reference files, create issues, and perform other GitHub actions on this repository
-- If the user asks to "scan this repo", "read files", or similar, they mean this repository: ${githubRepo.owner}/${githubRepo.repo}`
-    : "";
-
-  // Build task context - check input first, then task
-  const task =
-    context.trigger.payload?.input ||
-    context.trigger.payload?.task ||
-    "Execute assigned task";
-
-  // Construct final prompt
-  return `You are ${agent.name}${
-    agent.description ? `: ${agent.description}` : ""
+  context: any,
+  githubRepo?: { owner: string; repo: string; ref?: string },
+): Promise<string> => {
+  const payload = context?.trigger?.payload || {};
+  if (githubRepo) {
+    payload.githubRepo = githubRepo;
   }
-
-${userContext}
-
-${integrationContext}${githubContext}
-
-CURRENT TASK: ${task}
-
-INSTRUCTIONS:
-You are a Reasoning Agent that follows a strict Think-Act-Observe cycle. You have access to tools for executing external actions.
-
-THINK-ACT-OBSERVE CYCLE:
-1. THINK: Analyze the task and determine if external tools are needed
-2. ACT: If tools are needed, call them immediately as your FIRST response
-3. OBSERVE: Wait for tool results, then provide final summary
-
-STRICT TOOL RULE:
-- If the task involves ANY external action (sending email, accessing data, etc.), you MUST call the appropriate tool as your very first and only action
-- Do not respond with text descriptions like "I'll send an email" - actually execute the tool call
-- Tool calls happen automatically - you just initiate them
-
-TOOL EXECUTION:
-- Available tools will be provided by the system
-- Call tools when the task requires external actions
-- Tools execute automatically - observe results and summarize
-
-RESPONSE BEHAVIOR:
-- For tool-required tasks: Output tool call immediately
-- For simple tasks: Provide direct response
-- Always be concise and action-oriented`;
+  return buildFocusedContext(loaded, payload);
 };
 
-// ============================================
-// MODULAR PROMPT COMPONENTS
-// ============================================
-
-function buildUserContext(user: any): string {
-  if (!user) return "USER: No user information available";
-
-  return `USER PROFILE:
-- Name: ${user.name || "Unknown"}
-- Email: ${user.email || "Unknown"}
-- Timezone: ${user.timeZone || "UTC"}`;
-}
-
-function buildIntegrationContext(integrations: Map<string, any>): string {
-  const integrationList = Array.from(integrations.keys());
-  if (integrationList.length === 0) return "INTEGRATIONS: None connected";
-
-  let context = `CONNECTED INTEGRATIONS: ${integrationList.join(", ")}
-
-INTEGRATION DETAILS:`;
-
-  for (const [provider, integration] of integrations.entries()) {
-    const metadata = (integration as any)?.metadata || {};
-
-    switch (provider) {
-      case "github":
-        context += `\n- GitHub: ${metadata.githubLogin || "Unknown"} (${
-          metadata.githubName || ""
-        })`;
-        break;
-      case "twitter":
-      case "x":
-        context += `\n- X/Twitter: ${metadata.xUsername || "Unknown"} (${
-          metadata.xName || ""
-        })`;
-        break;
-      case "google":
-        context += `\n- Google: Connected`;
-        break;
-      case "slack":
-        context += `\n- Slack: ${metadata.slackTeam || "Unknown"}`;
-        break;
-      default:
-        context += `\n- ${provider}: Connected`;
-    }
-  }
-
-  return context;
-}
-
-export default { buildContext, buildSystemPrompt };
+export default { buildContext, buildSystemPrompt, buildFocusedContext };
