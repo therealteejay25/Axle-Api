@@ -418,12 +418,12 @@ const processJob = async (
 
     const adkAgent = new LlmAgent({
       name: agentName,
-      model: agentModelId,
+      model: "gemini-2.0-flash-001",
       tools: tools,
       instruction: systemPrompt,
       generateContentConfig: {
-        maxOutputTokens: 16000,
-        temperature: 1.7, // Higher for more human-like spontaneity
+        maxOutputTokens: 18000,
+        temperature: 1.8, // Higher for more human-like spontaneity
       },
       // Enable streaming for real-time text emission
       stream: true,
