@@ -1,12 +1,8 @@
-
 import { z } from "zod";
 import { logger } from "../services/logger";
 import { FunctionTool } from "@google/adk";
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
-puppeteer.use(StealthPlugin());
-
+// Use DuckDuckGo's HTML API with fetch - no browser required
 export const createWebSearchTool = () => {
   return new FunctionTool({
     name: "web_search",
@@ -16,39 +12,75 @@ export const createWebSearchTool = () => {
     }),
     execute: async ({ query }) => {
       logger.info(`[WEB] Searching for: ${query}`);
-      let browser;
       try {
-        browser = await puppeteer.launch({
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        // Use DuckDuckGo Instant Answer API (JSON)
+        const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_redirect=1&no_html=1`;
+        const response = await fetch(ddgUrl, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+          }
         });
-        const page = await browser.newPage();
         
-        // Go to DuckDuckGo
-        await page.goto(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
-          waitUntil: 'networkidle0'
-        });
+        if (!response.ok) {
+          throw new Error(`DuckDuckGo API returned ${response.status}`);
+        }
 
-        // Extract results
-        const results = await page.evaluate(() => {
-          const items = Array.from(document.querySelectorAll('.result__body'));
-          return items.slice(0, 5).map(item => {
-            const titleEl = item.querySelector('.result__a');
-            const snippetEl = item.querySelector('.result__snippet');
-            const url = titleEl?.getAttribute('href');
-            
-            return {
-              title: titleEl?.textContent?.trim(),
-              url: url,
-              snippet: snippetEl?.textContent?.trim()
-            };
+        const data = await response.json();
+        
+        const results: { title: string; url: string; snippet: string }[] = [];
+
+        // Extract abstract if available
+        if (data.Abstract && data.AbstractURL) {
+          results.push({
+            title: data.Heading || "Summary",
+            url: data.AbstractURL,
+            snippet: data.Abstract
           });
-        });
+        }
+
+        // Extract related topics
+        if (data.RelatedTopics && Array.isArray(data.RelatedTopics)) {
+          for (const topic of data.RelatedTopics.slice(0, 5)) {
+            if (topic.FirstURL && topic.Text) {
+              results.push({
+                title: topic.Text.split(" - ")[0] || topic.Text.substring(0, 50),
+                url: topic.FirstURL,
+                snippet: topic.Text
+              });
+            }
+          }
+        }
+
+        // If no results from Instant Answers, try scraping HTML version with fetch
+        if (results.length === 0) {
+          const htmlUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+          const htmlResponse = await fetch(htmlUrl, {
+            headers: {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+          });
+          const html = await htmlResponse.text();
+          
+          // Simple regex extraction for results
+          const titleMatches = html.matchAll(/<a class="result__a" href="([^"]+)"[^>]*>([^<]+)<\/a>/g);
+          const snippetMatches = html.matchAll(/<a class="result__snippet"[^>]*>([^<]+)<\/a>/g);
+          
+          const titles = [...titleMatches];
+          const snippets = [...snippetMatches];
+          
+          for (let i = 0; i < Math.min(titles.length, 5); i++) {
+            results.push({
+              title: titles[i][2]?.trim() || "Result",
+              url: titles[i][1] || "",
+              snippet: snippets[i]?.[1]?.trim() || ""
+            });
+          }
+        }
 
         logger.info(`[WEB] Found ${results.length} results`);
         return {
           success: true,
-          results
+          results: results.length > 0 ? results : [{ title: "No results", url: "", snippet: `No results found for "${query}"` }]
         };
       } catch (error: any) {
         logger.error("[WEB] Search failed:", error);
@@ -56,8 +88,6 @@ export const createWebSearchTool = () => {
           success: false,
           error: `Search failed: ${error.message}`
         };
-      } finally {
-        if (browser) await browser.close();
       }
     }
   });
@@ -72,32 +102,28 @@ export const createWebReadPageTool = () => {
     }),
     execute: async ({ url }) => {
       logger.info(`[WEB] Reading page: ${url}`);
-      let browser;
       try {
-        browser = await puppeteer.launch({
-          headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
-        const page = await browser.newPage();
-        
-        // Block resources to speed up
-        await page.setRequestInterception(true);
-        page.on('request', (req) => {
-          if (['image', 'stylesheet', 'font'].includes(req.resourceType())) {
-            req.abort();
-          } else {
-            req.continue();
+        const response = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
           }
         });
 
-        await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
 
-        // Extract text
-        const content = await page.evaluate(() => {
-          return document.body.innerText;
-        });
+        const html = await response.text();
+        const title = html.match(/<title>([^<]+)<\/title>/i)?.[1] || "Untitled";
         
-        const title = await page.title();
+        // Strip HTML tags and extract text content (simple approach)
+        let content = html
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
 
         logger.info(`[WEB] Read ${content.length} characters`);
         
@@ -119,8 +145,6 @@ export const createWebReadPageTool = () => {
           success: false,
           error: `Failed to read page: ${error.message}`
         };
-      } finally {
-        if (browser) await browser.close();
       }
     }
   });
