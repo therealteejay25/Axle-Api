@@ -423,7 +423,7 @@ const processJob = async (
 
     const adkAgent = new LlmAgent({
       name: agentName,
-      model: agentModelId,
+      model: "gemini-2.5-pro",
       tools: tools,
       instruction: systemPrompt,
       generateContentConfig: {
@@ -621,50 +621,9 @@ const processJob = async (
         });
       }
 
-      // AUTONOMOUS EXECUTION LOOP
-      // Agent works until it signals completion via complete_task tool
-
-      // Detect if this is casual chat vs actual task
-      const isSimpleGreeting = /^(hey|hi|hello|yo|sup|what's up|howdy|greetings)[\s!.,]*$/i.test(
-        userMessageForEstimate.trim(),
-      );
-
-      const hasActionWords = (text: string): boolean => {
-        const actionWords = [
-          "create",
-          "make",
-          "send",
-          "post",
-          "schedule",
-          "check",
-          "find",
-          "search",
-          "get",
-          "fetch",
-          "update",
-          "delete",
-          "list",
-          "show",
-          "tell me",
-          "summarize",
-          "write",
-          "generate",
-          "build",
-          "compile",
-          "run",
-          "execute",
-          "analyze",
-        ];
-        const lower = text.toLowerCase();
-        return actionWords.some((word) => lower.includes(word));
-      };
-
-      const isCasualChat =
-        userMessageForEstimate.trim().length < 15 &&
-        !hasActionWords(userMessageForEstimate);
-
-      // Limit casual conversations to 1 iteration
-      const MAX_ITERATIONS = isSimpleGreeting || isCasualChat ? 1 : 15;
+      // UNIFIED EXECUTION - No special-casing for greetings vs tasks
+      // Let the agent figure out what to do based on the prompt
+      const MAX_ITERATIONS = 10; // Reasonable limit for all conversations
 
       let iterationCount = 0;
       // taskComplete already declared at function scope
