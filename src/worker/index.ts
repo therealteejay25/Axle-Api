@@ -627,9 +627,10 @@ const processJob = async (
 
       let iterationCount = 0;
       // taskComplete already declared at function scope
-      let conversationHistory = [
-        { role: "user", parts: [{ text: userMessageForEstimate }] },
-      ];
+      
+      // Initialize with user's input
+      let nextMessage: any = { role: "user", parts: [{ text: userMessageForEstimate }] };
+      
       let lastIterationHadTools = false;
       let lastIterationTextLength = 0;
 
@@ -643,8 +644,7 @@ const processJob = async (
           timestamp: Date.now(),
         });
 
-        // Get the next message for this iteration
-        const nextMessage = conversationHistory[conversationHistory.length - 1];
+        // Loop uses `nextMessage` which is updated at the end of loop if tools are used
 
         const runResult = runner.runAsync({
           userId: ownerId,
@@ -1094,78 +1094,34 @@ const processJob = async (
         lastIterationTextLength = finalResponse.length;
         iterationTextLength = finalResponse.length;
 
-        // Auto-complete logic for casual chat - MUST complete after first response
-        if ((isSimpleGreeting || isCasualChat) && iterationCount >= 1) {
-          // For simple greetings/casual chat, complete immediately after first response
-          if (finalResponse.length > 5) {
-            // Even if no tools were called, if we got any response, we're done
-            taskComplete = true;
-            await emitAxleLog(
-              "info",
-              "[AUTO-COMPLETE] Simple conversation completed",
-              {
-                iterationCount,
-                responseLength: finalResponse.length,
-                isGreeting: isSimpleGreeting,
-                isCasual: isCasualChat,
-                hadTools: iterationHadTools,
+        // If tools were executed, the next message is the tool response
+        if (iterationHadTools && toolOutputs.length > 0) {
+          nextMessage = {
+            role: "user",
+            parts: toolOutputs.map((t) => ({
+              functionResponse: {
+                name: t.tool,
+                response: {
+                  name: t.tool,
+                  content: t.output,
+                },
               },
-            );
-            break;
-          }
+            })),
+          };
+        } else {
+           // No tools used - if we have a response, we might be done, or we pause.
+           // In this autonomous execution one-shot optimization, if the agent didn't use tools 
+           // and produced a response, we assume it's turning control back to the user.
+           if (finalResponse.length > 0) {
+              taskComplete = true; 
+              break; 
+           }
         }
 
-        // Auto-complete if agent hasn't called tools in this iteration and has substantial response
-        if (!iterationHadTools && finalResponse.length > 20) {
-          // Agent gave text response without tools - probably answering a question or done
-          // For tasks, wait 2 iterations; for casual chat, complete immediately (handled above)
-          if (
-            !isSimpleGreeting &&
-            !isCasualChat &&
-            iterationCount >= 2 &&
-            !lastIterationHadTools
-          ) {
-            // Only for actual tasks - wait 2 iterations of no tool activity
-            taskComplete = true;
-            await emitAxleLog(
-              "info",
-              "[AUTO-COMPLETE] No recent tool activity, completing",
-              {
-                iterationCount,
-                responseLength: finalResponse.length,
-              },
-            );
-            break;
-          }
-        }
-
-        // If task is complete (via complete_task tool), exit loop
+        // Check completion signal
         if (taskComplete) {
           break;
         }
-
-        // Safety: Don't continue if we have no new content and no tools
-        if (
-          !iterationHadTools &&
-          finalResponse.length === lastIterationTextLength &&
-          iterationCount > 1
-        ) {
-          // No new text, no tools - we're stuck, complete
-          taskComplete = true;
-          await emitAxleLog(
-            "info",
-            "[AUTO-COMPLETE] No new activity detected, completing",
-            {
-              iterationCount,
-              responseLength: finalResponse.length,
-            },
-          );
-          break;
-        }
-
-        // For next iteration: if we got tool responses, ADK session will handle context
-        // We don't need to manually manage conversation history - ADK Runner handles it via sessionService
-        // Just continue with the next iteration if needed
       }
 
       // Cleanup marker from any surfaced text
