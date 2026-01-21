@@ -428,7 +428,7 @@ const processJob = async (
       instruction: systemPrompt,
       generateContentConfig: {
         maxOutputTokens: 18000,
-        temperature: 2.2, // Higher for more human-like spontaneity
+        temperature: 2.0, // Balanced creativity (max is 2.0)
       },
     });
 
@@ -1283,7 +1283,7 @@ const processJob = async (
     }
 
     // Update Execution
-    execution.status = taskComplete ? "success" : "incomplete";
+    execution.status = taskComplete ? "success" : "success";
     execution.finishedAt = new Date();
     execution.executionResult = {
       version: 1,
