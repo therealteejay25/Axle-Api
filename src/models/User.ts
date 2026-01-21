@@ -31,6 +31,8 @@ export interface IUser extends Document {
   refreshToken?: string;
   magicLinkToken?: string;
   magicLinkExpires?: Date;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
   // Billing
   plan: PlanType;
   credits: number;
@@ -67,6 +69,8 @@ const UserSchema = new Schema<IUser>(
     refreshToken: { type: String },
     magicLinkToken: { type: String },
     magicLinkExpires: { type: Date },
+    passwordResetToken: { type: String },
+    passwordResetExpires: { type: Date },
     // Billing
     plan: {
       type: String,
@@ -104,6 +108,7 @@ const UserSchema = new Schema<IUser>(
 // Indexes
 // UserSchema.index({ email: 1 }, { unique: true }); // Redundant
 UserSchema.index({ magicLinkToken: 1 }, { sparse: true });
+UserSchema.index({ passwordResetToken: 1 }, { sparse: true });
 
 // Methods
 UserSchema.methods.canCreateAgent = async function(): Promise<boolean> {

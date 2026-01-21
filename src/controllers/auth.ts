@@ -3,8 +3,9 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import { User } from "../models/User";
+import { Integration } from "../models/Integration";
 import { env } from "../config/env";
-import { generateSecureToken } from "../services/crypto";
+import { encryptToken } from "../services/crypto";
 import { logger } from "../services/logger";
 
 // ============================================
@@ -29,6 +30,8 @@ const REFRESH_TOKEN_COOKIE = "axle_refresh_token";
 const PASSWORD_HASH_ITERATIONS = 120_000;
 const PASSWORD_HASH_KEYLEN = 32;
 const PASSWORD_HASH_DIGEST = "sha256";
+
+const PASSWORD_RESET_TTL_MS = 30 * 60 * 1000;
 
 const hashPassword = (password: string, saltHex?: string) => {
   const salt = saltHex ? Buffer.from(saltHex, "hex") : crypto.randomBytes(16);
@@ -511,6 +514,296 @@ export const updateProfile = async (req: Request, res: Response) => {
   }
 };
 
+// Forgot password (request reset link)
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body as { email?: string };
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    // Always respond success to avoid account enumeration.
+    if (!user) {
+      return res.json({ success: true });
+    }
+
+    const token = generateSecureToken(48);
+    user.passwordResetToken = token;
+    user.passwordResetExpires = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
+    await user.save();
+
+    const origin = env.ALLOWED_ORIGINS.split(",")[0].trim() || "http://localhost:3000";
+    const resetLink = `${origin.replace(/\/$/, "")}/app/auth/reset-password?token=${encodeURIComponent(token)}`;
+
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: env.RESEND_FROM_EMAIL || "Axle <onboarding@resend.dev>",
+          to: [normalizedEmail],
+          subject: "Reset your Axle password",
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2>Reset your password</h2>
+              <p>Click the button below to reset your password. This link expires in 30 minutes.</p>
+              <a href="${resetLink}" style="display: inline-block; background: #57BF7A; color: #0b0b0b; padding: 12px 18px; text-decoration: none; border-radius: 10px; margin: 16px 0; font-weight: 700;">Reset Password</a>
+              <p style="color: #666; font-size: 12px;">If you didn't request this, you can ignore this email.</p>
+              <p style="color: #666; font-size: 12px;">If the button doesn't work, use this link: ${resetLink}</p>
+            </div>
+          `
+        } as any);
+      } catch (emailErr: any) {
+        logger.error("Failed to send password reset email", { error: emailErr.message });
+        if (!env.IS_PROD) {
+          return res.json({ success: true, _devToken: token, _devLink: resetLink });
+        }
+      }
+    } else if (!env.IS_PROD) {
+      return res.json({ success: true, _devToken: token, _devLink: resetLink });
+    }
+
+    return res.json({ success: true });
+  } catch (err: any) {
+    logger.error("Forgot password failed", { error: err.message });
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// Reset password
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, password } = req.body as { token?: string; password?: string };
+    if (!token || !password) {
+      return res.status(400).json({ error: "Token and password are required" });
+    }
+
+    if (typeof password !== "string" || password.length < 8) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 8 characters" });
+    }
+
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+
+    const { saltHex, hashHex } = hashPassword(String(password));
+    user.passwordHash = encodePasswordHash(saltHex, hashHex);
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    return res.json({ success: true });
+  } catch (err: any) {
+    logger.error("Reset password failed", { error: err.message });
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// ==================== GOOGLE OAUTH AUTHENTICATION ====================
+
+// Google OAuth configuration for authentication (includes integration scopes)
+const GOOGLE_AUTH_CONFIG = {
+  clientId: env.GOOGLE_CLIENT_ID,
+  clientSecret: env.GOOGLE_CLIENT_SECRET,
+  redirectUri: env.GOOGLE_REDIRECT_URI,
+  authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+  tokenUrl: "https://oauth2.googleapis.com/token",
+  userInfoUrl: "https://www.googleapis.com/oauth2/v2/userinfo",
+  scopes: [
+    // Basic profile info for auth
+    "openid",
+    "profile",
+    "email",
+    // Full Google Workspace integration scopes
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive.metadata",
+    "https://www.googleapis.com/auth/documents",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/calendar.events",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile"
+  ],
+};
+
+// Get Google OAuth authorization URL for authentication
+export const getGoogleAuthUrl = async (req: Request, res: Response) => {
+  try {
+    // Generate state for CSRF protection
+    const state = crypto.randomBytes(32).toString("hex");
+
+    // Store state in session or cache for verification
+    // For now, we'll use a simple in-memory store (in production, use Redis/session)
+    (global as any).googleAuthStates = (global as any).googleAuthStates || new Map();
+    (global as any).googleAuthStates.set(state, {
+      timestamp: Date.now(),
+      action: "auth" // This is for authentication, not just integration
+    });
+
+    // Build auth URL
+    const params = new URLSearchParams({
+      client_id: GOOGLE_AUTH_CONFIG.clientId!,
+      redirect_uri: GOOGLE_AUTH_CONFIG.redirectUri!,
+      scope: GOOGLE_AUTH_CONFIG.scopes.join(" "),
+      state,
+      response_type: "code",
+      access_type: "offline",
+      prompt: "consent"
+    });
+
+    const authUrl = `${GOOGLE_AUTH_CONFIG.authUrl}?${params.toString()}`;
+
+    res.json({ authUrl });
+  } catch (err: any) {
+    logger.error("Failed to generate Google auth URL", { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Handle Google OAuth callback for authentication
+export const handleGoogleAuthCallback = async (req: Request, res: Response) => {
+  try {
+    const { code, state, error } = req.query;
+
+    if (error) {
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=${encodeURIComponent(error as string)}`);
+    }
+
+    if (!code || !state) {
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Missing code or state`);
+    }
+
+    // Verify state
+    (global as any).googleAuthStates = (global as any).googleAuthStates || new Map();
+    const stateData = (global as any).googleAuthStates.get(state as string);
+
+    if (!stateData || Date.now() - stateData.timestamp > 10 * 60 * 1000) { // 10 minutes
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Invalid or expired state`);
+    }
+
+    // Clean up state
+    (global as any).googleAuthStates.delete(state as string);
+
+    // Exchange code for tokens
+    const tokenResponse = await fetch(GOOGLE_AUTH_CONFIG.tokenUrl!, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: GOOGLE_AUTH_CONFIG.clientId!,
+        client_secret: GOOGLE_AUTH_CONFIG.clientSecret!,
+        code: code as string,
+        redirect_uri: GOOGLE_AUTH_CONFIG.redirectUri!,
+        grant_type: "authorization_code",
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.text();
+      logger.error("Google token exchange failed", { status: tokenResponse.status, error: errorData });
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Failed to authenticate with Google`);
+    }
+
+    const tokens = await tokenResponse.json();
+
+    // Get user info from Google
+    const userInfoResponse = await fetch(GOOGLE_AUTH_CONFIG.userInfoUrl!, {
+      headers: {
+        "Authorization": `Bearer ${tokens.access_token}`,
+      },
+    });
+
+    if (!userInfoResponse.ok) {
+      logger.error("Failed to get Google user info", { status: userInfoResponse.status });
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Failed to get user information`);
+    }
+
+    const googleUser = await userInfoResponse.json();
+
+    // Find or create user
+    let user = await User.findOne({ email: googleUser.email });
+
+    if (!user) {
+      // Create new user
+      user = new User({
+        email: googleUser.email,
+        name: googleUser.name,
+        avatar: googleUser.picture,
+        emailVerified: googleUser.verified_email || false,
+        provider: "google",
+        providerId: googleUser.id,
+      });
+      await user.save();
+      logger.info("Created new user via Google OAuth", { email: googleUser.email, userId: user._id });
+    } else {
+      // Update existing user with Google info
+      user.name = user.name || googleUser.name;
+      user.avatar = user.avatar || googleUser.picture;
+      user.emailVerified = user.emailVerified || googleUser.verified_email || false;
+      user.provider = user.provider || "google";
+      user.providerId = user.providerId || googleUser.id;
+      await user.save();
+      logger.info("Updated existing user via Google OAuth", { email: googleUser.email, userId: user._id });
+    }
+
+    // Automatically create/update Google integration
+    const encryptedAccessToken = encryptToken(tokens.access_token);
+    const encryptedRefreshToken = tokens.refresh_token ? encryptToken(tokens.refresh_token) : undefined;
+
+    await Integration.findOneAndUpdate(
+      { userId: user._id, provider: "google" },
+      {
+        userId: user._id,
+        provider: "google",
+        accessToken: encryptedAccessToken,
+        refreshToken: encryptedRefreshToken,
+        tokenExpiresAt: tokens.expires_in
+          ? new Date(Date.now() + tokens.expires_in * 1000)
+          : undefined,
+        scopes: GOOGLE_AUTH_CONFIG.scopes,
+        metadata: {
+          id: googleUser.id,
+          name: googleUser.name,
+          email: googleUser.email,
+          picture: googleUser.picture,
+          verified_email: googleUser.verified_email,
+        },
+        status: "connected",
+        connectedAt: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    logger.info("Auto-connected Google integration for user", { userId: user._id, email: googleUser.email });
+
+    // Issue JWT tokens
+    const { accessToken, refreshToken } = issueTokens(user);
+
+    // Set cookies
+    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, COOKIE_OPTIONS);
+    res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, COOKIE_OPTIONS);
+
+    // Redirect to app
+    res.redirect(`https://heyaxle.vercel.app/app`);
+  } catch (err: any) {
+    logger.error("Google OAuth callback failed", { error: err.message });
+    res.redirect(`https://heyaxle.vercel.app/auth/login?error=Authentication failed`);
+  }
+};
+
 export default {
   register,
   login,
@@ -519,5 +812,7 @@ export default {
   refreshTokens,
   logout,
   getCurrentUser,
-  updateProfile
+  updateProfile,
+  forgotPassword,
+  resetPassword
 };

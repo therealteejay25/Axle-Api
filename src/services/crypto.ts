@@ -64,6 +64,27 @@ export const decryptToken = (ciphertext: string): string => {
   return decrypted;
 };
 
+const isHex = (value: string): boolean => {
+  return /^[0-9a-f]+$/i.test(value);
+};
+
+export const isEncryptedTokenFormat = (value: string): boolean => {
+  if (!value || typeof value !== "string") return false;
+  const parts = value.split(":");
+  if (parts.length !== 3) return false;
+
+  const [ivHex, tagHex, encryptedHex] = parts;
+  if (ivHex.length !== IV_LENGTH * 2) return false;
+  if (tagHex.length !== TAG_LENGTH * 2) return false;
+  if (!isHex(ivHex) || !isHex(tagHex) || !isHex(encryptedHex)) return false;
+  return true;
+};
+
+export const decryptTokenIfNeeded = (value: string): string => {
+  if (!isEncryptedTokenFormat(value)) return value;
+  return decryptToken(value);
+};
+
 /**
  * Generate a secure random token (for webhooks, etc)
  */

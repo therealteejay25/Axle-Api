@@ -7,7 +7,8 @@ import {
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import { logger } from "../services/logger";
-import { decryptToken, encryptToken } from "../services/crypto";
+import { decryptToken, decryptTokenIfNeeded, encryptToken } from "../services/crypto";
+import { IntegrationIdentityService } from "../services/IntegrationIdentityService";
 
 /* ============================================================
    ENV VALIDATION (fail fast)
@@ -335,9 +336,30 @@ export const makeTwitterRequest = async (
     );
   }
 
-  const url = endpoint.startsWith("http")
-    ? endpoint
-    : `https://api.twitter.com/2${endpoint}`;
+  // Best-effort: hydrate and persist user identity (xUserId) so tools can use /users/:id endpoints.
+  const hydrated = await IntegrationIdentityService.hydrateIfNeeded(integration, {
+    provider: "twitter",
+    accessToken: decryptedToken,
+    refreshToken: integration.refreshToken,
+    scopes: integration.scopes || [],
+    metadata: integration.metadata || {},
+  });
+
+  // Replace {userId} placeholder if present
+  const xUserId = (hydrated as any)?.metadata?.xUserId || (integration.metadata as any)?.xUserId;
+  let normalizedEndpoint = endpoint;
+  if (xUserId && typeof normalizedEndpoint === "string") {
+    normalizedEndpoint = normalizedEndpoint.replaceAll("{userId}", String(xUserId));
+  }
+
+  const base = "https://api.twitter.com";
+  const url = normalizedEndpoint.startsWith("http")
+    ? normalizedEndpoint
+    : normalizedEndpoint.startsWith("/1.1")
+    ? `${base}${normalizedEndpoint}`
+    : normalizedEndpoint.startsWith("/2")
+    ? `${base}${normalizedEndpoint}`
+    : `${base}/2${normalizedEndpoint.startsWith("/") ? "" : "/"}${normalizedEndpoint}`;
 
   const res = await fetch(url, {
     ...options,
@@ -383,10 +405,20 @@ export const makeSlackRequest = async (
     throw new Error("Slack integration not connected.");
   }
 
+  let decryptedToken: string;
+  try {
+    decryptedToken = decryptTokenIfNeeded(integration.accessToken);
+  } catch (error) {
+    logger.error(`[API HELPER] Failed to decrypt Slack token:`, error);
+    throw new Error(
+      "Failed to decrypt stored tokens. Please reconnect your Slack account."
+    );
+  }
+
   const res = await fetch(`https://slack.com/api/${method}`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${integration.accessToken}`,
+      Authorization: `Bearer ${decryptedToken}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(params),

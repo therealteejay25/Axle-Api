@@ -23,7 +23,7 @@ export class XToolSuite extends BaseXTool {
         try {
           logger.info(`[TWITTER] Posting tweet: ${text.substring(0, 50)}...`);
 
-          const result = await this.executeTwitterRequest("/tweets", {
+            const result = await this.executeTwitterRequest("/tweets", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export class XToolSuite extends BaseXTool {
   // Post thread tool
   createPostThreadTool() {
     return this.createTool(
-      "post_thread",
+      "twitter_post_thread",
       "Post a thread (multiple connected tweets) on X (Twitter)",
       z.object({
         tweets: z
@@ -116,7 +116,7 @@ export class XToolSuite extends BaseXTool {
             const tweet = tweets[i];
             const isReply = i > 0;
 
-            const result = await this.executeTwitterRequest("/2/tweets", {
+            const result = await this.executeTwitterRequest("/tweets", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -208,7 +208,7 @@ export class XToolSuite extends BaseXTool {
   // Search recent tweets tool
   createSearchRecentTweetsTool() {
     return this.createTool(
-      "search_recent_tweets",
+      "twitter_search_recent",
       "Search for recent tweets on X (Twitter)",
       z.object({
         query: z.string().min(1, "Search query cannot be empty"),
@@ -264,9 +264,23 @@ export class XToolSuite extends BaseXTool {
           };
         } catch (error) {
           logger.error("[TWITTER] Search recent tweets failed:", error);
+          
+          const errorMessage = error?.message || "";
+          if (
+            errorMessage.includes("403") || 
+            errorMessage.includes("404") || 
+            errorMessage.includes("401") ||
+            errorMessage.includes("Not Found")
+          ) {
+            return {
+              success: false,
+              error: "Twitter API Search is restricted on this account (likely Free Tier). Please use the 'web_search' tool to search X/Twitter instead. Example: web_search('site:twitter.com wagwan')",
+            };
+          }
+
           return {
             success: false,
-            error: error.message || "Failed to search tweets",
+            error: errorMessage || "Failed to search tweets",
           };
         }
       }

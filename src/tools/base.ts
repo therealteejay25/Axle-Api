@@ -138,11 +138,15 @@ export abstract class BaseXTool {
           logger.error(`[${name.toUpperCase()}] Tool execution failed:`, error);
 
           // Handle integration/connection errors
-          if (error.message?.includes("not connected") ||
-            error.message?.includes("authentication")) {
+          if (
+            error.message?.includes("not connected") ||
+            error.message?.includes("authentication") ||
+            error.message?.includes("Unauthorized") ||
+            error.message?.includes("401")
+          ) {
             return {
               success: false,
-              error: "Please connect your X (Twitter) account to use this action.",
+              error: "Your X (Twitter) connection needs to be refreshed. Please reconnect your account and try again.",
               needsReauth: true,
             };
           }

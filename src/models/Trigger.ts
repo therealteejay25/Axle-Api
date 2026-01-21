@@ -17,6 +17,7 @@ export interface ITrigger extends Document {
   config: {
     // For schedule type
     cron?: string;
+    timezone?: string;
     // For webhook type
     source?: string; // e.g., "github.push", "stripe.payment", "slack.message"
     webhookPath?: string; // unique path for this webhook
@@ -42,6 +43,7 @@ const TriggerSchema = new Schema<ITrigger>(
     },
     config: {
       cron: { type: String },
+      timezone: { type: String, default: "UTC" },
       source: { type: String },
       webhookPath: { type: String, unique: true, sparse: true }
     },

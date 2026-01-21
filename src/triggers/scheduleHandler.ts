@@ -57,7 +57,10 @@ export const initScheduler = async (): Promise<void> => {
           ownerId: agent.ownerId.toString()
         },
         {
-          repeat: { cron: trigger.config.cron },
+          repeat: { 
+            cron: trigger.config.cron,
+            tz: trigger.config.timezone || "UTC"
+          },
           jobId: `schedule-${trigger._id}`
         }
       );
@@ -101,7 +104,10 @@ export const addScheduleTrigger = async (triggerId: string): Promise<void> => {
       ownerId: agent.ownerId.toString()
     },
     {
-      repeat: { cron: trigger.config.cron },
+      repeat: { 
+        cron: trigger.config.cron,
+        tz: trigger.config.timezone || "UTC"
+      },
       jobId: `schedule-${trigger._id}`
     }
   );
@@ -130,6 +136,19 @@ export const processScheduledTrigger = async (
   agentId: string,
   ownerId: string
 ): Promise<void> => {
+  const agent = await Agent.findById(agentId).lean();
+  if (!agent || (agent as any).status !== "active") {
+    logger.debug(`Skipping scheduled trigger for inactive agent ${agentId}`);
+    return;
+  }
+
+  const agentInstructions =
+    (agent as any)?.instructions ||
+    (agent as any)?.brain?.systemPrompt ||
+    "Execute the scheduled task";
+
+  const scheduledAt = new Date().toISOString();
+
   // Create execution record
   const execution = await Execution.create({
     agentId,
@@ -137,7 +156,10 @@ export const processScheduledTrigger = async (
     triggerType: "schedule",
     status: "pending",
     inputPayload: {
-      timestamp: new Date().toISOString(),
+      input: agentInstructions,
+      task: agentInstructions,
+      triggeredAt: scheduledAt,
+      triggeredBy: ownerId,
       type: "scheduled"
     }
   });
@@ -155,7 +177,11 @@ export const processScheduledTrigger = async (
     triggerId,
     triggerType: "schedule",
     payload: {
-      timestamp: new Date().toISOString()
+      input: agentInstructions,
+      task: agentInstructions,
+      triggeredAt: scheduledAt,
+      triggeredBy: ownerId,
+      timestamp: scheduledAt
     }
   });
 

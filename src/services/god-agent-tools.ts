@@ -78,7 +78,7 @@ export const requestAgentConfirmationTool = new FunctionTool({
   parameters: z.object({
     message: z.string().describe("The message to explain why confirmation is needed and what will happen"),
     action: z.string().describe("The action identifier being confirmed"),
-    context: z.record(z.any()).describe("Context data for the action")
+    context: z.object({}).catchall(z.any()).describe("Context data for the action")
   }) as any,
   execute: async (params, context) => {
     // This tool doesn't do anything on the backend structurally other than return a signal
@@ -109,7 +109,7 @@ export const updateBlueprintTool = new FunctionTool({
   description: "Update the raw blueprint of an agent.",
   parameters: z.object({
     agentId: z.string().describe("ID of the agent"),
-    blueprint: z.record(z.any()).describe("New blueprint object"),
+    blueprint: z.object({}).catchall(z.any()).describe("New blueprint object"),
   }) as any,
   execute: async ({ agentId, blueprint }, context) => {
     const userId = (context as any)?.userId;
@@ -140,7 +140,7 @@ export const startExecutionTool = new FunctionTool({
   description: "Manually trigger an agent execution.",
   parameters: z.object({
     agentId: z.string().describe("ID of the agent to run"),
-    input: z.record(z.any()).optional().describe("Input parameters for the execution"),
+    input: z.object({}).catchall(z.any()).optional().describe("Input parameters for the execution"),
   }) as any,
   execute: async ({ agentId, input }, context) => {
     const userId = (context as any)?.userId;

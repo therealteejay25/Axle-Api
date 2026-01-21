@@ -1,5 +1,5 @@
 import { Integration } from "../models/Integration";
-import { decryptToken } from "./crypto";
+import { decryptTokenIfNeeded } from "./crypto";
 import { humanizeTime } from "./nlFormatter";
 
 // ============================================
@@ -25,7 +25,7 @@ export const scanGoogleContext = async (userId: string): Promise<string> => {
         }
 
         // 2. Decrypt Credentials
-        const decryptedToken = decryptToken(integration.accessToken);
+        const decryptedToken = decryptTokenIfNeeded(integration.accessToken);
         const integrationData = {
             provider: 'google',
             accessToken: decryptedToken,

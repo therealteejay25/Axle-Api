@@ -17,25 +17,41 @@ export class DriveToolSuite extends BaseGoogleTool {
       "drive_search_files",
       "Find files by name, type, or content",
       z.object({
-        query: z.string().optional().describe("Search query (e.g., 'name contains \"report\"', 'mimeType=\"application/pdf\"')"),
-        maxResults: z.number().min(1).max(100).default(20).describe("Maximum number of files to return"),
-        orderBy: z.string().optional().describe("Sort order (e.g., 'modifiedTime desc', 'name')"),
+        query: z
+          .string()
+          .optional()
+          .describe(
+            "Search query (e.g., 'name contains \"report\"', 'mimeType=\"application/pdf\"')",
+          ),
+        maxResults: z
+          .number()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Maximum number of files to return"),
+        orderBy: z
+          .string()
+          .optional()
+          .describe("Sort order (e.g., 'modifiedTime desc', 'name')"),
       }),
       async ({ query, maxResults, orderBy }) => {
         try {
           logger.info(`[DRIVE] Searching files with query: ${query || "none"}`);
 
-          const result = await this.executeGoogleRequest(async (oauth2Client) => {
-            const { google } = await import("googleapis");
-            const drive = google.drive({ version: "v3", auth: oauth2Client });
+          const result = await this.executeGoogleRequest(
+            async (oauth2Client) => {
+              const { google } = await import("googleapis");
+              const drive = google.drive({ version: "v3", auth: oauth2Client });
 
-            return await drive.files.list({
-              q: query,
-              pageSize: maxResults,
-              orderBy,
-              fields: "files(id,name,mimeType,modifiedTime,size,webViewLink,webContentLink)",
-            });
-          });
+              return await drive.files.list({
+                q: query,
+                pageSize: maxResults,
+                orderBy,
+                fields:
+                  "files(id,name,mimeType,modifiedTime,size,webViewLink,webContentLink)",
+              });
+            },
+          );
 
           const files = result.data.files || [];
           logger.info(`[DRIVE] Found ${files.length} files`);
@@ -43,7 +59,7 @@ export class DriveToolSuite extends BaseGoogleTool {
           return {
             success: true,
             data: {
-              files: files.map(file => ({
+              files: files.map((file) => ({
                 id: file.id,
                 name: file.name,
                 mimeType: file.mimeType,
@@ -55,25 +71,28 @@ export class DriveToolSuite extends BaseGoogleTool {
               totalCount: files.length,
             },
           };
-        } catch (error: any) {
+        } catch (error) {
           logger.error("[DRIVE] Search files failed:", error);
           return {
             success: false,
             error: error.message || "Failed to search files",
           };
         }
-      }
+      },
     );
   }
 
   // Create folder tool
   createCreateFolderTool() {
     return this.createTool(
-      "create_folder",
+      "drive_create_folder",
       "Create a new folder in Google Drive",
       z.object({
         name: z.string().min(1, "Folder name cannot be empty"),
-        parentId: z.string().optional().describe("Parent folder ID (optional, defaults to root)"),
+        parentId: z
+          .string()
+          .optional()
+          .describe("Parent folder ID (optional, defaults to root)"),
       }),
       async ({ name, parentId }) => {
         logger.info(`[DRIVE] Creating folder: ${name}`);
@@ -94,7 +113,13 @@ export class DriveToolSuite extends BaseGoogleTool {
           });
         });
 
-        logger.info(`[DRIVE] Folder created successfully. ID: ${result.data.id}`);
+        if (!result.data.id) {
+          throw new Error("Failed to create folder - no folder ID returned");
+        }
+
+        logger.info(
+          `[DRIVE] Folder created successfully. ID: ${result.data.id}`,
+        );
 
         return {
           success: true,
@@ -107,20 +132,23 @@ export class DriveToolSuite extends BaseGoogleTool {
             webViewLink: result.data.webViewLink,
           },
         };
-      }
+      },
     );
   }
 
   // Upload file tool
   createUploadFileTool() {
     return this.createTool(
-      "upload_file",
+      "drive_upload_file",
       "Upload a file to Google Drive",
       z.object({
         name: z.string().min(1, "File name cannot be empty"),
         content: z.string().min(1, "File content cannot be empty"),
         mimeType: z.string().min(1, "MIME type is required"),
-        parentId: z.string().optional().describe("Parent folder ID (optional, defaults to root)"),
+        parentId: z
+          .string()
+          .optional()
+          .describe("Parent folder ID (optional, defaults to root)"),
       }),
       async ({ name, content, mimeType, parentId }) => {
         logger.info(`[DRIVE] Uploading file: ${name} (${mimeType})`);
@@ -135,7 +163,7 @@ export class DriveToolSuite extends BaseGoogleTool {
           };
 
           // Convert content to buffer
-          const buffer = Buffer.from(content, 'base64');
+          const buffer = Buffer.from(content, "base64");
 
           const media = {
             mimeType,
@@ -145,11 +173,18 @@ export class DriveToolSuite extends BaseGoogleTool {
           return await drive.files.create({
             requestBody: fileMetadata,
             media,
-            fields: "id,name,mimeType,modifiedTime,size,webViewLink,webContentLink",
+            fields:
+              "id,name,mimeType,modifiedTime,size,webViewLink,webContentLink",
           });
         });
 
-        logger.info(`[DRIVE] File uploaded successfully. ID: ${result.data.id}`);
+        if (!result.data.id) {
+          throw new Error("Failed to upload file - no file ID returned");
+        }
+
+        logger.info(
+          `[DRIVE] File uploaded successfully. ID: ${result.data.id}`,
+        );
 
         return {
           success: true,
@@ -164,18 +199,21 @@ export class DriveToolSuite extends BaseGoogleTool {
             downloadUrl: result.data.webContentLink,
           },
         };
-      }
+      },
     );
   }
 
   // Export document as PDF tool
   createExportDocAsPdfTool() {
     return this.createTool(
-      "export_doc_as_pdf",
+      "drive_export_pdf",
       "Export a Google Doc as PDF",
       z.object({
         fileId: z.string().min(1, "File ID is required"),
-        outputName: z.string().optional().describe("Output filename (without extension)"),
+        outputName: z
+          .string()
+          .optional()
+          .describe("Output filename (without extension)"),
       }),
       async ({ fileId, outputName }) => {
         logger.info(`[DRIVE] Exporting document ${fileId} as PDF`);
@@ -184,10 +222,13 @@ export class DriveToolSuite extends BaseGoogleTool {
           const { google } = await import("googleapis");
           const drive = google.drive({ version: "v3", auth: oauth2Client });
 
-          return await drive.files.export({
-            fileId,
-            mimeType: "application/pdf",
-          }, { responseType: 'stream' });
+          return await drive.files.export(
+            {
+              fileId,
+              mimeType: "application/pdf",
+            },
+            { responseType: "stream" },
+          );
         });
 
         // Convert stream to base64
@@ -195,10 +236,10 @@ export class DriveToolSuite extends BaseGoogleTool {
         const stream = result.data;
 
         return new Promise((resolve, reject) => {
-          stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-          stream.on('end', () => {
+          stream.on("data", (chunk: Buffer) => chunks.push(chunk));
+          stream.on("end", () => {
             const buffer = Buffer.concat(chunks);
-            const base64Content = buffer.toString('base64');
+            const base64Content = buffer.toString("base64");
 
             const filename = outputName || `export_${fileId}`;
 
@@ -215,16 +256,16 @@ export class DriveToolSuite extends BaseGoogleTool {
               },
             });
           });
-          stream.on('error', reject);
+          stream.on("error", reject);
         });
-      }
+      },
     );
   }
 
   // Delete file tool
   createDeleteFileTool() {
     return this.createTool(
-      "delete_file",
+      "drive_delete_file",
       "Move a file to trash in Google Drive",
       z.object({
         fileId: z.string().min(1, "File ID is required"),
@@ -252,23 +293,31 @@ export class DriveToolSuite extends BaseGoogleTool {
           fileId,
           trashed: true,
         };
-      }
+      },
     );
   }
 
   // Share file tool
   createShareFileTool() {
     return this.createTool(
-      "share_file",
+      "drive_share_file",
       "Update sharing permissions for a Google Drive file",
       z.object({
         fileId: z.string().min(1, "File ID is required"),
         emailAddress: z.string().email("Must be a valid email address"),
-        role: z.enum(["reader", "writer", "commenter"]).default("reader").describe("Permission level to grant"),
-        type: z.enum(["user", "group", "domain", "anyone"]).default("user").describe("Type of grantee"),
+        role: z
+          .enum(["reader", "writer", "commenter"])
+          .default("reader")
+          .describe("Permission level to grant"),
+        type: z
+          .enum(["user", "group", "domain", "anyone"])
+          .default("user")
+          .describe("Type of grantee"),
       }),
       async ({ fileId, emailAddress, role, type }) => {
-        logger.info(`[DRIVE] Sharing file ${fileId} with ${emailAddress} as ${role}`);
+        logger.info(
+          `[DRIVE] Sharing file ${fileId} with ${emailAddress} as ${role}`,
+        );
 
         const result = await this.executeGoogleRequest(async (oauth2Client) => {
           const { google } = await import("googleapis");
@@ -298,18 +347,24 @@ export class DriveToolSuite extends BaseGoogleTool {
             type,
           },
         };
-      }
+      },
     );
   }
 
   // Get file metadata tool
   createGetFileMetadataTool() {
     return this.createTool(
-      "get_file_metadata",
+      "drive_get_file_metadata",
       "Get detailed metadata for a Google Drive file",
       z.object({
         fileId: z.string().min(1, "File ID is required"),
-        fields: z.string().optional().default("id,name,mimeType,modifiedTime,size,owners,webViewLink,webContentLink,permissions").describe("Fields to return"),
+        fields: z
+          .string()
+          .optional()
+          .default(
+            "id,name,mimeType,modifiedTime,size,owners,webViewLink,webContentLink,permissions",
+          )
+          .describe("Fields to return"),
       }),
       async ({ fileId, fields }) => {
         logger.info(`[DRIVE] Getting metadata for file: ${fileId}`);
@@ -340,19 +395,30 @@ export class DriveToolSuite extends BaseGoogleTool {
             permissions: result.data.permissions,
           },
         };
-      }
+      },
     );
   }
 
   // List changes tool
   createListChangesTool() {
     return this.createTool(
-      "list_changes",
+      "drive_list_changes",
       "List recent changes in Google Drive",
       z.object({
-        maxResults: z.number().min(1).max(100).default(20).describe("Maximum number of changes to return"),
-        includeRemoved: z.boolean().default(true).describe("Whether to include deleted items"),
-        restrictToMyDrive: z.boolean().default(true).describe("Whether to restrict to My Drive"),
+        maxResults: z
+          .number()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Maximum number of changes to return"),
+        includeRemoved: z
+          .boolean()
+          .default(true)
+          .describe("Whether to include deleted items"),
+        restrictToMyDrive: z
+          .boolean()
+          .default(true)
+          .describe("Whether to restrict to My Drive"),
       }),
       async ({ maxResults, includeRemoved, restrictToMyDrive }) => {
         logger.info(`[DRIVE] Listing recent changes`);
@@ -365,7 +431,8 @@ export class DriveToolSuite extends BaseGoogleTool {
             pageSize: maxResults,
             includeRemoved,
             restrictToMyDrive,
-            fields: "changes(file(id,name,mimeType,modifiedTime),changeType,removed)",
+            fields:
+              "changes(file(id,name,mimeType,modifiedTime),changeType,removed)",
           });
         });
 
@@ -374,22 +441,24 @@ export class DriveToolSuite extends BaseGoogleTool {
 
         return {
           success: true,
-          changes: changes.map(change => ({
-            file: change.file ? {
-              id: change.file.id,
-              name: change.file.name,
-              mimeType: change.file.mimeType,
-              modifiedTime: change.file.modifiedTime,
-            } : null,
+          changes: changes.map((change) => ({
+            file: change.file
+              ? {
+                  id: change.file.id,
+                  name: change.file.name,
+                  mimeType: change.file.mimeType,
+                  modifiedTime: change.file.modifiedTime,
+                }
+              : null,
             changeType: change.changeType,
             removed: change.removed,
           })),
           totalCount: changes.length,
         };
-      }
+      },
     );
   }
-};
+}
 
 // Factory functions for registry
 export const createSearchFilesTool = (userId: string) =>
