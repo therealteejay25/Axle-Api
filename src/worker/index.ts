@@ -256,6 +256,20 @@ const processJob = async (
   let latestGroundingMetadata: any = null;
   const groundingSources: Array<{ uri?: string; title?: string }> = [];
 
+  // IMPORTANT: Declare these at function scope so they're accessible in finally/catch
+  let taskComplete = false;
+  let toolCallsCompleted = 0;
+  let creditsDeductedTotal = 0;
+  const actionsExecuted: Array<{
+    type: string;
+    params?: Record<string, unknown>;
+    result?: unknown;
+    error?: string;
+    startedAt?: Date;
+    finishedAt?: Date;
+    durationMs?: number;
+  }> = [];
+
   try {
     // 2. Load Agent & Integrations
     const loaded = await loadAgent(agentId, ownerId);
@@ -414,7 +428,7 @@ const processJob = async (
       instruction: systemPrompt,
       generateContentConfig: {
         maxOutputTokens: 18000,
-        temperature: 1.9, // Higher for more human-like spontaneity
+        temperature: 2.2, // Higher for more human-like spontaneity
       },
     });
 
@@ -551,20 +565,10 @@ const processJob = async (
       output: any;
       timestamp: number;
     }> = [];
-    const actionsExecuted: Array<{
-      type: string;
-      params?: Record<string, unknown>;
-      result?: unknown;
-      error?: string;
-      startedAt?: Date;
-      finishedAt?: Date;
-      durationMs?: number;
-    }> = [];
+    // actionsExecuted, toolCallsCompleted, creditsDeductedTotal are declared at function scope
 
     // Real-time credit tracking
-    let toolCallsCompleted = 0;
     let tokenCreditsCharged = 0;
-    let creditsDeductedTotal = 0;
 
     const emitCreditsUpdated = async (params: {
       reason: "estimate" | "tool" | "tokens" | "final";
@@ -659,11 +663,11 @@ const processJob = async (
         userMessageForEstimate.trim().length < 15 &&
         !hasActionWords(userMessageForEstimate);
 
-      // Limit casual conversations to 2 exchanges max
-      const MAX_ITERATIONS = isSimpleGreeting || isCasualChat ? 2 : 20;
+      // Limit casual conversations to 1 iteration
+      const MAX_ITERATIONS = isSimpleGreeting || isCasualChat ? 1 : 15;
 
       let iterationCount = 0;
-      let taskComplete = false;
+      // taskComplete already declared at function scope
       let conversationHistory = [
         { role: "user", parts: [{ text: userMessageForEstimate }] },
       ];
