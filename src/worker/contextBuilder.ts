@@ -24,9 +24,9 @@ export const buildFocusedContext = async (
     // Continue without memories
   }
 
-  // Get recent conversation (last 6 messages for context)
+  // Get conversation history (increased to recent 100 messages for full context)
   const recentMessages = Array.isArray(payload?.messages)
-    ? payload.messages.slice(-6)
+    ? payload.messages.slice(-100)
     : [];
 
   // Format conversation history
