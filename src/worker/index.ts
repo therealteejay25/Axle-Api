@@ -413,8 +413,8 @@ const processJob = async (
       tools: tools,
       instruction: systemPrompt,
       generateContentConfig: {
-        maxOutputTokens: 16000,
-        temperature: 1.5, // Higher for more human-like spontaneity
+        maxOutputTokens: 18000,
+        temperature: 1.9, // Higher for more human-like spontaneity
       },
     });
 
