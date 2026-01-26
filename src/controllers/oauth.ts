@@ -79,29 +79,29 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         authUrl: "https://slack.com/oauth/v2/authorize",
         tokenUrl: "https://slack.com/api/oauth.v2.access",
         scopes: [
-          "chat:write",
-          "chat:write.public",
-          "chat:write.customize",
-          "channels:read",
-          "channels:history",
-          "channels:write",
-          "channels:manage",
-          "groups:read",
-          "groups:history",
-          "groups:write",
-          "im:history",
-          "im:read",
-          "im:write",
-          "mpim:history",
-          "mpim:read",
-          "mpim:write",
-          "app_mentions:read",
-          "reactions:read",
-          "reactions:write",
-          "pins:read",
-          "pins:write",
-          "users:read",
-          "users:read.email"
+          // Messaging
+          'chat:write',
+          'chat:write.public',
+          
+          // Channel/Conversation access
+          'channels:read',
+          'channels:history',
+          'conversations:read',    // Modern replacement for groups:read
+          'conversations:history', // Modern replacement for groups:history
+          
+          // Direct messages
+          'im:history',
+          'im:read',
+          'im:write',
+          
+          // Mentions & reactions
+          'app_mentions:read',
+          'reactions:read',
+          'reactions:write',
+          
+          // Users
+          'users:read',
+          'users:read.email'
         ],
         userInfoUrl: "https://slack.com/api/auth.test"
       } : null;

@@ -34,7 +34,7 @@ export const initSchedulerWorker = () => {
     },
     { 
       connection: redis,
-      concurrency: 5 // Allow multiple concurrent triggers
+      concurrency: 10 // Allow multiple concurrent triggers
     }
   );
   
