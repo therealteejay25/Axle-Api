@@ -78,7 +78,31 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         redirectUri: env.SLACK_REDIRECT_URI!,
         authUrl: "https://slack.com/oauth/v2/authorize",
         tokenUrl: "https://slack.com/api/oauth.v2.access",
-        scopes: ["chat:write", "channels:read", "users:read"],
+        scopes: [
+          "chat:write",
+          "chat:write.public",
+          "chat:write.customize",
+          "channels:read",
+          "channels:history",
+          "channels:write",
+          "channels:manage",
+          "groups:read",
+          "groups:history",
+          "groups:write",
+          "im:history",
+          "im:read",
+          "im:write",
+          "mpim:history",
+          "mpim:read",
+          "mpim:write",
+          "app_mentions:read",
+          "reactions:read",
+          "reactions:write",
+          "pins:read",
+          "pins:write",
+          "users:read",
+          "users:read.email"
+        ],
         userInfoUrl: "https://slack.com/api/auth.test"
       } : null;
     case "twitter":
@@ -217,6 +241,47 @@ export const handleCallback = async (req: Request, res: Response) => {
       config,
       stateData.codeVerifier // Pass code_verifier for Twitter
     );
+
+    if (provider === "slack") {
+      const ok = (tokenResponse as any)?.ok;
+      const slackError = (tokenResponse as any)?.error;
+      if (ok === false) {
+        throw new Error(slackError || "Slack OAuth failed");
+      }
+      if (!tokenResponse?.access_token) {
+        throw new Error("Slack OAuth failed: missing access_token");
+      }
+    }
+    if (provider === "slack") {
+      const teamId = tokenResponse?.team?.id;
+      const teamName = tokenResponse?.team?.name;
+      const botUserId = tokenResponse?.bot_user_id;
+      const appId = tokenResponse?.app_id;
+      const tokenType = tokenResponse?.token_type;
+      const botScope = tokenResponse?.scope;
+      const authedUser = tokenResponse?.authed_user;
+      if (typeof botScope === "string" && botScope.trim()) {
+        config.scopes = botScope
+          .split(",")
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
+
+      (tokenResponse as any).metadataFromToken = {
+        ...(teamId ? { teamId } : {}),
+        ...(teamName ? { teamName } : {}),
+        ...(botUserId ? { botUserId } : {}),
+        ...(appId ? { appId } : {}),
+        ...(tokenType ? { tokenType } : {}),
+        ...(typeof botScope === "string" && botScope.trim()
+          ? { botScope: botScope }
+          : {}),
+        ...(authedUser?.id ? { authedUserId: authedUser.id } : {}),
+        ...(typeof authedUser?.scope === "string" && authedUser.scope.trim()
+          ? { authedUserScope: authedUser.scope }
+          : {}),
+      };
+    }
     
     // Get user info if available
     let metadata: Record<string, any> = {};
@@ -226,6 +291,12 @@ export const handleCallback = async (req: Request, res: Response) => {
       } catch (e: any) {
         logger.warn("Failed to get user info", { provider, error: e.message });
       }
+    }
+    if (provider === "slack" && (tokenResponse as any).metadataFromToken) {
+      metadata = {
+        ...metadata,
+        ...(tokenResponse as any).metadataFromToken,
+      };
     }
     
     // Encrypt tokens
@@ -277,6 +348,7 @@ const exchangeCodeForTokens = async (
   access_token: string;
   refresh_token?: string;
   expires_in?: number;
+  [key: string]: any;
 }> => {
   const params: Record<string, string> = {
     client_id: config.clientId,

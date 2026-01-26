@@ -9,6 +9,7 @@ import { OAuth2Client } from "google-auth-library";
 import { logger } from "../services/logger";
 import { decryptToken, decryptTokenIfNeeded, encryptToken } from "../services/crypto";
 import { IntegrationIdentityService } from "../services/IntegrationIdentityService";
+import { WebClient } from "@slack/web-api";
 
 /* ============================================================
    ENV VALIDATION (fail fast)
@@ -397,8 +398,7 @@ export const makeTwitterRequest = async (
 
 export const makeSlackRequest = async (
   userId: string,
-  method: string,
-  params: Record<string, any> = {}
+  apiCall: (client: WebClient) => Promise<any>
 ) => {
   const integration = await getIntegration(userId, "slack");
   if (!integration) {
@@ -415,21 +415,12 @@ export const makeSlackRequest = async (
     );
   }
 
-  const res = await fetch(`https://slack.com/api/${method}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${decryptedToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(params),
-  });
-
-  const data = await res.json();
-  if (!data.ok) {
-    throw new Error(`Slack API error: ${data.error}`);
+  const client = new WebClient(decryptedToken);
+  const result = await apiCall(client);
+  if (result && typeof result === "object" && "ok" in result && (result as any).ok === false) {
+    throw new Error(`Slack API error: ${(result as any).error || "unknown_error"}`);
   }
-
-  return data;
+  return result;
 };
 
 /* ============================================================

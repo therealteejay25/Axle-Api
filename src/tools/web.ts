@@ -13,9 +13,12 @@ export const createWebSearchTool = () => {
     execute: async ({ query }) => {
       logger.info(`[WEB] Searching for: ${query}`);
       try {
+        const fetchFn: typeof fetch =
+          (globalThis as any).fetch ?? ((await import("node-fetch")) as any).default;
+
         // Use DuckDuckGo Instant Answer API (JSON)
         const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_redirect=1&no_html=1`;
-        const response = await fetch(ddgUrl, {
+        const response = await fetchFn(ddgUrl, {
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
           }
@@ -40,8 +43,11 @@ export const createWebSearchTool = () => {
 
         // Extract related topics
         if (data.RelatedTopics && Array.isArray(data.RelatedTopics)) {
-          for (const topic of data.RelatedTopics.slice(0, 5)) {
-            if (topic.FirstURL && topic.Text) {
+          const flattened = data.RelatedTopics.flatMap((t: any) =>
+            Array.isArray(t?.Topics) ? t.Topics : [t]
+          );
+          for (const topic of flattened.slice(0, 5)) {
+            if (topic?.FirstURL && topic?.Text) {
               results.push({
                 title: topic.Text.split(" - ")[0] || topic.Text.substring(0, 50),
                 url: topic.FirstURL,
@@ -54,27 +60,48 @@ export const createWebSearchTool = () => {
         // If no results from Instant Answers, try scraping HTML version with fetch
         if (results.length === 0) {
           const htmlUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-          const htmlResponse = await fetch(htmlUrl, {
+          const htmlResponse = await fetchFn(htmlUrl, {
             headers: {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
             }
           });
-          const html = await htmlResponse.text();
-          
-          // Simple regex extraction for results
-          const titleMatches = html.matchAll(/<a class="result__a" href="([^"]+)"[^>]*>([^<]+)<\/a>/g);
-          const snippetMatches = html.matchAll(/<a class="result__snippet"[^>]*>([^<]+)<\/a>/g);
-          
-          const titles = [...titleMatches];
-          const snippets = [...snippetMatches];
-          
-          for (let i = 0; i < Math.min(titles.length, 5); i++) {
-            results.push({
-              title: titles[i][2]?.trim() || "Result",
-              url: titles[i][1] || "",
-              snippet: snippets[i]?.[1]?.trim() || ""
-            });
+          if (!htmlResponse.ok) {
+            throw new Error(`DuckDuckGo HTML returned ${htmlResponse.status}`);
           }
+          const html = await htmlResponse.text();
+
+          const { load } = await import("cheerio");
+
+          const normalizeUrl = (href: string) => {
+            try {
+              const trimmed = (href || "").trim();
+              if (!trimmed) return "";
+              const prefixed = trimmed.startsWith("//")
+                ? `https:${trimmed}`
+                : trimmed.startsWith("/")
+                  ? `https://duckduckgo.com${trimmed}`
+                  : trimmed;
+              const u = new URL(prefixed);
+              const uddg = u.searchParams.get("uddg");
+              return uddg ? decodeURIComponent(uddg) : prefixed;
+            } catch {
+              return href;
+            }
+          };
+
+          const $ = load(html);
+          const items = $(".results .result").slice(0, 5);
+          items.each((_, el) => {
+            const a = $(el).find("a.result__a").first();
+            const title = a.text().trim() || "Result";
+            const url = normalizeUrl(a.attr("href") || "");
+            const snippet = $(el).find(".result__snippet").text().trim();
+            results.push({
+              title,
+              url,
+              snippet,
+            });
+          });
         }
 
         logger.info(`[WEB] Found ${results.length} results`);
@@ -103,7 +130,10 @@ export const createWebReadPageTool = () => {
     execute: async ({ url }) => {
       logger.info(`[WEB] Reading page: ${url}`);
       try {
-        const response = await fetch(url, {
+        const fetchFn: typeof fetch =
+          (globalThis as any).fetch ?? ((await import("node-fetch")) as any).default;
+
+        const response = await fetchFn(url, {
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"

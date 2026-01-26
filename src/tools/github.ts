@@ -15,9 +15,9 @@ export class GithubToolSuite extends BaseGithubTool {
   createSearchReposTool() {
     return this.createTool(
       "github_search_repos",
-      "Search for repositories on GitHub. Use 'stars:>10000' to find top repos. Example queries: 'machine learning', 'react stars:>5000', 'language:python'",
+      "Search for repositories on GitHub.",
       z.object({
-        query: z.string().min(1, "Search query cannot be empty").describe("Search query. Use 'stars:>10000' for top repos, or topic names like 'react', 'python', 'ai'"),
+        query: z.string().min(1, "Search query cannot be empty").describe("Search query. Use topic names like 'react', 'python', 'ai'"),
         sort: z.enum(["stars", "forks", "help-wanted-issues", "updated"]).optional().default("stars"),
         order: z.enum(["asc", "desc"]).optional().default("desc"),
         perPage: z.number().min(1).max(100).default(5).describe("Results per page (default 5)"),

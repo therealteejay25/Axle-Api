@@ -23122,3 +23122,14 @@
 {"timestamp":"2026-01-20 13:58:26","level":"info","message":"[CALENDAR] Found 0 events"}
 {"timestamp":"2026-01-20 13:58:30","level":"info","message":"MongoSessionService.load success","id":"696f7be68b371265afabfa57","historyLength":14}
 {"timestamp":"2026-01-20 13:58:33","level":"info","message":"Job completed","jobId":"708","executionId":"696f7be68b371265afabfa57","success":true}
+{"timestamp":"2026-01-25 20:08:42","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-25 20:10:34","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-25 20:17:53","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-25 20:19:42","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-25 20:21:34","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-25 20:23:25","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-25 20:24:52","level":"warn","message":"STRIPE_SECRET_KEY not set - billing features will be disabled"}
+{"timestamp":"2026-01-25 20:25:07","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-01-25 20:25:07","level":"info","message":"[development] Axle API listening on http://localhost:7000"}
+{"timestamp":"2026-01-25 20:25:07","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-01-25 20:25:07","level":"info","message":"Health: http://localhost:7000/health/live"}

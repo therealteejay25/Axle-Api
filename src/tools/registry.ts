@@ -86,6 +86,8 @@ import {
     createGetTrendingTool
 } from "./twitter";
 
+import { createSlackTools } from "./slack";
+
 // Memory tool
 import { createPreloadMemoryTool } from "./memory";
 
@@ -193,6 +195,8 @@ export const createUserTools = (userId: string, agentId?: string) => {
         createFollowUserTool(userId),          // ✅ twitter_follow_user
         createGetMentionsTool(userId),         // ✅ twitter_get_mentions
         // createGetTrendingTool(userId),         // ❌ twitter_get_trending (API Deprecated)
+
+        ...createSlackTools(userId),
 
         // Web Tools (2 new tools)
         createWebSearchTool(),                 // ✅ web_search
