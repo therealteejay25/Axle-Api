@@ -17,11 +17,12 @@ export class SlackToolSuite extends BaseSlackTool {
           channel: z.string().min(1, "Channel cannot be empty"),
           message: z.string().optional(),
           text: z.string().optional(),
-        }).refine((data) => !!(data.message?.trim() || data.text?.trim()), {
-          message: "Message cannot be empty",
         }),
         async ({ channel, message, text }) => {
           const finalMessage = (message || text || "").trim();
+          if (!finalMessage) {
+            throw new Error("Message cannot be empty");
+          }
           logger.info(`[SLACK] Sending message to ${channel}: ${finalMessage}`);
           
           const result = await this.executeSlackRequest(async (client) => {
