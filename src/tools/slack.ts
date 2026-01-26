@@ -252,8 +252,31 @@ export class SlackToolSuite extends BaseSlackTool {
       async ({ channel }) => {
         logger.info(`[SLACK] Joining channel ${channel}`);
 
+        const trimmed = channel.trim().replace(/^#/, "");
+
         const result = await this.executeSlackRequest(async (client) => {
-          return client.conversations.join({ channel });
+          const looksLikeId = /^[CG][A-Z0-9]+$/.test(trimmed);
+          if (looksLikeId) {
+            return client.conversations.join({ channel: trimmed });
+          }
+
+          const listResp = await client.conversations.list({
+            types: "public_channel",
+            exclude_archived: true,
+            limit: 1000,
+          });
+
+          const channels = Array.isArray((listResp as any)?.channels)
+            ? (listResp as any).channels
+            : [];
+
+          const match = channels.find((c: any) => c?.name === trimmed);
+          const channelId = match?.id;
+          if (!channelId) {
+            throw new Error(`Channel not found: ${trimmed}`);
+          }
+
+          return client.conversations.join({ channel: channelId });
         });
 
         return {
