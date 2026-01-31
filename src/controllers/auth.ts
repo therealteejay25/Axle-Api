@@ -5,7 +5,7 @@ import { Resend } from "resend";
 import { User } from "../models/User";
 import { Integration } from "../models/Integration";
 import { env } from "../config/env";
-import { encryptToken } from "../services/crypto";
+import { encryptToken, generateSecureToken } from "../services/crypto";
 import { logger } from "../services/logger";
 
 // ============================================
@@ -535,7 +535,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     user.passwordResetExpires = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
     await user.save();
 
-    const origin = env.ALLOWED_ORIGINS.split(",")[0].trim() || "http://localhost:3000";
+    const origin = env.ALLOWED_ORIGINS.split(",")[0].trim() || "https://heyaxle.vercel.app";
     const resetLink = `${origin.replace(/\/$/, "")}/app/auth/reset-password?token=${encodeURIComponent(token)}`;
 
     if (resend) {
@@ -683,11 +683,11 @@ export const handleGoogleAuthCallback = async (req: Request, res: Response) => {
     const { code, state, error } = req.query;
 
     if (error) {
-      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=${encodeURIComponent(error as string)}`);
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=${encodeURIComponent(error as string)}`);
     }
 
     if (!code || !state) {
-      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=Missing code or state`);
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Missing code or state`);
     }
 
     // Verify state from cookie
@@ -697,7 +697,7 @@ export const handleGoogleAuthCallback = async (req: Request, res: Response) => {
         receivedState: state,
         allCookies: Object.keys(req.cookies || {})
       });
-      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=Missing state cookie`);
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Missing state cookie`);
     }
 
     let stateData: any;
@@ -705,7 +705,7 @@ export const handleGoogleAuthCallback = async (req: Request, res: Response) => {
       stateData = JSON.parse(cookieStateArr);
     } catch (e: any) {
       logger.error("Google OAuth callback: Malformed state cookie", { error: e.message });
-      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=Malformed state cookie`);
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Malformed state cookie`);
     }
 
     if (stateData.state !== state) {
