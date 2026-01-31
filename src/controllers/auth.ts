@@ -18,8 +18,8 @@ const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 // Cookie options
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: env.IS_PROD,
-  sameSite: "lax" as const,
+  secure: true, // Always true for cross-site cookie support
+  sameSite: "none" as const, // Required for cross-site cookies between Vercel and Render
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: "/"
 };
@@ -216,14 +216,14 @@ export const login = async (req: Request, res: Response) => {
 export const requestMagicLink = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    
+
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
-    
+
     // Find or create user
     let user = await User.findOne({ email: email.toLowerCase() });
-    
+
     if (!user) {
       user = await User.create({
         email: email.toLowerCase(),
@@ -231,19 +231,19 @@ export const requestMagicLink = async (req: Request, res: Response) => {
         plan: "free"
       });
     }
-    
+
     // Generate magic link token
     const token = generateSecureToken(32);
     const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-    
+
     user.magicLinkToken = token;
     user.magicLinkExpires = expires;
     await user.save();
-    
+
     // Build magic link URL
     const baseUrl = env.ALLOWED_ORIGINS.split(",")[0].trim();
     const magicLink = `https://heyaxle.vercel.app/auth/verify?token=${token}`;
-    
+
     // Send email via Resend
     if (resend) {
       try {
@@ -264,9 +264,9 @@ export const requestMagicLink = async (req: Request, res: Response) => {
             </div>
           `
         } as any);
-        
+
         logger.info("Magic link email sent", { email, magicLink });
-        
+
         return res.json({
           success: true,
           message: "Magic link sent to email"
@@ -285,7 +285,7 @@ export const requestMagicLink = async (req: Request, res: Response) => {
         return res.status(500).json({ error: "Failed to send email" });
       }
     }
-    
+
     // No Resend configured - return token in dev
     if (!env.IS_PROD) {
       return res.json({
@@ -295,7 +295,7 @@ export const requestMagicLink = async (req: Request, res: Response) => {
         _devLink: magicLink
       });
     }
-    
+
     return res.status(500).json({ error: "Email service not configured" });
   } catch (err: any) {
     logger.error("Magic link request failed", { error: err.message });
@@ -307,48 +307,48 @@ export const requestMagicLink = async (req: Request, res: Response) => {
 export const verifyMagicLink = async (req: Request, res: Response) => {
   try {
     const { token } = req.body;
-    
+
     if (!token) {
       return res.status(400).json({ error: "Token is required" });
     }
-    
+
     const user = await User.findOne({
       magicLinkToken: token,
       magicLinkExpires: { $gt: new Date() }
     });
-    
+
     if (!user) {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
-    
+
     // Clear magic link
     user.magicLinkToken = undefined;
     user.magicLinkExpires = undefined;
-    
+
     // Generate JWT tokens
     const accessToken = jwt.sign(
       { id: user._id, email: user.email, plan: user.plan },
       env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-    
+
     const refreshToken = jwt.sign(
       { id: user._id },
       env.REFRESH_SECRET,
       { expiresIn: "30d" }
     );
-    
+
     user.accessToken = accessToken;
     user.refreshToken = refreshToken;
     await user.save();
-    
+
     // Set cookies
     res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
       ...COOKIE_OPTIONS,
       maxAge: 60 * 60 * 24 * 7 * 1000 // 7 days
     });
     res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, COOKIE_OPTIONS);
-    
+
     res.json({
       success: true,
       accessToken,
@@ -372,11 +372,11 @@ export const refreshTokens = async (req: Request, res: Response) => {
   try {
     // Check cookie first, then body
     const refreshToken = req.cookies?.[REFRESH_TOKEN_COOKIE] || req.body.refreshToken;
-    
+
     if (!refreshToken) {
       return res.status(400).json({ error: "Refresh token is required" });
     }
-    
+
     // Verify refresh token
     let decoded: any;
     try {
@@ -386,30 +386,30 @@ export const refreshTokens = async (req: Request, res: Response) => {
       res.clearCookie(REFRESH_TOKEN_COOKIE);
       return res.status(401).json({ error: "Invalid refresh token" });
     }
-    
+
     const user = await User.findById(decoded.id);
     if (!user || user.refreshToken !== refreshToken) {
       res.clearCookie(ACCESS_TOKEN_COOKIE);
       res.clearCookie(REFRESH_TOKEN_COOKIE);
       return res.status(401).json({ error: "Invalid refresh token" });
     }
-    
+
     // Generate new access token
     const accessToken = jwt.sign(
       { id: user._id, email: user.email, plan: user.plan },
       env.JWT_SECRET,
       { expiresIn: "3d" }
     );
-    
+
     user.accessToken = accessToken;
     await user.save();
-    
+
     // Set cookie
     res.cookie(ACCESS_TOKEN_COOKIE, accessToken, {
       ...COOKIE_OPTIONS,
       maxAge: 60 * 60 * 1000
     });
-    
+
     res.json({ accessToken });
   } catch (err: any) {
     logger.error("Token refresh failed", { error: err.message });
@@ -421,9 +421,9 @@ export const refreshTokens = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
   try {
     // Get token from cookie or header
-    const token = req.cookies?.[ACCESS_TOKEN_COOKIE] || 
+    const token = req.cookies?.[ACCESS_TOKEN_COOKIE] ||
       req.headers.authorization?.slice(7);
-    
+
     if (token) {
       try {
         const decoded = jwt.verify(token, env.JWT_SECRET) as any;
@@ -435,11 +435,11 @@ export const logout = async (req: Request, res: Response) => {
         // Token invalid, but logout anyway
       }
     }
-    
+
     // Clear cookies
     res.clearCookie(ACCESS_TOKEN_COOKIE);
     res.clearCookie(REFRESH_TOKEN_COOKIE);
-    
+
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -450,25 +450,25 @@ export const logout = async (req: Request, res: Response) => {
 export const getCurrentUser = async (req: Request, res: Response) => {
   try {
     // Get token from cookie or header
-    const token = req.cookies?.[ACCESS_TOKEN_COOKIE] || 
+    const token = req.cookies?.[ACCESS_TOKEN_COOKIE] ||
       req.headers.authorization?.slice(7);
-    
+
     if (!token) {
       return res.status(401).json({ error: "Not authenticated" });
     }
-    
+
     let decoded: any;
     try {
       decoded = jwt.verify(token, env.JWT_SECRET);
     } catch {
       return res.status(401).json({ error: "Invalid token" });
     }
-    
+
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     res.json({
       user: {
         id: user._id,
@@ -488,17 +488,17 @@ export const getCurrentUser = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => {
   try {
     const { name, timeZone } = req.body;
-    
+
     const user = await User.findById(req.user!.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     if (name !== undefined) user.name = name;
     if (timeZone !== undefined) user.timeZone = timeZone;
-    
+
     await user.save();
-    
+
     res.json({
       user: {
         id: user._id,
@@ -613,7 +613,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 const GOOGLE_AUTH_CONFIG = {
   clientId: env.GOOGLE_CLIENT_ID,
   clientSecret: env.GOOGLE_CLIENT_SECRET,
-  redirectUri: env.GOOGLE_REDIRECT_URI,
+  redirectUri: env.GOOGLE_REDIRECT_URI?.replace("/oauth/", "/auth/"),
   authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
   tokenUrl: "https://oauth2.googleapis.com/token",
   userInfoUrl: "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -644,12 +644,17 @@ export const getGoogleAuthUrl = async (req: Request, res: Response) => {
     // Generate state for CSRF protection
     const state = crypto.randomBytes(32).toString("hex");
 
-    // Store state in session or cache for verification
-    // For now, we'll use a simple in-memory store (in production, use Redis/session)
-    (global as any).googleAuthStates = (global as any).googleAuthStates || new Map();
-    (global as any).googleAuthStates.set(state, {
+    // For now, we'll use a secure cookie for state persistence
+    // This handles server restarts and distributed environments better than in-memory Map
+    const stateValue = JSON.stringify({
+      state,
       timestamp: Date.now(),
-      action: "auth" // This is for authentication, not just integration
+      action: "auth"
+    });
+
+    res.cookie("google_auth_state", stateValue, {
+      ...COOKIE_OPTIONS,
+      maxAge: 10 * 60 * 1000 // 10 minutes
     });
 
     // Build auth URL
@@ -678,23 +683,48 @@ export const handleGoogleAuthCallback = async (req: Request, res: Response) => {
     const { code, state, error } = req.query;
 
     if (error) {
-      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=${encodeURIComponent(error as string)}`);
+      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=${encodeURIComponent(error as string)}`);
     }
 
     if (!code || !state) {
-      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Missing code or state`);
+      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=Missing code or state`);
     }
 
-    // Verify state
-    (global as any).googleAuthStates = (global as any).googleAuthStates || new Map();
-    const stateData = (global as any).googleAuthStates.get(state as string);
-
-    if (!stateData || Date.now() - stateData.timestamp > 10 * 60 * 1000) { // 10 minutes
-      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=Invalid or expired state`);
+    // Verify state from cookie
+    const cookieStateArr = req.cookies?.google_auth_state;
+    if (!cookieStateArr) {
+      logger.error("Google OAuth callback: Missing state cookie", {
+        receivedState: state,
+        allCookies: Object.keys(req.cookies || {})
+      });
+      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=Missing state cookie`);
     }
 
-    // Clean up state
-    (global as any).googleAuthStates.delete(state as string);
+    let stateData: any;
+    try {
+      stateData = JSON.parse(cookieStateArr);
+    } catch (e: any) {
+      logger.error("Google OAuth callback: Malformed state cookie", { error: e.message });
+      return res.redirect(`${env.FRONTEND_URL}/auth/login?error=Malformed state cookie`);
+    }
+
+    if (stateData.state !== state) {
+      logger.error("Google OAuth callback: State mismatch", {
+        expected: stateData.state,
+        received: state
+      });
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=State mismatch`);
+    }
+
+    if (Date.now() - stateData.timestamp > 15 * 60 * 1000) { // 15 minutes
+      logger.error("Google OAuth callback: State expired", {
+        age: Date.now() - stateData.timestamp
+      });
+      return res.redirect(`https://heyaxle.vercel.app/auth/login?error=State expired`);
+    }
+
+    // Clean up state cookie
+    res.clearCookie("google_auth_state", COOKIE_OPTIONS);
 
     // Exchange code for tokens
     const tokenResponse = await fetch(GOOGLE_AUTH_CONFIG.tokenUrl!, {
@@ -804,6 +834,39 @@ export const handleGoogleAuthCallback = async (req: Request, res: Response) => {
   }
 };
 
+// Change password
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Current and new password are required" });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: "New password must be at least 8 characters" });
+    }
+
+    const user = await User.findById(req.user!.id);
+    if (!user || !user.passwordHash) {
+      return res.status(404).json({ error: "User not found or password not set" });
+    }
+
+    const isValid = verifyPassword(currentPassword, user.passwordHash);
+    if (!isValid) {
+      return res.status(401).json({ error: "Incorrect current password" });
+    }
+
+    const { saltHex, hashHex } = hashPassword(newPassword);
+    user.passwordHash = encodePasswordHash(saltHex, hashHex);
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (err: any) {
+    logger.error("Change password failed", { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+};
+
 export default {
   register,
   login,
@@ -814,5 +877,6 @@ export default {
   getCurrentUser,
   updateProfile,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  changePassword
 };

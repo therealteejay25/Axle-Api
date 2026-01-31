@@ -16,6 +16,8 @@ import stripeWebhooksRoutes from "./stripeWebhooks";
 import dashboardRoutes from "./dashboard";
 import threadsRoutes from "./threads";
 import newsletterRoutes from "./newsletter.routes";
+import approvalsRoutes from "./approvals";
+import feedbackRoutes from "./feedback";
 import { handleCallback } from "../controllers/oauth";
 
 // ============================================
@@ -34,7 +36,6 @@ router.use("/auth", authRoutes);
 router.use("/webhooks/stripe", stripeWebhooksRoutes);
 
 // API v1 routes (protected)
-// API v1 routes (protected)
 router.use("/agents", agentsRoutes);
 router.use("/agents/:id/preview", previewRoutes);
 router.use("/triggers", triggersRoutes);
@@ -49,6 +50,8 @@ router.use("/chatbot", chatbotRoutes);
 router.use("/platform", platformRoutes);
 router.use("/threads", threadsRoutes);
 router.use("/newsletter", newsletterRoutes);
+router.use("/approvals", approvalsRoutes);
+router.use("/feedback", feedbackRoutes);
 
 // OAuth callbacks (public - provider redirects here)
 router.get("/oauth/:provider/callback", handleCallback);

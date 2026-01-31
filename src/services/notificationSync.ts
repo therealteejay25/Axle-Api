@@ -373,11 +373,29 @@ async function fetchGithubMentionNotifications(userId: string): Promise<GlobalNo
         return {
             id: randomUUID(),
             source: "github" as const,
+            category: "mentions" as const,
+            priority: "high" as const,
             title: i?.title || `Mentioned you (@${login})`,
             snippet: repoFullName ? `${repoFullName} • mentioned you` : `mentioned you (@${login})`,
             deepLink,
             timestamp: i?.updated_at ? new Date(i.updated_at).toISOString() : new Date().toISOString(),
-            actionButtons: [{ label: "Go to App", action: "OPEN_URL" as const, url: deepLink }],
+            richContent: {
+                author: i?.user ? {
+                    name: i.user.login,
+                    avatar: i.user.avatar_url,
+                    handle: `@${i.user.login}`,
+                } : undefined,
+                repository: repoFullName ? {
+                    owner: repoFullName.split('/')[0],
+                    name: repoFullName.split('/')[1],
+                    url: `https://github.com/${repoFullName}`,
+                } : undefined,
+                isRead: false,
+            },
+            actionButtons: [
+                { label: "View Issue", action: "OPEN_URL" as const, url: deepLink },
+                { label: "Mark Read", action: "MARK_READ" as const }
+            ],
             raw: i,
         };
     });

@@ -49,6 +49,11 @@ export interface IUser extends Document {
   notificationEmailsEnabled?: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // OAuth
+  provider?: string;
+  providerId?: string;
+  emailVerified?: boolean;
+  avatar?: string;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -92,15 +97,20 @@ const UserSchema = new Schema<IUser>(
     // Stripe
     stripeCustomerId: { type: String },
     stripeSubscriptionId: { type: String },
-    subscriptionStatus: { 
-      type: String, 
+    subscriptionStatus: {
+      type: String,
       enum: ['active', 'canceled', 'past_due', 'trialing']
     },
     subscriptionCurrentPeriodEnd: { type: Date },
     timeZone: { type: String, default: "UTC" },
     profileImageUrl: { type: String },
     automaticBackupsEnabled: { type: Boolean, default: true },
-    notificationEmailsEnabled: { type: Boolean, default: false }
+    notificationEmailsEnabled: { type: Boolean, default: false },
+    // OAuth
+    provider: { type: String },
+    providerId: { type: String },
+    emailVerified: { type: Boolean, default: false },
+    avatar: { type: String }
   },
   { timestamps: true }
 );
@@ -111,24 +121,24 @@ UserSchema.index({ magicLinkToken: 1 }, { sparse: true });
 UserSchema.index({ passwordResetToken: 1 }, { sparse: true });
 
 // Methods
-UserSchema.methods.canCreateAgent = async function(): Promise<boolean> {
+UserSchema.methods.canCreateAgent = async function (): Promise<boolean> {
   const Agent = model("Agent");
   const count = await Agent.countDocuments({ ownerId: this._id });
   return count < PLAN_LIMITS[this.plan as PlanType].agentLimit;
 };
 
-UserSchema.methods.hasCredits = function(amount: number = 1): boolean {
+UserSchema.methods.hasCredits = function (amount: number = 1): boolean {
   return this.credits >= amount;
 };
 
-UserSchema.methods.deductCredits = async function(amount: number): Promise<boolean> {
+UserSchema.methods.deductCredits = async function (amount: number): Promise<boolean> {
   if (this.credits < amount) return false;
   this.credits -= amount;
   await this.save();
   return true;
 };
 
-UserSchema.methods.getPlanLimits = function(): IPlanLimits {
+UserSchema.methods.getPlanLimits = function (): IPlanLimits {
   return PLAN_LIMITS[this.plan as PlanType];
 };
 

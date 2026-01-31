@@ -25,5 +25,6 @@ router.get("/google/callback", authController.handleGoogleAuthCallback);
 
 // Protected routes
 router.patch("/profile", authMiddleware, authController.updateProfile);
+router.post("/change-password", authMiddleware, authController.changePassword);
 
 export default router;

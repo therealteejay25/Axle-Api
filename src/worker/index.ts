@@ -18,6 +18,8 @@ import { AgentMemoryService } from "../services/AgentMemoryService";
 import { GithubContextProvider } from "../services/GithubContextProvider";
 import { ContextManagerService } from "../services/ContextManagerService";
 import { UiMappingService } from "../services/UiMappingService";
+import { messageEmitter } from "../services/messageEmitter";
+import { REQUIRES_APPROVAL } from "../types/messages";
 import { User } from "../models/User";
 import { Thread } from "../models/Thread";
 import { LlmAgent, Runner } from "@google/adk";
@@ -271,6 +273,12 @@ const processJob = async (
   }> = [];
 
   try {
+    messageEmitter.emitThinking(
+      executionId,
+      "Processing your request...",
+      "init",
+    );
+
     // 2. Load Agent & Integrations
     const loaded = await loadAgent(agentId, ownerId);
 
@@ -335,6 +343,72 @@ const processJob = async (
 
     // Always use all tools - context should not restrict tool availability
     const tools = allTools;
+
+    messageEmitter.emitThinking(
+      executionId,
+      `Loaded ${(tools as any[])?.length ?? 0} tools`,
+      "tools",
+    );
+
+    const normalizeToolInput = (input: any): Record<string, any> => {
+      if (input && typeof input === "object" && !Array.isArray(input)) return input;
+      if (typeof input === "string") {
+        try {
+          const parsed = JSON.parse(input);
+          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+            return parsed;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      return { input };
+    };
+
+    // Wrap ALL tools to emit tool-call/tool-result messages and enforce approval gating.
+    // This preserves ADK execution flow while enabling human-in-the-loop controls.
+    for (const t of tools as any[]) {
+      const toolName = (t as any)?.name;
+      const originalExecute = (t as any)?.execute;
+      if (!toolName || typeof originalExecute !== "function") continue;
+
+      (t as any).execute = async (input: any, context: any) => {
+        const toolInput = normalizeToolInput(input);
+
+        // Emit tool call status
+        messageEmitter.emitToolCall(executionId, toolName, toolInput);
+
+        // Gate sensitive tools
+        if ((REQUIRES_APPROVAL as readonly string[]).includes(toolName)) {
+          const shouldExecute = await messageEmitter.emitApprovalRequest(
+            executionId,
+            ownerId.toString(),
+            toolName,
+            toolInput,
+          );
+
+          if (!shouldExecute) {
+            const skippedResult = {
+              success: false,
+              error: "User rejected approval",
+              toolName,
+            };
+
+            messageEmitter.emitToolResult(executionId, toolName, skippedResult, true);
+            return skippedResult;
+          }
+        }
+
+        try {
+          const toolResult = await originalExecute(input, context);
+          messageEmitter.emitToolResult(executionId, toolName, toolResult, true);
+          return toolResult;
+        } catch (error: any) {
+          messageEmitter.emitError(executionId, error?.message || error);
+          throw error;
+        }
+      };
+    }
 
     // Repo scoping: if a thread-selected repo exists, default missing owner/repo
     // and block any GitHub tool call attempting to target a different repo.
@@ -637,6 +711,8 @@ const processJob = async (
       while (!taskComplete && iterationCount < MAX_ITERATIONS) {
         iterationCount++;
 
+        const prevFinalResponseLength = finalResponse.length;
+
         SocketService.getInstance().emitToAgent(agentId, "execution:status", {
           executionId,
           status: "running",
@@ -661,20 +737,6 @@ const processJob = async (
           const eventSeq = ++adkEventSeq;
           const eventTs = Date.now();
           adkEventStream.push({ seq: eventSeq, timestamp: eventTs, event });
-
-          // Log raw ADK event for debugging
-          console.log(`[RAW ADK EVENT]`, JSON.stringify(event));
-
-          const eventContent = (event as any).content;
-          const contentStr =
-            typeof eventContent === "string"
-              ? eventContent?.substring(0, 100) || "N/A"
-              : eventContent
-              ? JSON.stringify(eventContent).substring(0, 100)
-              : "N/A";
-          console.log(
-            `[ADK EVENT] Type: ${(event as any).type}, Content: ${contentStr}`,
-          );
 
           const partsFromCandidate =
             (event as any)?.candidate?.content?.parts ||
@@ -775,11 +837,6 @@ const processJob = async (
                 timestamp: Date.now(),
               },
             );
-
-            const contentPreview = textDelta.substring(0, 50);
-            console.log(
-              `[AGENT RESPONSE] Streaming text delta: ${contentPreview}...`,
-            );
           }
 
           // Handle tool calls - check for 'call' event type and function calls
@@ -844,10 +901,12 @@ const processJob = async (
               });
             }
 
-            console.log(`[TOOL CALL] Agent calling tool: ${toolName}`);
-
-            if (functionCall) {
-              console.log(`[TOOL CALL] Function call args:`, functionCall.args);
+            if (toolName) {
+              messageEmitter.emitThinking(
+                executionId,
+                `Running ${toolName}…`,
+                "tool",
+              );
             }
 
             SocketService.getInstance().emitToAgent(
@@ -969,13 +1028,6 @@ const processJob = async (
                 }
               }
             }
-            console.log(`[TOOL RESPONSE] Tool execution completed`);
-            if (functionResponse) {
-              console.log(
-                `[TOOL RESPONSE] Function response:`,
-                functionResponse,
-              );
-            }
 
             SocketService.getInstance().emitToAgent(
               agentId,
@@ -1028,7 +1080,6 @@ const processJob = async (
           // Extract token usage if available
           if ((event as any).usage) {
             tokensUsed = (event as any).usage.totalTokens || tokensUsed;
-            console.log(`[TOKEN USAGE] Updated to: ${tokensUsed}`);
 
             // Token credits are charged based on *total tokens so far* (delta-billed)
             const tokenCreditsTotal = CreditManagerService.calculateTokenCredits(
@@ -1091,8 +1142,17 @@ const processJob = async (
 
         // Update iteration tracking
         lastIterationHadTools = iterationHadTools;
-        lastIterationTextLength = finalResponse.length;
         iterationTextLength = finalResponse.length;
+
+        // Emit accumulated agent text for this iteration (avoids per-delta spam)
+        if (finalResponse.length > prevFinalResponseLength) {
+          const newText = finalResponse.slice(prevFinalResponseLength);
+          if (newText && newText.trim()) {
+            messageEmitter.emitText(executionId, newText, "assistant");
+          }
+        }
+
+        lastIterationTextLength = finalResponse.length;
 
         // If tools were executed, the next message is the tool response
         if (iterationHadTools && toolOutputs.length > 0) {
@@ -1221,6 +1281,8 @@ const processJob = async (
       confidence: "high",
       toolOutputs,
     };
+
+    messageEmitter.emitText(executionId, "Task completed successfully! ✓", "system");
     execution.creditsUsed = creditsUsed;
     execution.aiTokensUsed = actualTokensUsed;
     execution.aiResponse = responseText || finalResponse;

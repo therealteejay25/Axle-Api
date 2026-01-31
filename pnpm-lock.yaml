@@ -68,6 +68,9 @@ importers:
       cheerio:
         specifier: ^1.1.2
         version: 1.1.2
+      cloudinary:
+        specifier: ^2.9.0
+        version: 2.9.0
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -143,6 +146,9 @@ importers:
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
       winston:
         specifier: ^3.18.3
         version: 3.18.3
@@ -1467,6 +1473,10 @@ packages:
   clone-deep@0.2.4:
     resolution: {integrity: sha512-we+NuQo2DHhSl+DP6jlUiAhyAjBQrYnpOk15rN6c6JSPScjiCLh8IbSU+VTcph6YS3o7mASE8a0+gbZ7ChLpgg==}
     engines: {node: '>=0.10.0'}
+
+  cloudinary@2.9.0:
+    resolution: {integrity: sha512-F3iKMOy4y0zy0bi5JBp94SC7HY7i/ImfTPSUV07iJmRzH1Iz8WavFfOlJTR1zvYM/xKGoiGZ3my/zy64In0IQQ==}
+    engines: {node: '>=9'}
 
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
@@ -4946,6 +4956,10 @@ snapshots:
       kind-of: 3.2.2
       lazy-cache: 1.0.4
       shallow-clone: 0.1.2
+
+  cloudinary@2.9.0:
+    dependencies:
+      lodash: 4.17.21
 
   clsx@2.1.1: {}
 

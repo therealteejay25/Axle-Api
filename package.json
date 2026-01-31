@@ -33,6 +33,7 @@
     "body-parser": "^2.2.0",
     "bullmq": "^1.86.0",
     "cheerio": "^1.1.2",
+    "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "cron-parser": "^5.4.0",
@@ -58,6 +59,7 @@
     "socket.io": "^4.8.1",
     "stripe": "^20.1.0",
     "tsx": "^4.20.6",
+    "uuid": "^9.0.1",
     "winston": "^3.18.3",
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.25.1"

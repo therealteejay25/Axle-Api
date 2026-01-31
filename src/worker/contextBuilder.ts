@@ -1,5 +1,6 @@
 import { LoadedAgent } from "./agentLoader";
 import { AgentMemoryService } from "../services/AgentMemoryService";
+import { getToolUIContext } from "../services/toolMetadata";
 
 /**
  * Build a powerful, focused context for the agent
@@ -32,10 +33,10 @@ export const buildFocusedContext = async (
   // Format conversation history
   const conversationHistory = recentMessages.length > 0
     ? recentMessages.map((m: any) => {
-        const role = m.role === "user" ? "Human" : "You";
-        const content = m.content || m.parts?.[0]?.text || "";
-        return `${role}: ${content}`;
-      }).join("\n")
+      const role = m.role === "user" ? "Human" : "You";
+      const content = m.content || m.parts?.[0]?.text || "";
+      return `${role}: ${content}`;
+    }).join("\n")
     : "";
 
   // Format memories
@@ -64,10 +65,23 @@ export const buildFocusedContext = async (
   return `# ${agent.name}
 ${agent.description ? `*${agent.description}*` : ""}
 
-You are a brilliant, proactive AI assistant. You think deeply, act decisively, and communicate naturally.
+You are an advanced AI agent.
 
-## Your Core Instructions
+## CRITICAL: YOUR IDENTITY & SCOPE
+**Your "Core Instructions" below are your absolute truth.** 
+- They define your **entire personality, capabilities, and scope**.
+- You must **NEVER** step outside the bounds of these instructions.
+- If the text below says you are a "sarcastic pirate", you ARE a sarcastic pirate. If it says you are a "strict data validator", you ARE a strict data validator.
+- Do not revert to being a generic "helpful assistant" unless the instructions explicitly tell you to.
+
+## Core Instructions
 ${agent.instructions || "Help the user accomplish their goals efficiently and thoughtfully."}
+
+## Creative Goal Achievement
+While you must stay strictly within your scope, you must be **creatively helpful** within that scope.
+- **Goal-Oriented**: Your primary mission is to help the user achieve the goal implied by your instructions.
+- **Bridge the Gap**: If the user's request is vague, incomplete, or "dumb", do not just give up or ask for clarification endlessly. **Infer their intent** and take proactive steps to help them.
+- **Be Smart**: Use your tools and reasoning to fill in missing details. If you can do it, do it.
 
 ## Current Context
 - **Now**: ${new Date().toISOString()}
@@ -76,17 +90,11 @@ ${userContext}${memorySection}${githubSection}
 
 ${conversationHistory ? `## Recent Conversation\n${conversationHistory}\n` : ""}
 
-## How You Work
-
-**Be Human**: Talk like a smart friend, not a robot. Use contractions, be warm, show personality.
-
-**Be Proactive**: If you can figure something out or do something helpful, just do it. Don't ask permission for obvious actions.
-
-**Use Your Tools**: You have powerful tools - use them! Search the web, check calendars, manage files, post to social media, work with code. Don't tell the user what you could do - just do it.
-
-**Remember Things**: Use the \`remember\` tool to store important facts you learn. Use \`recall\` to retrieve them later.
-
-**Complete Tasks**: When you've accomplished what the user asked (or answered their question), call \`complete_task\` with a brief summary. This is how you signal you're done.
+## Operational Guidelines
+1. **Be Human**: Unless your instructions say otherwise, communicate naturally and concisely.
+2. **Be Proactive**: Don't ask for permission for obvious next steps.
+3. **Tool Usage**: You have access to tools - use them to solve problems, don't just talk about them.
+4. **Completion**: When the specific task or question is resolved, call \`complete_task\`.
 
 ## Available Tool Categories
 
@@ -97,10 +105,12 @@ ${conversationHistory ? `## Recent Conversation\n${conversationHistory}\n` : ""}
 **Twitter/X**: Post tweets, read timeline, search
 **Scheduling**: \`schedule_task\` - Schedule future executions
 
+${getToolUIContext()}
+
 ## User's Current Message
 "${currentTask}"
 
-Now respond naturally. Be brilliant.`;
+Now respond, strictly adhering to your identity while being helpful and creative.`;
 };
 
 // Legacy exports

@@ -26,36 +26,40 @@ import { SocketService } from "./src/services/SocketService";
 const startServer = async () => {
   // Connect to database
   await connectDB();
-  
+
   // Initialize Express
   const app = express();
-  
+
   // Security & Parsing
-  app.use(express.json({ limit: "1mb" }));
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ limit: "10mb", extended: true }));
   app.use(cookieParser());
-  
+
+  const allowedOrigins = env.ALLOWED_ORIGINS
+    ? (typeof env.ALLOWED_ORIGINS === "string" ? env.ALLOWED_ORIGINS.split(",").map(o => o.trim()) : env.ALLOWED_ORIGINS)
+    : ["http://localhost:3000"];
+
   // CORS
   app.use(cors({
     origin: "https://heyaxle.vercel.app",
     credentials: true
   }));
-  
+
   // Rate limiting
   // app.use(globalRateLimiter);
-  
+
   // Routes
   const apiVersion = env.API_VERSION || "v1";
   app.use(`/api/${apiVersion}`, router);
-  
+
   // Health checks (no rate limit)
   app.use("/health", healthRouter);
-  
+
   // 404 Handler
   app.use((_req: Request, res: Response) => {
     res.status(404).json({ error: "Not Found" });
   });
-  
+
   // Error Handler
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     logger.error("Unhandled error:", err);
@@ -63,13 +67,13 @@ const startServer = async () => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   });
-  
+
   // Create HTTP server
   const server = http.createServer(app);
-  
+
   // Initialize WebSocket
   SocketService.getInstance().init(server);
-  
+
   // Start server
   const PORT = env.PORT || 9000;
   server.listen(PORT, () => {
@@ -78,39 +82,39 @@ const startServer = async () => {
     logger.info(`API v${apiVersion}: /api/${apiVersion}/`);
     logger.info(`Health: http://localhost:${PORT}/health/live`);
   });
-  
+
   // Initialize queue scheduler
   await initQueueScheduler();
   logger.info("Queue scheduler initialized");
-  
+
   // Start worker
   const { startWorker } = await import("./src/worker");
   startWorker();
   logger.info("Worker started");
-  
-  
+
+
   // Initialize schedule triggers
   await initScheduler();
   const { initSchedulerWorker } = await import("./src/worker/scheduler");
   initSchedulerWorker(); // Start consumer
   logger.info("Scheduler initialized");
-  
+
   // Graceful shutdown
   const shutdown = async (signal: string) => {
     logger.info(`Received ${signal}, shutting down...`);
-    
+
     server.close(() => {
       logger.info("HTTP server closed");
       process.exit(0);
     });
-    
+
     // Force exit after 10s
     setTimeout(() => {
       logger.error("Forced shutdown after timeout");
       process.exit(1);
     }, 10000);
   };
-  
+
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));
 };
