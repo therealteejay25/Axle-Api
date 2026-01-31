@@ -54,6 +54,7 @@ export interface IUser extends Document {
   providerId?: string;
   emailVerified?: boolean;
   avatar?: string;
+  hasCompletedOnboarding: boolean;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -110,7 +111,8 @@ const UserSchema = new Schema<IUser>(
     provider: { type: String },
     providerId: { type: String },
     emailVerified: { type: Boolean, default: false },
-    avatar: { type: String }
+    avatar: { type: String },
+    hasCompletedOnboarding: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

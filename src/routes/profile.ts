@@ -30,7 +30,7 @@ router.get("/upload-signature", (req: Request, res: Response) => {
 // Update user profile
 router.patch("/", async (req: Request, res: Response) => {
   try {
-    const { name, timeZone, profileImageUrl, avatar, automaticBackupsEnabled, notificationEmailsEnabled } = req.body;
+    const { name, timeZone, profileImageUrl, avatar, automaticBackupsEnabled, notificationEmailsEnabled, hasCompletedOnboarding } = req.body;
     const user = await User.findById(req.user!.id);
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -62,6 +62,7 @@ router.patch("/", async (req: Request, res: Response) => {
 
     if (automaticBackupsEnabled !== undefined) user.automaticBackupsEnabled = automaticBackupsEnabled;
     if (notificationEmailsEnabled !== undefined) user.notificationEmailsEnabled = notificationEmailsEnabled;
+    if (hasCompletedOnboarding !== undefined) user.hasCompletedOnboarding = hasCompletedOnboarding;
 
     await user.save();
     res.json({ user });
