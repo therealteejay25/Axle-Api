@@ -661,8 +661,6 @@ export const REQUIRES_APPROVAL = [
   "gmail_send_email",
   "slack_send_message",
   "github_merge_pull_request",
-  "twitter_post_tweet",
-  "twitter_post_thread",
   "drive_delete_file",
   "calendar_create_event",
   "calendar_update_event",

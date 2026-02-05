@@ -35,15 +35,27 @@ const startServer = async () => {
   app.use(express.urlencoded({ limit: "10mb", extended: true }));
   app.use(cookieParser());
 
-  const allowedOrigins = env.ALLOWED_ORIGINS
-    ? (typeof env.ALLOWED_ORIGINS === "string" ? env.ALLOWED_ORIGINS.split(",").map(o => o.trim()) : env.ALLOWED_ORIGINS)
-    : ["http://localhost:3000"];
+  const allowedOrigins = [
+  "https://heyaxle.vercel.app",
+  "https://heyaxle.pxxl.click",
+  "http://localhost:3000",
+];
 
-  // CORS
-  app.use(cors({
-    origin: "https://heyaxle.vercel.app",
-    credentials: true
-  }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow server-to-server / curl / mobile apps
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
   // Rate limiting
   // app.use(globalRateLimiter);
