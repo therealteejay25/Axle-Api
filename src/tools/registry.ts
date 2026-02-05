@@ -110,12 +110,15 @@ import { createScheduleSelfTool } from "./scheduler";
 import { createPlatformTools } from "./platform";
 
 // Control tools
-import { 
-    createCompleteTaskTool, 
-    createRememberTool, 
-    createRecallTool, 
-    createScheduleTaskTool 
+import {
+    createCompleteTaskTool,
+    createRememberTool,
+    createRecallTool,
+    createScheduleTaskTool
 } from "./control";
+
+// Notion tools
+import { createNotionTools } from "./notion";
 
 // Tool factory functions - create user-specific tools (Now includes Web + Scheduler)
 export const createUserTools = (userId: string, agentId?: string) => {
@@ -198,6 +201,9 @@ export const createUserTools = (userId: string, agentId?: string) => {
 
         ...createSlackTools(userId),
 
+        // Notion Suite (45 tools)
+        ...createNotionTools(userId),
+
         // Web Tools (2 new tools)
         createWebSearchTool(),                 // ✅ web_search
         createWebReadPageTool(),               // ✅ web_read_page
@@ -220,11 +226,11 @@ export const createUserTools = (userId: string, agentId?: string) => {
         // Control tools
         tools.unshift(createCompleteTaskTool(userId, agentId)); // ✅ complete_task
         tools.push(createScheduleTaskTool(userId, agentId)); // ✅ schedule_task (new, replaces schedule_self)
-        
+
         // Memory tools
         tools.push(createRememberTool(userId, agentId)); // ✅ remember
         tools.push(createRecallTool(userId, agentId)); // ✅ recall
-        
+
         // Legacy scheduler tool (kept for backward compatibility)
         tools.push(createScheduleSelfTool(userId, agentId)); // ✅ schedule_self
     }

@@ -19,6 +19,7 @@
     "@google/adk-devtools": "^0.2.1",
     "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.2.9",
+    "@notionhq/client": "^5.9.0",
     "@openai/agents": "^0.3.3",
     "@openrouter/sdk": "^0.2.9",
     "@slack/web-api": "^7.13.0",

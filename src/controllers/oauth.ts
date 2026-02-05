@@ -12,7 +12,7 @@ import { logger } from "../services/logger";
 // Handles OAuth flows for all providers.
 // ============================================
 
-type OAuthProvider = "github" | "google" | "slack" | "twitter" | "instagram";
+type OAuthProvider = "github" | "google" | "slack" | "twitter" | "instagram" | "notion";
 
 interface OAuthConfig {
   clientId: string;
@@ -131,6 +131,16 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         scopes: ["user_profile", "user_media"],
         userInfoUrl: "https://graph.instagram.com/me"
       } : null;
+    case "notion":
+      return env.NOTION_CLIENT_ID ? {
+        clientId: env.NOTION_CLIENT_ID,
+        clientSecret: env.NOTION_CLIENT_SECRET!,
+        redirectUri: env.NOTION_REDIRECT_URI!,
+        authUrl: "https://api.notion.com/v1/oauth/authorize",
+        tokenUrl: "https://api.notion.com/v1/oauth/token",
+        scopes: [], // Notion scopes are handled differently via the OAuth interface
+        userInfoUrl: "https://api.notion.com/v1/users/me"
+      } : null;
     default:
       return null;
   }
@@ -143,14 +153,14 @@ export const getAuthUrl = async (req: Request, res: Response) => {
   try {
     const { provider } = req.params as { provider: OAuthProvider };
     const config = getProviderConfig(provider);
-    
+
     if (!config) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: `Provider ${provider} not configured`,
-        configured: false 
+        configured: false
       });
     }
-    
+
     // Generate state for CSRF protection
     // For Twitter, also include code_verifier for PKCE
     let codeVerifier: string | undefined;
@@ -158,14 +168,14 @@ export const getAuthUrl = async (req: Request, res: Response) => {
       // Generate random code_verifier (43-128 chars, URL-safe)
       codeVerifier = crypto.randomBytes(32).toString("base64url");
     }
-    
+
     const state = Buffer.from(JSON.stringify({
       userId: req.user!.id,
       provider,
       timestamp: Date.now(),
       codeVerifier // Store for Twitter PKCE
     })).toString("base64");
-    
+
     // Build auth URL
     const params = new URLSearchParams({
       client_id: config.clientId,
@@ -174,7 +184,7 @@ export const getAuthUrl = async (req: Request, res: Response) => {
       state,
       response_type: "code"
     });
-    
+
     // Provider-specific params
     if (provider === "google") {
       params.append("access_type", "offline");
@@ -189,10 +199,10 @@ export const getAuthUrl = async (req: Request, res: Response) => {
       params.append("code_challenge", codeChallenge);
       params.append("code_challenge_method", "S256");
     }
-    
+
     const authUrl = `${config.authUrl}?${params.toString()}`;
-    
-    res.json({ 
+
+    res.json({
       authUrl,
       provider,
       configured: true
@@ -207,20 +217,20 @@ export const getAuthUrl = async (req: Request, res: Response) => {
 export const handleCallback = async (req: Request, res: Response) => {
   try {
     let { provider } = req.params as { provider: OAuthProvider };
-    
+
     // Normalize x to twitter
     if (provider as string === "x") provider = "twitter";
-    
+
     const { code, state, error } = req.query;
-    
+
     if (error) {
       return res.status(400).json({ error: `OAuth error: ${error}` });
     }
-    
+
     if (!code || !state) {
       return res.status(400).json({ error: "Missing code or state" });
     }
-    
+
     // Decode and verify state
     let stateData: any;
     try {
@@ -228,21 +238,21 @@ export const handleCallback = async (req: Request, res: Response) => {
     } catch {
       return res.status(400).json({ error: "Invalid state" });
     }
-    
+
     // Check state freshness (15 min max)
     if (Date.now() - stateData.timestamp > 15 * 60 * 1000) {
       return res.status(400).json({ error: "State expired" });
     }
-    
+
     const config = getProviderConfig(provider);
     if (!config) {
       return res.status(400).json({ error: `Provider ${provider} not configured` });
     }
-    
+
     // Exchange code for tokens
     const tokenResponse = await exchangeCodeForTokens(
-      provider, 
-      code as string, 
+      provider,
+      code as string,
       config,
       stateData.codeVerifier // Pass code_verifier for Twitter
     );
@@ -287,7 +297,7 @@ export const handleCallback = async (req: Request, res: Response) => {
           : {}),
       };
     }
-    
+
     // Get user info if available
     let metadata: Record<string, any> = {};
     if (config.userInfoUrl && tokenResponse.access_token) {
@@ -303,13 +313,13 @@ export const handleCallback = async (req: Request, res: Response) => {
         ...(tokenResponse as any).metadataFromToken,
       };
     }
-    
+
     // Encrypt tokens
     const encryptedAccessToken = encryptToken(tokenResponse.access_token);
-    const encryptedRefreshToken = tokenResponse.refresh_token 
-      ? encryptToken(tokenResponse.refresh_token) 
+    const encryptedRefreshToken = tokenResponse.refresh_token
+      ? encryptToken(tokenResponse.refresh_token)
       : undefined;
-    
+
     // Save integration
     const integration = await Integration.findOneAndUpdate(
       { userId: stateData.userId, provider },
@@ -318,7 +328,7 @@ export const handleCallback = async (req: Request, res: Response) => {
         provider,
         accessToken: encryptedAccessToken,
         refreshToken: encryptedRefreshToken,
-        tokenExpiresAt: tokenResponse.expires_in 
+        tokenExpiresAt: tokenResponse.expires_in
           ? new Date(Date.now() + tokenResponse.expires_in * 1000)
           : undefined,
         scopes: config.scopes,
@@ -328,13 +338,13 @@ export const handleCallback = async (req: Request, res: Response) => {
       },
       { upsert: true, new: true }
     );
-    
-    logger.info("OAuth integration connected", { 
-      userId: stateData.userId, 
+
+    logger.info("OAuth integration connected", {
+      userId: stateData.userId,
       provider,
-      integrationId: integration._id 
+      integrationId: integration._id
     });
-    
+
     // Redirect to frontend success page
     res.redirect(`https://heyaxle.vercel.app/app/apps`);
   } catch (err: any) {
@@ -362,17 +372,17 @@ const exchangeCodeForTokens = async (
     redirect_uri: config.redirectUri,
     grant_type: "authorization_code"
   };
-  
+
   // Twitter uses PKCE with code_verifier
   if (provider === "twitter" && codeVerifier) {
     params.code_verifier = codeVerifier;
   }
-  
+
   const headers: Record<string, string> = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Accept": "application/json"
   };
-  
+
   // Twitter uses Basic auth
   if (provider === "twitter" || provider as string === "x") {
     const credentials = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64");
@@ -381,20 +391,25 @@ const exchangeCodeForTokens = async (
     delete params.client_secret;
     delete params.client_id;
   }
-  
+
+  if (provider === "notion") {
+    const credentials = Buffer.from(`${config.clientId}:${config.clientSecret}`).toString("base64");
+    headers["Authorization"] = `Basic ${credentials}`;
+  }
+
   try {
     const response = await axios.post(
       config.tokenUrl,
       new URLSearchParams(params).toString(),
       { headers }
     );
-    
+
     return response.data;
   } catch (error: any) {
-    logger.error("Token exchange failed", { 
-      provider, 
+    logger.error("Token exchange failed", {
+      provider,
       status: error.response?.status,
-      data: error.response?.data 
+      data: error.response?.data
     });
     throw new Error(error.response?.data?.error_description || error.message);
   }
@@ -407,33 +422,33 @@ const getUserInfo = async (
   config: OAuthConfig
 ): Promise<Record<string, any>> => {
   if (!config.userInfoUrl) return {};
-  
+
   const headers: Record<string, string> = {
     "Authorization": `Bearer ${accessToken}`,
     "Accept": "application/json"
   };
-  
+
   // GitHub uses different header
   if (provider === "github") {
     headers["Authorization"] = `token ${accessToken}`;
   }
-  
+
   // Normalize twitter/x
   if (provider as string === "x") provider = "twitter";
-  
+
   // Slack needs token as query param
   let url = config.userInfoUrl;
   if (provider === "slack") {
     url += `?token=${accessToken}`;
     delete headers["Authorization"];
   }
-  
+
   // Instagram needs fields
   if (provider === "instagram") {
     url += `?fields=id,username&access_token=${accessToken}`;
     delete headers["Authorization"];
   }
-  
+
   const response = await axios.get(url, { headers });
   return response.data;
 };
@@ -443,16 +458,16 @@ const getUserInfo = async (
 // Get all integrations status
 export const getIntegrationsStatus = async (req: Request, res: Response) => {
   try {
-    const integrations = await Integration.find({ 
-      userId: req.user!.id 
+    const integrations = await Integration.find({
+      userId: req.user!.id
     }).select("-accessToken -refreshToken").lean();
-    
+
     // Build status for all providers
-    const providers: OAuthProvider[] = ["github", "google", "slack", "twitter", "instagram"];
+    const providers: OAuthProvider[] = ["github", "google", "slack", "twitter", "instagram", "notion"];
     const status = providers.map(provider => {
       const config = getProviderConfig(provider);
       const integration = integrations.find(i => i.provider === provider);
-      
+
       return {
         provider,
         configured: !!config,
@@ -463,7 +478,7 @@ export const getIntegrationsStatus = async (req: Request, res: Response) => {
         scopes: integration?.scopes
       };
     });
-    
+
     res.json({ integrations: status });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -475,12 +490,12 @@ export const getIntegrationStatus = async (req: Request, res: Response) => {
   try {
     const { provider } = req.params;
     const config = getProviderConfig(provider as OAuthProvider);
-    
+
     const integration = await Integration.findOne({
       userId: req.user!.id,
       provider
     }).select("-accessToken -refreshToken").lean();
-    
+
     res.json({
       provider,
       configured: !!config,
@@ -499,23 +514,23 @@ export const getIntegrationStatus = async (req: Request, res: Response) => {
 export const disconnectIntegration = async (req: Request, res: Response) => {
   try {
     const { provider } = req.params;
-    
+
     const result = await Integration.findOneAndDelete({
       userId: req.user!.id,
       provider
     });
-    
+
     if (!result) {
       return res.status(404).json({ error: "Integration not found" });
     }
-    
-    logger.info("Integration disconnected", { 
-      userId: req.user!.id, 
-      provider 
+
+    logger.info("Integration disconnected", {
+      userId: req.user!.id,
+      provider
     });
-    
-    res.json({ 
-      disconnected: true, 
+
+    res.json({
+      disconnected: true,
       provider,
       status: "disconnected"
     });
@@ -528,25 +543,25 @@ export const disconnectIntegration = async (req: Request, res: Response) => {
 export const refreshIntegrationToken = async (req: Request, res: Response) => {
   try {
     const { provider } = req.params as { provider: OAuthProvider };
-    
+
     const integration = await Integration.findOne({
       userId: req.user!.id,
       provider
     });
-    
+
     if (!integration || !integration.refreshToken) {
       return res.status(400).json({ error: "No refresh token available" });
     }
-    
+
     const config = getProviderConfig(provider);
     if (!config) {
       return res.status(400).json({ error: `Provider ${provider} not configured` });
     }
-    
+
     // Decrypt refresh token
     const { decryptToken } = await import("../services/crypto");
     const refreshToken = decryptToken(integration.refreshToken);
-    
+
     // Request new tokens
     const params = new URLSearchParams({
       client_id: config.clientId,
@@ -554,13 +569,13 @@ export const refreshIntegrationToken = async (req: Request, res: Response) => {
       refresh_token: refreshToken,
       grant_type: "refresh_token"
     });
-    
+
     const response = await axios.post(
       config.tokenUrl,
       params.toString(),
       { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     );
-    
+
     // Update tokens
     integration.accessToken = encryptToken(response.data.access_token);
     if (response.data.refresh_token) {
@@ -570,10 +585,10 @@ export const refreshIntegrationToken = async (req: Request, res: Response) => {
       integration.tokenExpiresAt = new Date(Date.now() + response.data.expires_in * 1000);
     }
     integration.status = "connected";
-    
+
     await integration.save();
-    
-    res.json({ 
+
+    res.json({
       refreshed: true,
       provider,
       status: "connected"
