@@ -12,7 +12,7 @@ import { logger } from "../services/logger";
 // Handles OAuth flows for all providers.
 // ============================================
 
-type OAuthProvider = "github" | "google" | "slack" | "twitter" | "instagram" | "notion";
+type OAuthProvider = "github" | "google" | "slack" | "twitter" | "instagram" | "notion" | "figma";
 
 interface OAuthConfig {
   clientId: string;
@@ -140,6 +140,16 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         tokenUrl: "https://api.notion.com/v1/oauth/token",
         scopes: [], // Notion scopes are handled differently via the OAuth interface
         userInfoUrl: "https://api.notion.com/v1/users/me"
+      } : null;
+    case "figma":
+      return env.FIGMA_CLIENT_ID ? {
+        clientId: env.FIGMA_CLIENT_ID,
+        clientSecret: env.FIGMA_CLIENT_SECRET!,
+        redirectUri: env.FIGMA_REDIRECT_URI!,
+        authUrl: "https://www.figma.com/oauth",
+        tokenUrl: "https://www.figma.com/api/oauth/token",
+        scopes: ["current_user:read", "file_comments:read", "file_comments:write", "file_content:read", "file_metadata:read"],
+        userInfoUrl: "https://api.figma.com/v1/me"
       } : null;
     default:
       return null;
@@ -463,7 +473,7 @@ export const getIntegrationsStatus = async (req: Request, res: Response) => {
     }).select("-accessToken -refreshToken").lean();
 
     // Build status for all providers
-    const providers: OAuthProvider[] = ["github", "google", "slack", "twitter", "instagram", "notion"];
+    const providers: OAuthProvider[] = ["github", "google", "slack", "twitter", "instagram", "notion", "figma"];
     const status = providers.map(provider => {
       const config = getProviderConfig(provider);
       const integration = integrations.find(i => i.provider === provider);

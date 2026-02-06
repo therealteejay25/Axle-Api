@@ -120,6 +120,9 @@ import {
 // Notion tools
 import { createNotionTools } from "./notion";
 
+// Figma tools
+import { createFigmaTools } from "./figma";
+
 // Tool factory functions - create user-specific tools (Now includes Web + Scheduler)
 export const createUserTools = (userId: string, agentId?: string) => {
     const tools = [
@@ -203,6 +206,9 @@ export const createUserTools = (userId: string, agentId?: string) => {
 
         // Notion Suite (45 tools)
         ...createNotionTools(userId),
+
+        // Figma Suite (21 tools)
+        ...createFigmaTools(userId),
 
         // Web Tools (2 new tools)
         createWebSearchTool(),                 // ✅ web_search

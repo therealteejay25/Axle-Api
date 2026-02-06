@@ -357,10 +357,10 @@ export const makeTwitterRequest = async (
   const url = normalizedEndpoint.startsWith("http")
     ? normalizedEndpoint
     : normalizedEndpoint.startsWith("/1.1")
-    ? `${base}${normalizedEndpoint}`
-    : normalizedEndpoint.startsWith("/2")
-    ? `${base}${normalizedEndpoint}`
-    : `${base}/2${normalizedEndpoint.startsWith("/") ? "" : "/"}${normalizedEndpoint}`;
+      ? `${base}${normalizedEndpoint}`
+      : normalizedEndpoint.startsWith("/2")
+        ? `${base}${normalizedEndpoint}`
+        : `${base}/2${normalizedEndpoint.startsWith("/") ? "" : "/"}${normalizedEndpoint}`;
 
   const res = await fetch(url, {
     ...options,
@@ -421,6 +421,65 @@ export const makeSlackRequest = async (
     throw new Error(`Slack API error: ${(result as any).error || "unknown_error"}`);
   }
   return result;
+};
+
+/* ============================================================
+   FIGMA API
+============================================================ */
+
+export const makeFigmaRequest = async (
+  userId: string,
+  endpoint: string,
+  options: RequestInit = {}
+) => {
+  const integration = await getIntegration(userId, "figma");
+  if (!integration) {
+    throw new Error("Figma integration not connected.");
+  }
+
+  let decryptedToken: string;
+  try {
+    decryptedToken = decryptTokenIfNeeded(integration.accessToken);
+  } catch (error) {
+    logger.error(`[API HELPER] Failed to decrypt Figma token:`, error);
+    throw new Error(
+      "Failed to decrypt stored tokens. Please reconnect your Figma account."
+    );
+  }
+
+  const base = "https://api.figma.com/v1";
+  const url = endpoint.startsWith("http")
+    ? endpoint
+    : `${base}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${decryptedToken}`,
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+  if (!res.ok) {
+    let errorMessage = `Figma API error: ${res.status}`;
+    try {
+      const errorBody = await res.text();
+      // Try to parse error message from Figma response
+      // Figma errors usually come as { status: 403, err: "message" } or similar
+      const errorJson = JSON.parse(errorBody);
+      if (errorJson.err) {
+        errorMessage = `Figma API error: ${errorJson.err}`;
+      } else if (errorJson.message) {
+        errorMessage = `Figma API error: ${errorJson.message}`;
+      }
+    } catch {
+      // Fallback if parsing fails
+    }
+    throw new Error(errorMessage);
+  }
+
+  return res.json();
 };
 
 /* ============================================================
