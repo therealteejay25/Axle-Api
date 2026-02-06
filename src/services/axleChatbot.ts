@@ -122,12 +122,16 @@ export class AxleChatbot {
                     yield { type: "tool_start", data: { count: calls.length } };
 
                     // Parallel execution
+                    for (const call of calls) {
+                        yield { type: "tool_executing", data: { name: call.name } };
+                    }
+
                     const toolPromises = calls.map(async (call) => {
                         const toolName = call.name;
                         const toolArgs = call.args;
 
                         logger.info(`[AxleChatbot] Calling tool ${toolName}`, toolArgs);
-                        yield { type: "tool_executing", data: { name: toolName } };
+                        // yield { type: "tool_executing", data: { name: toolName } }; // Moved out to avoid syntax error
 
                         const toolImpl = toolsRaw.find((t: any) => t.definition.name === toolName);
                         if (!toolImpl) {

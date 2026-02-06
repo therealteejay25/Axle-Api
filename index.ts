@@ -14,7 +14,6 @@ import { env } from "./src/config/env";
 import { globalRateLimiter } from "./src/middleware/rateLimit";
 import { initQueueScheduler } from "./src/queue/executionQueue";
 import { initScheduler } from "./src/triggers/scheduleHandler";
-import { initScheduler } from "./src/triggers/scheduleHandler";
 import { SocketService } from "./src/services/SocketService";
 import { keepAliveService } from "./src/services/keepAlive";
 
@@ -39,9 +38,10 @@ const startServer = async () => {
 
   const allowedOrigins = [
     "https://heyaxle.vercel.app",
-    "https://heyaxle.pxxl.click",
     "https://heyaxle.click",
+    "https://www.heyaxle.click",
     "http://localhost:3000",
+    "http://localhost:5173",
   ];
 
   app.use(
@@ -53,6 +53,7 @@ const startServer = async () => {
         if (allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
+          logger.warn(`Blocked by CORS: ${origin}`);
           callback(new Error("Not allowed by CORS"));
         }
       },
