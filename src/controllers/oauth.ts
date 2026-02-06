@@ -12,7 +12,7 @@ import { logger } from "../services/logger";
 // Handles OAuth flows for all providers.
 // ============================================
 
-type OAuthProvider = "github" | "google" | "slack" | "twitter" | "instagram" | "notion" | "figma";
+type OAuthProvider = "github" | "google" | "slack" | "twitter" | "instagram" | "notion" | "figma" | "linear";
 
 interface OAuthConfig {
   clientId: string;
@@ -150,6 +150,16 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         tokenUrl: "https://www.figma.com/api/oauth/token",
         scopes: ["current_user:read", "file_comments:read", "file_comments:write", "file_content:read", "file_metadata:read"],
         userInfoUrl: "https://api.figma.com/v1/me"
+      } : null;
+    case "linear":
+      return env.LINEAR_CLIENT_ID ? {
+        clientId: env.LINEAR_CLIENT_ID,
+        clientSecret: env.LINEAR_CLIENT_SECRET!,
+        redirectUri: env.LINEAR_REDIRECT_URI!,
+        authUrl: "https://linear.app/oauth/authorize",
+        tokenUrl: "https://api.linear.app/oauth/token",
+        scopes: ["read", "write"],
+        userInfoUrl: "https://api.linear.app/graphql" // GraphQL endpoint
       } : null;
     default:
       return null;
@@ -433,6 +443,26 @@ const getUserInfo = async (
 ): Promise<Record<string, any>> => {
   if (!config.userInfoUrl) return {};
 
+  // Linear uses GraphQL
+  if (provider === "linear") {
+    try {
+      const response = await axios.post(
+        config.userInfoUrl,
+        { query: 'query { viewer { id name email } }' },
+        {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      return response.data?.data?.viewer || {};
+    } catch (e: any) {
+      logger.error("Failed to get Linear user info", { error: e.message });
+      return {};
+    }
+  }
+
   const headers: Record<string, string> = {
     "Authorization": `Bearer ${accessToken}`,
     "Accept": "application/json"
@@ -473,7 +503,7 @@ export const getIntegrationsStatus = async (req: Request, res: Response) => {
     }).select("-accessToken -refreshToken").lean();
 
     // Build status for all providers
-    const providers: OAuthProvider[] = ["github", "google", "slack", "twitter", "instagram", "notion", "figma"];
+    const providers: OAuthProvider[] = ["github", "google", "slack", "twitter", "instagram", "notion", "figma", "linear"];
     const status = providers.map(provider => {
       const config = getProviderConfig(provider);
       const integration = integrations.find(i => i.provider === provider);

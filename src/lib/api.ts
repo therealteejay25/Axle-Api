@@ -483,6 +483,74 @@ export const makeFigmaRequest = async (
 };
 
 /* ============================================================
+   LINEAR API
+============================================================ */
+
+export const makeLinearRequest = async (
+  userId: string,
+  endpoint: string,
+  options: RequestInit = {}
+) => {
+  const integration = await getIntegration(userId, "linear");
+  if (!integration) {
+    throw new Error("Linear integration not connected.");
+  }
+
+  let decryptedToken: string;
+  try {
+    decryptedToken = decryptTokenIfNeeded(integration.accessToken);
+  } catch (error) {
+    logger.error(`[API HELPER] Failed to decrypt Linear token:`, error);
+    throw new Error(
+      "Failed to decrypt stored tokens. Please reconnect your Linear account."
+    );
+  }
+
+  const base = "https://api.linear.app";
+  const url = endpoint.startsWith("http")
+    ? endpoint
+    : `${base}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
+
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${decryptedToken}`,
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+  if (!res.ok) {
+    let errorMessage = `Linear API error: ${res.status}`;
+    try {
+      const errorBody = await res.text();
+      const errorJson = JSON.parse(errorBody);
+      // Linear GraphQL errors
+      if (errorJson.errors && Array.isArray(errorJson.errors)) {
+        errorMessage = `Linear API error: ${errorJson.errors.map((e: any) => e.message).join(", ")}`;
+      } else if (errorJson.error) {
+        errorMessage = `Linear API error: ${errorJson.error}`;
+      } else if (errorJson.message) {
+        errorMessage = `Linear API error: ${errorJson.message}`;
+      }
+    } catch {
+      // Fallback
+    }
+    throw new Error(errorMessage);
+  }
+
+  const json = await res.json();
+
+  // Check for GraphQL errors in 200 OK responses
+  if (json.errors && Array.isArray(json.errors)) {
+    const msgs = json.errors.map((e: any) => e.message).join(", ");
+    throw new Error(`Linear API error: ${msgs}`);
+  }
+
+  return json;
+};
+
+/* ============================================================
    UTILITIES
 ============================================================ */
 
