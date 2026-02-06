@@ -14,7 +14,9 @@ import { env } from "./src/config/env";
 import { globalRateLimiter } from "./src/middleware/rateLimit";
 import { initQueueScheduler } from "./src/queue/executionQueue";
 import { initScheduler } from "./src/triggers/scheduleHandler";
+import { initScheduler } from "./src/triggers/scheduleHandler";
 import { SocketService } from "./src/services/SocketService";
+import { keepAliveService } from "./src/services/keepAlive";
 
 // ============================================
 // AXLE AGENT EXECUTION ENGINE
@@ -36,26 +38,26 @@ const startServer = async () => {
   app.use(cookieParser());
 
   const allowedOrigins = [
-  "https://heyaxle.vercel.app",
-  "https://heyaxle.pxxl.click",
-  "http://localhost:3000",
-];
+    "https://heyaxle.vercel.app",
+    "https://heyaxle.pxxl.click",
+    "http://localhost:3000",
+  ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // allow server-to-server / curl / mobile apps
-      if (!origin) return callback(null, true);
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // allow server-to-server / curl / mobile apps
+        if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })
+  );
 
   // Rate limiting
   // app.use(globalRateLimiter);
@@ -110,6 +112,9 @@ app.use(
   const { initSchedulerWorker } = await import("./src/worker/scheduler");
   initSchedulerWorker(); // Start consumer
   logger.info("Scheduler initialized");
+
+  // Start Keep Alive
+  keepAliveService.start();
 
   // Graceful shutdown
   const shutdown = async (signal: string) => {
