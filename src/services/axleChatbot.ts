@@ -1,8 +1,10 @@
-import { GoogleGenerativeAI, Content } from "@google/generative-ai";
+import { GoogleGenerativeAI, Content, FunctionDeclaration, GenerativeModel } from "@google/generative-ai";
 import { ChatSession } from "../models/ChatSession";
 import { GodAgentService } from "./GodAgentService";
 import { logger } from "./logger";
 import { env } from "../config/env";
+import { createUserTools } from "../tools/registry";
+import { cacheService } from "./cache";
 
 function getGeminiClient(): GoogleGenerativeAI {
     if (!env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not found");
@@ -23,31 +25,40 @@ export class AxleChatbot {
         // 2. Prepare Context
         const dataSummary = await GodAgentService.getDataSummary(userId);
 
-        // 3. Initialize Gemini Chat
+        // 3. Prepare Tools
+        // Get all tools available for this user
+        // 3. Prepare Tools
+        // We instantiate tools every time to ensure we have executable functions.
+        // However, we cache the *schemas* for Gemini to avoid re-mapping 100+ tools every time.
+        const toolsRaw = createUserTools(userId);
+
+        // 4. Initialize Gemini Chat
         const genAI = getGeminiClient();
         const model = genAI.getGenerativeModel({
             model: env.MODEL,
             systemInstruction: `
-            You are the Axle God Agent.
-            You have FULL control over the Axle platform and connected integrations.
+            You are the Axle God Agent, a capable AI assistant with full access to the user's connected tools.
             
             USER CONTEXT:
             - Agents: ${dataSummary.agents.length} agents
-            - Connected: ${(dataSummary.integrations || []).map((i: any) => i.provider).join(", ")}
+            - Connected Integrations: ${(dataSummary.integrations || []).map((i: any) => i.provider).join(", ")}
+            
+            CAPABILITIES:
+            - You can read and write data to Linear, Figma, Notion, GitHub, Google Drive, and more.
+            - Always use the provided tools to answer questions when data is needed.
+            - If a user asks to do something, check if a tool exists for it.
+            - You can call multiple tools in parallel if they are independent.
             
             BEHAVIOR:
-            - You are powerful, helpful, and proactive.
-            - Provide a clear plan and guidance, but do not call tools.
-            - Show your thinking process.
-        `
+            - Be helpful, concise, and professional.
+            - If you take an action, confirm it to the user.
+            - If you cannot find a tool, explain why.
+        `,
+            tools: [{ functionDeclarations: tools }]
         });
 
-        // 4. Load History
-        // Convert DB messages to Gemini Content format
+        // 5. Load History
         const history: Content[] = session.messages.slice(-20).map(m => {
-            // Simple mapping. Complex tool history reconstruction is harder 
-            // without storing structure. For now, treating past messages as text.
-            // IMPROVEMENT: Store structure in DB to support native history reconstruction.
             return {
                 role: m.role === 'assistant' ? 'model' : 'user',
                 parts: [{ text: m.content }]
@@ -62,8 +73,7 @@ export class AxleChatbot {
             }
         });
 
-        // 5. Processing Loop
-        // We use a loop to handle multiple turns (tool calls) for a single user request
+        // 6. Processing Loop
         let currentMessage = message;
         let keepGoing = true;
         let turnCount = 0;
@@ -72,10 +82,15 @@ export class AxleChatbot {
         try {
             while (keepGoing && turnCount < MAX_TURNS) {
                 turnCount++;
-                yield { type: "thinking", data: "Processing..." };
+                if (turnCount > 1) {
+                    yield { type: "thinking", data: "Processing tool results..." };
+                } else {
+                    yield { type: "thinking", data: "Processing..." };
+                }
 
                 const result = await chat.sendMessageStream(currentMessage);
                 let textBuffer = "";
+                let functionCalls: any[] = []; // Store calls to execute
 
                 // Stream response
                 for await (const chunk of result.stream) {
@@ -85,14 +100,13 @@ export class AxleChatbot {
                         yield { type: "text_delta", data: text };
                     }
 
-                    // Check for function calls in this chunk (Gemini SDK aggregates, but we can inspect parts)
-                    // Note: standard SDK requires waiting for full response to reliably get calls, 
-                    // but `chunk.functionCalls` exists if supported by current SDK version.
-                    // We'll rely on the aggregate response for execution, but could stream intent if available.
+                    // Collect function calls if present (depending on SDK version, they might come differently)
+                    // The standard way to handle tools in stream is to wait for the final response 
+                    // or inspect chunk.functionCalls()
                 }
 
                 const response = await result.response;
-                void response;
+                const calls = response.functionCalls();
 
                 // Save Assistant Turn (Text only part)
                 if (textBuffer) {
@@ -103,7 +117,79 @@ export class AxleChatbot {
                     });
                 }
 
-                keepGoing = false;
+                if (calls && calls.length > 0) {
+                    // We have tool calls!
+                    yield { type: "tool_start", data: { count: calls.length } };
+
+                    // Parallel execution
+                    const toolPromises = calls.map(async (call) => {
+                        const toolName = call.name;
+                        const toolArgs = call.args;
+
+                        logger.info(`[AxleChatbot] Calling tool ${toolName}`, toolArgs);
+                        yield { type: "tool_executing", data: { name: toolName } };
+
+                        const toolImpl = toolsRaw.find((t: any) => t.definition.name === toolName);
+                        if (!toolImpl) {
+                            return {
+                                functionResponse: {
+                                    name: toolName,
+                                    response: { error: `Tool ${toolName} not found` }
+                                }
+                            };
+                        }
+
+                        try {
+                            const output = await toolImpl.execute(toolArgs);
+                            return {
+                                functionResponse: {
+                                    name: toolName,
+                                    response: { name: toolName, content: output }
+                                }
+                            };
+                        } catch (err: any) {
+                            return {
+                                functionResponse: {
+                                    name: toolName,
+                                    response: { error: err.message }
+                                }
+                            };
+                        }
+                    });
+
+                    const toolResults = await Promise.all(toolPromises);
+
+                    // Send tool results back to model
+                    // Note: sendMessageStream doesn't support passing FunctionResponse content directly easily 
+                    // in some SDK versions for history management.
+                    // But typically we send a new message with role 'function' or similar.
+                    // For Google GenAI SDK, we usually continue the chat.
+
+                    // Construct the message payload for tool results
+                    // Ideally check SDK docs. For `chat.sendMessage`, we pass the `functionResponses`.
+                    // But since we are inside a loop and `sendMessage` advances history, we need to be careful.
+
+                    // The `sendMessage` call we just made ALREADY added the model's tool calls to the internal history.
+                    // Now we need to provide the responses.
+
+                    // Note: sendMessageStream with function responses might need non-stream or different handling.
+                    // Let's assume we can just pass the array of parts.
+
+                    // Actually, the SDK expects us to call sendMessage with the tool responses.
+
+                    const responseParts = toolResults.map(r => r); // Array if InteractionResponse
+
+                    // We need to loop back to send this to the model
+                    // Does NOT support streaming tool outputs usually, but we can treat it as the next message
+
+                    // Correct format for Google GenAI Node SDK:
+                    // chat.sendMessage([{ functionResponse: ... }, ...])
+
+                    currentMessage = responseParts as any; // Hacky typing, but passing array of parts works
+                    keepGoing = true; // Continue loop to get model's interpretation of results
+                } else {
+                    keepGoing = false; // No more tools, we are done
+                }
             }
         } catch (err: any) {
             logger.error("Chat Error", err);

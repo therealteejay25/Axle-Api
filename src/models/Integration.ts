@@ -20,7 +20,9 @@ export type IntegrationProvider =
   | "google"
   | "email"
   | "instagram"
-  | "figma";
+  | "figma"
+  | "notion"
+  | "linear";
 
 export type IntegrationStatus = "connected" | "disconnected" | "revoked" | "expired";
 
@@ -54,7 +56,7 @@ const IntegrationSchema = new Schema<IIntegration>(
     },
     provider: {
       type: String,
-      enum: ["github", "slack", "twitter", "google", "email", "instagram", "figma"],
+      enum: ["github", "slack", "twitter", "google", "email", "instagram", "figma", "notion", "linear"],
       required: true
     },
     accessToken: {

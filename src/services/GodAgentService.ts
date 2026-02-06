@@ -5,7 +5,9 @@ import { AuditLog } from "../models/AuditLog";
 import { User } from "../models/User";
 import { Integration } from "../models/Integration";
 import { decryptToken } from "./crypto";
+import { decryptToken } from "./crypto";
 import { logger } from "./logger";
+import { cacheService } from "./cache";
 
 
 
@@ -29,30 +31,36 @@ export class GodAgentService {
    * Fetches unified data summary for a user.
    */
   static async getDataSummary(userId: string) {
-    const ownerObjectId = new Types.ObjectId(userId);
-    const agents = await Agent.find({ ownerId: ownerObjectId }).lean();
-    const agentIds = agents.map((a: any) => a._id);
+    return cacheService.wrap(
+      `data_summary:${userId}`,
+      async () => {
+        const ownerObjectId = new Types.ObjectId(userId);
+        const agents = await Agent.find({ ownerId: ownerObjectId }).lean();
+        const agentIds = agents.map((a: any) => a._id);
 
-    const [recentExecutions, auditLogs, integrations] = await Promise.all([
-      Execution.find({ agentId: { $in: agentIds } })
-        .sort({ createdAt: -1 })
-        .limit(10)
-        .lean(),
-      AuditLog.find({ userId: ownerObjectId })
-        .sort({ timestamp: -1 })
-        .limit(10)
-        .lean(),
-      Integration.find({ userId: ownerObjectId, status: "connected" })
-        .select("provider status tokenExpiresAt scopes metadata lastUsedAt")
-        .lean()
-    ]);
+        const [recentExecutions, auditLogs, integrations] = await Promise.all([
+          Execution.find({ agentId: { $in: agentIds } })
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .lean(),
+          AuditLog.find({ userId: ownerObjectId })
+            .sort({ timestamp: -1 })
+            .limit(10)
+            .lean(),
+          Integration.find({ userId: ownerObjectId, status: "connected" })
+            .select("provider status tokenExpiresAt scopes metadata lastUsedAt")
+            .lean()
+        ]);
 
-    return {
-      agents,
-      recentExecutions,
-      auditLogs,
-      integrations
-    };
+        return {
+          agents,
+          recentExecutions,
+          auditLogs,
+          integrations
+        };
+      },
+      60 // Cache for 60 seconds
+    );
   }
 
   /**
