@@ -147,7 +147,7 @@ const getProviderConfig = (provider: OAuthProvider): OAuthConfig | null => {
         clientSecret: env.FIGMA_CLIENT_SECRET!,
         redirectUri: env.FIGMA_REDIRECT_URI!,
         authUrl: "https://www.figma.com/oauth",
-        tokenUrl: "https://www.figma.com/api/oauth/token",
+        tokenUrl: "https://api.figma.com/v1/oauth/token",
         scopes: ["current_user:read", "file_comments:read", "file_comments:write", "file_content:read", "file_metadata:read"],
         userInfoUrl: "https://api.figma.com/v1/me"
       } : null;
