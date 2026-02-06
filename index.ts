@@ -40,6 +40,7 @@ const startServer = async () => {
   const allowedOrigins = [
     "https://heyaxle.vercel.app",
     "https://heyaxle.pxxl.click",
+    "https://heyaxle.click",
     "http://localhost:3000",
   ];
 
