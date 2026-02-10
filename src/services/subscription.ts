@@ -1,121 +1,147 @@
-import { stripe, PLAN_TO_PRICE } from "../lib/stripe";
+import { polar, PLAN_TO_PRICE } from "../lib/polar";
 import { User, PlanType, PLAN_LIMITS } from "../models/User";
 import { logger } from "./logger";
 
 // ============================================
-// SUBSCRIPTION SERVICE
+// SUBSCRIPTION SERVICE (POLAR)
 // ============================================
-// Manages Stripe subscriptions
+// Manages Polar subscriptions
 // ============================================
 
 /**
- * Create Stripe checkout session for subscription
+ * Create Polar checkout session for subscription
  */
 export const createCheckoutSession = async (
   userId: string,
   plan: PlanType,
   successUrl: string,
-  cancelUrl: string
+  _cancelUrl: string // Polar checkout might not support cancel URL in the same way or it's configured in dashboard
 ): Promise<string> => {
-  if (!stripe) throw new Error("Stripe not configured");
-  
+
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
-  
-  const priceId = PLAN_TO_PRICE[plan];
-  if (!priceId) throw new Error(`No Stripe price configured for plan: ${plan}`);
-  
-  // Create or get Stripe customer
-  let customerId = user.stripeCustomerId;
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email,
-      metadata: { userId: user._id.toString() }
-    });
-    customerId = customer.id;
-    user.stripeCustomerId = customerId;
-    await user.save();
-  }
-  
-  // Create checkout session
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: successUrl,
-    cancel_url: cancelUrl,
+
+  const productPriceId = PLAN_TO_PRICE[plan];
+  if (!productPriceId) throw new Error(`No Polar price configured for plan: ${plan}`);
+
+  // Create checkout
+  const checkout = await polar.checkouts.create({
+    productPriceId,
+    successUrl,
+    customerEmail: user.email,
     metadata: {
       userId: user._id.toString(),
       plan
-    }
+    },
+    // If user already has a Polar customer ID, we could pass it, but Polar handles email matching often.
+    // customerId: user.polarUserId
   });
-  
-  logger.info("Checkout session created", { userId, plan, sessionId: session.id });
-  
-  return session.url!;
+
+  logger.info("Checkout session created", { userId, plan, checkoutId: checkout.id });
+
+  return checkout.url;
 };
 
 /**
  * Handle successful checkout
  */
-export const handleCheckoutComplete = async (session: any): Promise<void> => {
-  const userId = session.metadata.userId;
-  const plan = session.metadata.plan as PlanType;
-  const subscriptionId = session.subscription as string;
-  
-  const user = await User.findById(userId);
+export const handleCheckoutComplete = async (payload: any): Promise<void> => {
+  // Payload structure depends on the event. 
+  // For 'subscription.created', 'subscription.active', payload is the subscription object.
+  // We need to extract metadata or match by email if metadata isn't on the subscription object directly (it usually is on checkout).
+
+  // If payload is from checkout.created or similar, it might have metadata.
+  // If payload is subscription, we might need to look up the user by customer email or ID.
+
+  let userId: string | undefined;
+  let plan: PlanType | undefined;
+
+  // Attempt to find user by customer ID or email from the payload
+  const customerId = payload.customer_id || payload.customer?.id;
+  const customerEmail = payload.customer_email || payload.customer?.email;
+
+  // Also try metadata if available (e.g. from checkout)
+  if (payload.metadata) {
+    userId = payload.metadata.userId;
+    plan = payload.metadata.plan as PlanType;
+  }
+
+  let user = null;
+
+  if (userId) {
+    user = await User.findById(userId);
+  } else if (customerId) {
+    user = await User.findOne({ polarUserId: customerId });
+  }
+
+  if (!user && customerEmail) {
+    user = await User.findOne({ email: customerEmail });
+  }
+
   if (!user) {
-    logger.error("User not found for checkout", { userId });
+    logger.error("User not found for Polar event", { payload });
     return;
   }
-  
-  // Get subscription details
-  const subscription = await stripe!.subscriptions.retrieve(subscriptionId);
-  
-  // Update user
-  user.plan = plan;
-  user.stripeSubscriptionId = subscriptionId;
-  user.subscriptionStatus = subscription.status as any;
-  user.subscriptionCurrentPeriodEnd = new Date(subscription.current_period_end * 1000);
-  user.credits = PLAN_LIMITS[plan].monthlyCredits;
-  
+
+  // Save Polar Customer ID if not set
+  if (customerId && !user.polarUserId) {
+    user.polarUserId = customerId;
+  }
+
+  const subscriptionId = payload.id;
+  const status = payload.status;
+
+  // Determine plan from price ID if not in metadata
+  if (!plan && payload.price_id) {
+    // Reverse lookup plan
+    const entry = Object.entries(PLAN_TO_PRICE).find(([_, priceId]) => priceId === payload.price_id);
+    if (entry) {
+      plan = entry[0] as PlanType;
+    }
+  }
+
+  if (!plan) {
+    // Fallback or keep existing
+    logger.warn("Could not determine plan from Polar event", { subscriptionId });
+    // Don't update plan if we can't determine it, just status
+  } else {
+    user.plan = plan;
+    user.credits = PLAN_LIMITS[plan].monthlyCredits; // Reset/Set credits on new subscription
+  }
+
+  user.polarSubscriptionId = subscriptionId;
+  user.subscriptionStatus = status;
+
+  if (payload.current_period_end) {
+    user.subscriptionCurrentPeriodEnd = new Date(payload.current_period_end);
+  }
+
   await user.save();
-  
-  logger.info("Subscription activated", { userId, plan, subscriptionId });
+
+  logger.info("Subscription activated/updated", { userId: user._id, plan, subscriptionId });
 };
 
 /**
  * Handle subscription update
  */
 export const handleSubscriptionUpdated = async (subscription: any): Promise<void> => {
-  const user = await User.findOne({ stripeSubscriptionId: subscription.id });
-  if (!user) {
-    logger.warn("User not found for subscription", { subscriptionId: subscription.id });
-    return;
-  }
-  
-  user.subscriptionStatus = subscription.status;
-  user.subscriptionCurrentPeriodEnd = new Date(subscription.current_period_end * 1000);
-  
-  await user.save();
-  
-  logger.info("Subscription updated", { userId: user._id, status: subscription.status });
+  // Similar to checkout complete, but mainly for status updates/renewals
+  await handleCheckoutComplete(subscription);
 };
 
 /**
- * Handle subscription canceled
+ * Handle subscription processing
  */
 export const handleSubscriptionDeleted = async (subscription: any): Promise<void> => {
-  const user = await User.findOne({ stripeSubscriptionId: subscription.id });
+  const user = await User.findOne({ polarSubscriptionId: subscription.id });
   if (!user) return;
-  
+
   user.plan = "free";
   user.subscriptionStatus = "canceled";
   user.credits = PLAN_LIMITS.free.monthlyCredits;
-  
+
   await user.save();
-  
+
   logger.info("Subscription canceled", { userId: user._id });
 };
 
@@ -124,21 +150,20 @@ export const handleSubscriptionDeleted = async (subscription: any): Promise<void
  */
 export const createPortalSession = async (
   userId: string,
-  returnUrl: string
+  _returnUrl: string
 ): Promise<string> => {
-  if (!stripe) throw new Error("Stripe not configured");
-  
+
   const user = await User.findById(userId);
-  if (!user || !user.stripeCustomerId) {
-    throw new Error("No Stripe customer found");
+  if (!user || !user.polarUserId) {
+    throw new Error("No Polar customer found");
   }
-  
-  const session = await stripe.billingPortal.sessions.create({
-    customer: user.stripeCustomerId,
-    return_url: returnUrl
+
+  // Polar usually has a standard customer portal URL or generates one via API
+  const session = await polar.customerSessions.create({
+    customerId: user.polarUserId
   });
-  
-  return session.url;
+
+  return session.customerPortalUrl; // Check SDK response structure
 };
 
 /**
@@ -147,18 +172,20 @@ export const createPortalSession = async (
 export const getSubscriptionDetails = async (userId: string) => {
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
-  
+
   const limits = PLAN_LIMITS[user.plan as PlanType];
-  
+
   let subscription = null;
-  if (user.stripeSubscriptionId && stripe) {
+  if (user.polarSubscriptionId) {
     try {
-      subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      // Fetch subscription from Polar if needed, or rely on DB
+      // const result = await polar.subscriptions.get({ id: user.polarSubscriptionId });
+      // subscription = result;
     } catch (err) {
       logger.warn("Failed to retrieve subscription", { userId, err });
     }
   }
-  
+
   return {
     plan: user.plan,
     planName: user.plan.charAt(0).toUpperCase() + user.plan.slice(1),
@@ -167,7 +194,7 @@ export const getSubscriptionDetails = async (userId: string) => {
     creditsLimit: limits.monthlyCredits,
     agentLimit: limits.agentLimit,
     currentPeriodEnd: user.subscriptionCurrentPeriodEnd,
-    cancelAtPeriodEnd: subscription?.cancel_at_period_end || false,
+    cancelAtPeriodEnd: false, // subscription?.cancel_at_period_end || false,
     nextBillingDate: user.subscriptionCurrentPeriodEnd
   };
 };

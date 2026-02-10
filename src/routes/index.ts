@@ -35,6 +35,9 @@ router.use("/auth", authRoutes);
 // Stripe webhooks (public - Stripe calls this)
 router.use("/webhooks/stripe", stripeWebhooksRoutes);
 
+import polarWebhooksRoutes from "./polarWebhooks";
+router.use("/webhooks/polar", polarWebhooksRoutes);
+
 // API v1 routes (protected)
 router.use("/agents", agentsRoutes);
 router.use("/agents/:id/preview", previewRoutes);

@@ -7,7 +7,9 @@ import { Schema, model, Document, Types } from "mongoose";
 // Billing is user-level with plan limits and credits.
 // ============================================
 
-export type PlanType = "free" | "pro" | "premium" | "deluxe";
+// ============================================
+
+export type PlanType = "free" | "starter" | "pro" | "team" | "business";
 
 export interface IPlanLimits {
   agentLimit: number;
@@ -16,9 +18,10 @@ export interface IPlanLimits {
 
 export const PLAN_LIMITS: Record<PlanType, IPlanLimits> = {
   free: { agentLimit: 2, monthlyCredits: 100 },
-  pro: { agentLimit: 6, monthlyCredits: 500 },
-  premium: { agentLimit: 10, monthlyCredits: 1500 },
-  deluxe: { agentLimit: 18, monthlyCredits: 5000 }
+  starter: { agentLimit: 5, monthlyCredits: 500 },
+  pro: { agentLimit: 15, monthlyCredits: 2000 },
+  team: { agentLimit: 30, monthlyCredits: 5000 },
+  business: { agentLimit: Number.POSITIVE_INFINITY, monthlyCredits: 15000 }
 };
 
 export interface IUser extends Document {
@@ -37,10 +40,11 @@ export interface IUser extends Document {
   plan: PlanType;
   credits: number;
   creditsResetAt: Date;
-  // Stripe billing
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
-  subscriptionStatus?: 'active' | 'canceled' | 'past_due' | 'trialing';
+  // Polar billing
+  polarUserId?: string;
+  polarSubscriptionId?: string;
+  subscriptionStatus?: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete';
+
   subscriptionCurrentPeriodEnd?: Date;
   // Settings
   timeZone?: string;
@@ -80,7 +84,7 @@ const UserSchema = new Schema<IUser>(
     // Billing
     plan: {
       type: String,
-      enum: ["free", "pro", "premium", "deluxe"],
+      enum: ["free", "starter", "pro", "team", "business"],
       default: "free"
     },
     credits: {
@@ -95,12 +99,12 @@ const UserSchema = new Schema<IUser>(
         return new Date(now.getFullYear(), now.getMonth() + 1, 1);
       }
     },
-    // Stripe
-    stripeCustomerId: { type: String },
-    stripeSubscriptionId: { type: String },
+    // Polar
+    polarUserId: { type: String },
+    polarSubscriptionId: { type: String },
     subscriptionStatus: {
       type: String,
-      enum: ['active', 'canceled', 'past_due', 'trialing']
+      enum: ['active', 'canceled', 'past_due', 'trialing', 'incomplete']
     },
     subscriptionCurrentPeriodEnd: { type: Date },
     timeZone: { type: String, default: "UTC" },

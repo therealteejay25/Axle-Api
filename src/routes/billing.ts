@@ -5,7 +5,7 @@ import {
   createPortalSession,
   getSubscriptionDetails
 } from "../services/subscription";
-import { stripe } from "../lib/stripe";
+// import { stripe } from "../lib/stripe"; // Removed
 
 // ============================================
 // BILLING DASHBOARD ROUTES
@@ -21,16 +21,19 @@ router.use(authMiddleware);
 router.get("/subscription", async (req: Request, res: Response) => {
   try {
     const details = await getSubscriptionDetails(req.user!.id);
-    
+
     res.json({
       subscription: details,
       // Natural language enhancements
       summaryText: `You're on the ${details.planName} plan with ${details.credits} of ${details.creditsLimit} credits remaining`,
-      statusText: details.status === "active" 
+      statusText: details.status === "active"
         ? "✅ Your subscription is active"
+        // Polar might return other statuses
         : details.status === "past_due"
-        ? "⚠️ Payment failed - please update your payment method"
-        : "🆓 You're on the free plan",
+          ? "⚠️ Payment failed - please update your payment method"
+          : details.status === "canceled"
+            ? "❌ Subscription canceled"
+            : "🆓 You're on the free plan",
       nextBillingText: details.nextBillingDate
         ? `Next billing: ${new Date(details.nextBillingDate).toLocaleDateString()}`
         : null
@@ -44,21 +47,22 @@ router.get("/subscription", async (req: Request, res: Response) => {
 router.post("/checkout", async (req: Request, res: Response) => {
   try {
     const { plan } = req.body;
-    
+
+    // Updated plans
     if (!plan || !['starter', 'pro', 'team', 'business'].includes(plan)) {
       return res.status(400).json({ error: "Invalid plan" });
     }
-    
-    const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing/success`;
-    const cancelUrl = `${process.env.FRONTEND_URL  || 'http://localhost:3000'}/billing`;
-    
+
+    const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing`;
+
     const checkoutUrl = await createCheckoutSession(
       req.user!.id,
       plan,
       successUrl,
       cancelUrl
     );
-    
+
     res.json({ url: checkoutUrl });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -69,9 +73,9 @@ router.post("/checkout", async (req: Request, res: Response) => {
 router.post("/portal", async (req: Request, res: Response) => {
   try {
     const returnUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing`;
-    
+
     const portalUrl = await createPortalSession(req.user!.id, returnUrl);
-    
+
     res.json({ url: portalUrl });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -81,35 +85,10 @@ router.post("/portal", async (req: Request, res: Response) => {
 // Get invoice history
 router.get("/invoices", async (req: Request, res: Response) => {
   try {
-    const { User } = await import("../models/User");
-    const user = await User.findById(req.user!.id);
-    
-    if (!user || !user.stripeCustomerId || !stripe) {
-      return res.json({ invoices: [] });
-    }
-    
-    const invoices = await stripe.invoices.list({
-      customer: user.stripeCustomerId,
-      limit: 12
-    });
-    
-    const formattedInvoices = invoices.data.map(inv => ({
-      id: inv.id,
-      amount: inv.amount_paid / 100,
-      currency: inv.currency.toUpperCase(),
-      status: inv.status,
-      statusText: inv.status === 'paid' 
-        ? '✅ Paid' 
-        : inv.status === 'open'
-        ? '⏳ Pending'
-        : '❌ Failed',
-      date: new Date(inv.created * 1000),
-      dateText: new Date(inv.created * 1000).toLocaleDateString(),
-      pdfUrl: inv.invoice_pdf,
-      description: `${inv.currency.toUpperCase()} ${(inv.amount_paid / 100).toFixed(2)} for ${inv.lines.data[0]?.description || 'subscription'}`
-    }));
-    
-    res.json({ invoices: formattedInvoices });
+    // Polar API for invoices might differ or not be directly available via SDK in the same way yet.
+    // We can return a placeholder or empty list for now until we implement Polar invoice fetching if needed.
+    // Or we leave it empty as the Portal usually handles this.
+    res.json({ invoices: [] });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -187,7 +166,7 @@ router.get("/plans", async (req: Request, res: Response) => {
       ]
     }
   ];
-  
+
   res.json({ plans });
 });
 

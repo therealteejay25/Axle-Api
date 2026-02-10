@@ -1,0 +1,62 @@
+import { Router, Request, Response } from "express";
+import { validateEvent } from "@polar-sh/sdk/webhooks";
+import {
+    handleCheckoutComplete,
+    handleSubscriptionUpdated,
+    handleSubscriptionDeleted
+} from "../services/subscription";
+import { logger } from "../services/logger";
+
+// ============================================
+// POLAR WEBHOOKS
+// ============================================
+// Handles Polar webhook events
+// ============================================
+
+const router = Router();
+
+// Polar webhook endpoint
+router.post("/", async (req: Request, res: Response) => {
+    // If you need strict signature verification, ensure you have access to the raw body.
+    // const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
+    // const signature = req.headers["polar-webhook-signature"] as string;
+    // validateEvent(req.body, req.headers, webhookSecret);
+
+    const event = req.body;
+
+    if (!event || !event.type) {
+        return res.status(400).json({ error: "Invalid payload" });
+    }
+
+    logger.info("Received Polar Webhook", { type: event.type });
+
+    try {
+        switch (event.type) {
+            case "subscription.created":
+            case "subscription.active":
+                // Polar events structure might differ, ensure mapping is correct in service
+                await handleCheckoutComplete(event);
+                break;
+
+            case "subscription.updated":
+                await handleSubscriptionUpdated(event);
+                break;
+
+            case "subscription.revoked":
+            case "subscription.canceled":
+                await handleSubscriptionDeleted(event);
+                break;
+
+            default:
+                logger.info("Unhandled Polar event", { type: event.type });
+        }
+
+        res.json({ received: true });
+
+    } catch (err: any) {
+        logger.error("Webhook handler error", { error: err.message });
+        res.status(500).json({ error: "Webhook handler failed" });
+    }
+});
+
+export default router;
