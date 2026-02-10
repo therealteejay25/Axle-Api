@@ -49,7 +49,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
     const { plan } = req.body;
 
     // Updated plans
-    if (!plan || !['starter', 'pro', 'team', 'business'].includes(plan)) {
+    if (!plan || !['pro', 'premium', 'custom'].includes(plan)) {
       return res.status(400).json({ error: "Invalid plan" });
     }
 
@@ -98,66 +98,52 @@ router.get("/invoices", async (req: Request, res: Response) => {
 router.get("/plans", async (req: Request, res: Response) => {
   const plans = [
     {
-      id: "starter",
-      name: "Starter",
-      price: 19,
-      priceText: "$19/month",
-      agentLimit: 5,
-      monthlyCredits: 500,
+      id: "pro",
+      name: "Pro",
+      price: 9.99,
+      priceText: "$9.99/month",
+      agentLimit: 10,
+      monthlyCredits: 1000,
       description: "Perfect for indie hackers and small projects",
       features: [
         "5 agents",
-        "500 monthly credits (~125 executions)",
+        "1,000 monthly credits (~250 executions)",
         "Email support",
-        "All 80+ integrations"
+        "All 80+ integrations",
+        "3 active schedule triggers per agent",
+        "Webhook triggers",
+        "3 proactive Agents Access"
       ]
     },
     {
-      id: "pro",
-      name: "Pro",
-      price: 49,
-      priceText: "$49/month",
-      agentLimit: 15,
-      monthlyCredits: 2000,
+      id: "premium",
+      name: "Premium",
+      price: 49.99,
+      priceText: "$49.99/month",
+      agentLimit: 50,
+      monthlyCredits: 5000,
       popular: true,
-      description: "Best for professional developers and teams",
+      description: "Best for growing teams",
       features: [
-        "15 agents",
-        "2,000 monthly credits (~500 executions)",
+        "20 agents",
+        "5,000 monthly credits (~1,250 executions)",
         "Priority support",
         "Advanced features (memory, reasoning)",
         "Webhook triggers",
-        "Real-time progress tracking"
+        "10 proactive Agents Access"
       ]
     },
     {
-      id: "team",
-      name: "Team",
-      price: 99,
-      priceText: "$99/month",
-      agentLimit: 30,
-      monthlyCredits: 5000,
-      description: "For small teams and agencies",
-      features: [
-        "30 agents",
-        "5,000 monthly credits (~1,250 executions)",
-        "Team collaboration (3-5 users)",
-        "Priority support",
-        "Custom integrations",
-        "Usage analytics"
-      ]
-    },
-    {
-      id: "business",
-      name: "Business",
-      price: 249,
-      priceText: "$249/month",
+      id: "custom",
+      name: "Custom",
+      price: 249.99,
+      priceText: "$249.99/month",
       agentLimit: Number.POSITIVE_INFINITY,
-      monthlyCredits: 15000,
+      monthlyCredits: 20000,
       description: "Enterprise-grade automation",
       features: [
         "Unlimited agents",
-        "15,000 monthly credits (~3,750 executions)",
+        "20,000 monthly credits (~5,000 executions)",
         "Unlimited team members",
         "Dedicated support",
         "SLA guarantees",

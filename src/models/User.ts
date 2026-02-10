@@ -9,7 +9,7 @@ import { Schema, model, Document, Types } from "mongoose";
 
 // ============================================
 
-export type PlanType = "free" | "starter" | "pro" | "team" | "business";
+export type PlanType = "free" | "pro" | "premium" | "custom";
 
 export interface IPlanLimits {
   agentLimit: number;
@@ -18,10 +18,9 @@ export interface IPlanLimits {
 
 export const PLAN_LIMITS: Record<PlanType, IPlanLimits> = {
   free: { agentLimit: 2, monthlyCredits: 100 },
-  starter: { agentLimit: 5, monthlyCredits: 500 },
-  pro: { agentLimit: 15, monthlyCredits: 2000 },
-  team: { agentLimit: 30, monthlyCredits: 5000 },
-  business: { agentLimit: Number.POSITIVE_INFINITY, monthlyCredits: 15000 }
+  pro: { agentLimit: 10, monthlyCredits: 1000 },
+  premium: { agentLimit: 50, monthlyCredits: 5000 },
+  custom: { agentLimit: Number.POSITIVE_INFINITY, monthlyCredits: 20000 }
 };
 
 export interface IUser extends Document {
@@ -84,7 +83,7 @@ const UserSchema = new Schema<IUser>(
     // Billing
     plan: {
       type: String,
-      enum: ["free", "starter", "pro", "team", "business"],
+      enum: ["free", "pro", "premium", "custom"],
       default: "free"
     },
     credits: {

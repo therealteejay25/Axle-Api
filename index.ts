@@ -32,7 +32,12 @@ const startServer = async () => {
   const app = express();
 
   // Security & Parsing
-  app.use(express.json({ limit: "10mb" }));
+  app.use(express.json({
+    limit: "10mb",
+    verify: (req: any, res, buf) => {
+      (req as any).rawBody = buf;
+    }
+  }));
   app.use(express.urlencoded({ limit: "10mb", extended: true }));
   app.use(cookieParser());
 

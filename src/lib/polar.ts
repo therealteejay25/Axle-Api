@@ -20,19 +20,18 @@ export const polar = new Polar({
 export const POLAR_ORGANIZATION_ID = process.env.POLAR_ORGANIZATION_ID || "";
 
 // Product/Price IDs from Polar Dashboard
+// Product/Price IDs from Polar Dashboard
 export const POLAR_PRICES = {
-    starter: process.env.POLAR_PRICE_ID_STARTER || "",
     pro: process.env.POLAR_PRICE_ID_PRO || "",
-    team: process.env.POLAR_PRICE_ID_TEAM || "",
-    business: process.env.POLAR_PRICE_ID_BUSINESS || ""
+    premium: process.env.POLAR_PRICE_ID_PREMIUM || "",
+    custom: process.env.POLAR_PRICE_ID_CUSTOM || ""
 };
 
 // Map plan types to Polar price IDs
 export const PLAN_TO_PRICE: Record<string, string> = {
-    starter: POLAR_PRICES.starter,
     pro: POLAR_PRICES.pro,
-    team: POLAR_PRICES.team,
-    business: POLAR_PRICES.business
+    premium: POLAR_PRICES.premium,
+    custom: POLAR_PRICES.custom
 };
 
 export default polar;

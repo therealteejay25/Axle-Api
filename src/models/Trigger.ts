@@ -19,7 +19,7 @@ export interface ITrigger extends Document {
     cron?: string;
     timezone?: string;
     // For webhook type
-    source?: string; // e.g., "github.push", "stripe.payment", "slack.message"
+    source?: string; // e.g., "github.push", "slack.message"
     webhookPath?: string; // unique path for this webhook
   };
   enabled: boolean;

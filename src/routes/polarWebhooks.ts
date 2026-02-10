@@ -17,11 +17,19 @@ const router = Router();
 
 // Polar webhook endpoint
 router.post("/", async (req: Request, res: Response) => {
-    // If you need strict signature verification, ensure you have access to the raw body.
-    // const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
-    // const signature = req.headers["polar-webhook-signature"] as string;
-    // validateEvent(req.body, req.headers, webhookSecret);
+    const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
+    const signature = req.headers["polar-webhook-signature"] as string;
 
+    // Use rawBody captured in index.ts for verification
+    if (webhookSecret && (req as any).rawBody) {
+        try {
+            validateEvent((req as any).rawBody, req.headers as any, webhookSecret);
+        } catch (err) {
+            return res.status(400).json({ error: "Invalid signature" });
+        }
+    }
+
+    // Proceed with parsed body
     const event = req.body;
 
     if (!event || !event.type) {

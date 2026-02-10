@@ -217,7 +217,7 @@ router.get("/live", async (req: Request, res: Response) => {
         credits: user.credits,
         creditsLimit: limits.monthlyCredits,
         creditsResetAt: user.creditsResetAt,
-        stripeStatus: user.subscriptionStatus || 'free',
+        subscriptionStatus: user.subscriptionStatus || 'free',
         daysRemaining: Math.max(0, Math.ceil((new Date(user.creditsResetAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
       },
 

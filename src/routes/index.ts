@@ -12,14 +12,13 @@ import chatbotRoutes from "./chatbot";
 import platformRoutes from "./platform";
 import previewRoutes from "./preview";
 import integrationHealthRoutes from "./integrationHealth";
-import stripeWebhooksRoutes from "./stripeWebhooks";
 import dashboardRoutes from "./dashboard";
 import threadsRoutes from "./threads";
 import newsletterRoutes from "./newsletter.routes";
 import approvalsRoutes from "./approvals";
 import feedbackRoutes from "./feedback";
 import { handleCallback } from "../controllers/oauth";
-
+import polarWebhooksRoutes from "./polarWebhooks";
 // ============================================
 // MAIN ROUTER
 // ============================================
@@ -32,13 +31,9 @@ router.use("/health", healthRoutes);
 // Authentication (public)
 router.use("/auth", authRoutes);
 
-// Stripe webhooks (public - Stripe calls this)
-router.use("/webhooks/stripe", stripeWebhooksRoutes);
 
-import polarWebhooksRoutes from "./polarWebhooks";
+
 router.use("/webhooks/polar", polarWebhooksRoutes);
-
-// API v1 routes (protected)
 router.use("/agents", agentsRoutes);
 router.use("/agents/:id/preview", previewRoutes);
 router.use("/triggers", triggersRoutes);
