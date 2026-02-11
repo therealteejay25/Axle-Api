@@ -3,6 +3,7 @@ dotenv.config();
 
 import cors from "cors";
 import express, { Request, Response, NextFunction } from "express";
+import outray from "@outray/express";
 import http from "http";
 import cookieParser from "cookie-parser";
 
@@ -89,20 +90,30 @@ const startServer = async () => {
     }
   });
 
-  // Create HTTP server
-  const server = http.createServer(app);
-
-  // Initialize WebSocket
-  SocketService.getInstance().init(server);
-
-  // Start server
+  // Create HTTP server & Start (using app.listen to trigger OutRay)
   const PORT = env.PORT || 9000;
-  server.listen(PORT, () => {
+
+  // Configure OutRay (Dev only)
+  if (!env.IS_PROD) {
+    outray(app, {
+      onTunnelReady: (url: string) => {
+        logger.info(`[OutRay] Tunnel ready: ${url}`);
+      },
+      onError: (err: Error) => {
+        logger.error(`[OutRay] Error: ${err.message}`);
+      }
+    });
+  }
+
+  const server = app.listen(PORT, () => {
     const envLabel = env.IS_PROD ? "PRODUCTION" : "development";
     logger.info(`[${envLabel}] Axle API listening on http://localhost:${PORT}`);
     logger.info(`API v${apiVersion}: /api/${apiVersion}/`);
     logger.info(`Health: http://localhost:${PORT}/health/live`);
   });
+
+  // Initialize WebSocket
+  SocketService.getInstance().init(server);
 
   // Initialize queue scheduler
   await initQueueScheduler();
