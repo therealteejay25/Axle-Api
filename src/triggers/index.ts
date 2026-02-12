@@ -14,7 +14,6 @@ export {
   generateWebhookPath,
   verifyGitHubSignature,
   verifySlackSignature,
-  verifyStripeSignature,
   parseWebhookSource
 } from "./webhookHandler";
 

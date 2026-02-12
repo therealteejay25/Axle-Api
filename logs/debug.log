@@ -24758,3 +24758,221 @@
 {"timestamp":"2026-02-11 08:25:17","level":"error","message":"[API HELPER] Google API request failed for user 694bb4c2e0c946cbacbdd568: Google integration not connected. Please connect Google account.","stack":"Error: Google integration not connected. Please connect Google account.\n    at getGoogleOAuthClient (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:197:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async makeGoogleRequest (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:215:20)\n    at async fetchGmailNotifications (/home/xprogrammmer/Documents/Axle-Api/src/services/notificationSync.ts:156:21)\n    at async Promise.allSettled (index 0)\n    at async syncNotifications (/home/xprogrammmer/Documents/Axle-Api/src/services/notificationSync.ts:459:84)\n    at async <anonymous> (/home/xprogrammmer/Documents/Axle-Api/src/routes/dashboard.ts:312:27)"}
 {"timestamp":"2026-02-11 08:25:17","level":"debug","message":"[API HELPER] No connected google integration for user 694bb4c2e0c946cbacbdd568"}
 {"timestamp":"2026-02-11 08:25:17","level":"error","message":"[API HELPER] Google API request failed for user 694bb4c2e0c946cbacbdd568: Google integration not connected. Please connect Google account.","stack":"Error: Google integration not connected. Please connect Google account.\n    at getGoogleOAuthClient (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:197:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async makeGoogleRequest (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:215:20)\n    at async fetchGmailMentionNotifications (/home/xprogrammmer/Documents/Axle-Api/src/services/notificationSync.ts:59:24)\n    at async Promise.allSettled (index 1)\n    at async syncNotifications (/home/xprogrammmer/Documents/Axle-Api/src/services/notificationSync.ts:459:84)\n    at async <anonymous> (/home/xprogrammmer/Documents/Axle-Api/src/routes/dashboard.ts:312:27)"}
+{"timestamp":"2026-02-11 08:33:33","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 08:47:33","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 08:52:23","level":"info","message":"Received SIGINT, shutting down..."}
+{"timestamp":"2026-02-11 08:52:44","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-11 08:52:44","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-11 08:52:45","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-11 08:52:57","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-11 08:52:57","level":"info","message":"[development] Axle API listening on http://localhost:7000"}
+{"timestamp":"2026-02-11 08:52:57","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-11 08:52:57","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-11 08:52:58","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-11 08:52:58","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-11 08:52:58","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-11 08:52:58","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-11 08:53:02","level":"info","message":"[OutRay] Tunnel ready: https://dishonest-war.outray.app"}
+{"timestamp":"2026-02-11 08:53:04","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-11 08:53:05","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-11 08:53:05","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-11 08:53:06","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-11 08:53:07","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-11 08:53:08","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-11 08:53:09","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-11 08:53:10","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-11 08:53:10","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-11 08:53:11","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-11 08:53:12","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-11 08:53:13","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-11 08:53:14","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-11 08:53:15","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-11 08:53:16","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-11 08:53:16","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-11 08:53:17","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-11 08:53:18","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-11 08:53:19","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-11 08:53:19","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-11 08:53:19","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-11 08:53:19","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-11 08:53:19","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-11 08:53:19","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-11 08:53:19","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 09:06:03","level":"info","message":"Received SIGTERM, shutting down..."}
+{"timestamp":"2026-02-11 09:06:15","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-11 09:06:15","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-11 09:06:15","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-11 09:06:23","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-11 09:06:23","level":"info","message":"[development] Axle API listening on http://localhost:7000"}
+{"timestamp":"2026-02-11 09:06:23","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-11 09:06:23","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-11 09:06:24","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-11 09:06:24","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-11 09:06:24","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-11 09:06:24","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-11 09:06:27","level":"info","message":"[OutRay] Tunnel ready: https://disloyal-musician.outray.app"}
+{"timestamp":"2026-02-11 09:06:30","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-11 09:06:30","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-11 09:06:31","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-11 09:06:32","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-11 09:06:33","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-11 09:06:34","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-11 09:06:34","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-11 09:06:35","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-11 09:06:36","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-11 09:06:37","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-11 09:06:38","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-11 09:06:39","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-11 09:06:40","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-11 09:06:40","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-11 09:06:41","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-11 09:06:42","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-11 09:06:43","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-11 09:06:43","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-11 09:06:44","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-11 09:06:44","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-11 09:06:44","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-11 09:06:44","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-11 09:06:44","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-11 09:06:44","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-11 09:06:44","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 09:20:44","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 09:34:44","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 09:48:44","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 10:02:44","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 10:16:44","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 10:21:11","level":"info","message":"Received SIGTERM, shutting down..."}
+{"timestamp":"2026-02-11 10:21:27","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-11 10:21:27","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-11 10:21:27","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"[development] Axle API listening on http://localhost:7000"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-11 10:21:31","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-11 10:21:35","level":"info","message":"[OutRay] Tunnel ready: https://outgoing-probably.outray.app"}
+{"timestamp":"2026-02-11 10:21:37","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-11 10:21:38","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-11 10:21:39","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-11 10:21:40","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-11 10:21:41","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-11 10:21:41","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-11 10:21:42","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-11 10:21:44","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-11 10:21:45","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-11 10:21:46","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-11 10:21:46","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-11 10:21:47","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-11 10:21:48","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-11 10:21:49","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-11 10:21:50","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-11 10:21:51","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-11 10:21:51","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-11 10:21:52","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-11 10:21:53","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-11 10:21:53","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-11 10:21:53","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-11 10:21:53","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-11 10:21:53","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-11 10:21:53","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-11 10:21:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 10:28:46","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"698cf45698d13af038679e27","toolCount":197}
+{"timestamp":"2026-02-11 10:28:48","level":"info","message":"MongoSessionService.load success","id":"698cf46d98d13af038679e37","historyLength":0}
+{"timestamp":"2026-02-11 10:28:57","level":"info","message":"Job completed","jobId":"1145","executionId":"698cf46d98d13af038679e37","success":true}
+{"timestamp":"2026-02-11 10:29:41","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"698cf45698d13af038679e27","toolCount":197}
+{"timestamp":"2026-02-11 10:29:42","level":"info","message":"MongoSessionService.load success","id":"698cf4a598d13af038679e56","historyLength":0}
+{"timestamp":"2026-02-11 10:29:49","level":"info","message":"[GMAIL] Listing messages with query: none"}
+{"timestamp":"2026-02-11 10:29:49","level":"debug","message":"[API HELPER] No connected google integration for user 69862c86a8fbc9bf36d4fa8d"}
+{"timestamp":"2026-02-11 10:29:50","level":"error","message":"[API HELPER] Google API request failed for user 69862c86a8fbc9bf36d4fa8d: Google integration not connected. Please connect Google account.","stack":"Error: Google integration not connected. Please connect Google account.\n    at getGoogleOAuthClient (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:197:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async makeGoogleRequest (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:215:20)\n    at async <anonymous> (/home/xprogrammmer/Documents/Axle-Api/src/tools/gmail.ts:95:26)\n    at async execute (/home/xprogrammmer/Documents/Axle-Api/src/tools/base.ts:30:18)\n    at async B.t.execute (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:403:30)\n    at async B.runAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/tools/function_tool.ts:117:14)\n    at async wn (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:196:10)\n    at async he (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:318:28)\n    at async St (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:229:10)"}
+{"timestamp":"2026-02-11 10:29:50","level":"error","message":"[GMAIL] List messages failed: Google integration not connected. Please connect Google account.","stack":"Error: Google integration not connected. Please connect Google account.\n    at getGoogleOAuthClient (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:197:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async makeGoogleRequest (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:215:20)\n    at async <anonymous> (/home/xprogrammmer/Documents/Axle-Api/src/tools/gmail.ts:95:26)\n    at async execute (/home/xprogrammmer/Documents/Axle-Api/src/tools/base.ts:30:18)\n    at async B.t.execute (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:403:30)\n    at async B.runAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/tools/function_tool.ts:117:14)\n    at async wn (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:196:10)\n    at async he (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:318:28)\n    at async St (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:229:10)"}
+{"timestamp":"2026-02-11 10:29:55","level":"info","message":"MongoSessionService.load success","id":"698cf4a598d13af038679e56","historyLength":6}
+{"timestamp":"2026-02-11 10:29:55","level":"error","message":"ADK Runner runAsync execution failed","error":{"stack":"Error: No function call event found for function responses ids: \n    at rearrangeEventsForLatestFunctionResponse (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/content_processor_utils.ts:350:11)\n    at getContents (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/content_processor_utils.ts:53:22)\n    at et.runAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/llm_agent.ts:386:29)\n    at runAsync.next (<anonymous>)\n    at o.runOneStepAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/llm_agent.ts:1026:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async o.event (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/llm_agent.ts:969:24)\n    at async o.event (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/base_agent.ts:142:24)\n    at async Z.runAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/runner/runner.ts:180:26)\n    at async processJob (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:736:26)","message":"No function call event found for function responses ids: "}}
+{"timestamp":"2026-02-11 10:29:55","level":"error","message":"Execution failed","error":{"stack":"Error: No function call event found for function responses ids: \n    at rearrangeEventsForLatestFunctionResponse (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/content_processor_utils.ts:350:11)\n    at getContents (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/content_processor_utils.ts:53:22)\n    at et.runAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/llm_agent.ts:386:29)\n    at runAsync.next (<anonymous>)\n    at o.runOneStepAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/llm_agent.ts:1026:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async o.event (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/llm_agent.ts:969:24)\n    at async o.event (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/base_agent.ts:142:24)\n    at async Z.runAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/runner/runner.ts:180:26)\n    at async processJob (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:736:26)","message":"No function call event found for function responses ids: "}}
+{"timestamp":"2026-02-11 10:29:56","level":"error","message":"Job failed","jobId":"1146","executionId":"698cf4a598d13af038679e56","error":"No function call event found for function responses ids: "}
+{"timestamp":"2026-02-11 10:29:59","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"698cf45698d13af038679e27","toolCount":197}
+{"timestamp":"2026-02-11 10:30:00","level":"info","message":"MongoSessionService.load success","id":"698cf4a598d13af038679e56","historyLength":7}
+{"timestamp":"2026-02-11 10:30:13","level":"info","message":"Job completed","jobId":"1146","executionId":"698cf4a598d13af038679e56","success":true}
+{"timestamp":"2026-02-11 10:35:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 10:39:08","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-02-11 10:39:09","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"698cf45698d13af038679e27","toolCount":197}
+{"timestamp":"2026-02-11 10:39:16","level":"info","message":"MongoSessionService.load success","id":"698cf5ee98d13af038679ea3","historyLength":78}
+{"timestamp":"2026-02-11 10:39:52","level":"info","message":"[GMAIL] Getting message details for ID: 19c4c98013cb51e4"}
+{"timestamp":"2026-02-11 10:39:54","level":"info","message":"[GMAIL] Retrieved message details"}
+{"timestamp":"2026-02-11 10:39:59","level":"error","message":"ADK Runner runAsync execution failed","error":{"stack":"InsufficientCreditsError: INSUFFICIENT_CREDITS\n    at processJob (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:1061:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Worker.processJob (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:600:22)\n    at async Worker.retryIfFailed (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:730:16)","message":"INSUFFICIENT_CREDITS","code":"INSUFFICIENT_CREDITS","available":2,"required":5,"name":"InsufficientCreditsError"}}
+{"timestamp":"2026-02-11 10:39:59","level":"error","message":"Execution failed","error":{"stack":"InsufficientCreditsError: INSUFFICIENT_CREDITS\n    at processJob (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:1061:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Worker.processJob (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:600:22)\n    at async Worker.retryIfFailed (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:730:16)","message":"INSUFFICIENT_CREDITS","code":"INSUFFICIENT_CREDITS","available":2,"required":5,"name":"InsufficientCreditsError"}}
+{"timestamp":"2026-02-11 10:40:00","level":"error","message":"Job failed","jobId":"1147","executionId":"698cf5ee98d13af038679ea3","error":"INSUFFICIENT_CREDITS"}
+{"timestamp":"2026-02-11 10:45:54","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-02-11 10:45:55","level":"debug","message":"Loaded integration: github"}
+{"timestamp":"2026-02-11 10:45:56","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"698cf85698d13af03867a137","toolCount":197}
+{"timestamp":"2026-02-11 10:45:58","level":"info","message":"MongoSessionService.load success","id":"698cf87198d13af03867a146","historyLength":0}
+{"timestamp":"2026-02-11 10:46:19","level":"info","message":"Job completed","jobId":"1148","executionId":"698cf87198d13af03867a146","success":true}
+{"timestamp":"2026-02-11 10:48:54","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-02-11 10:48:54","level":"debug","message":"Loaded integration: github"}
+{"timestamp":"2026-02-11 10:48:55","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"698cf85698d13af03867a137","toolCount":197}
+{"timestamp":"2026-02-11 10:48:56","level":"info","message":"MongoSessionService.load success","id":"698cf92598d13af03867a17a","historyLength":0}
+{"timestamp":"2026-02-11 10:49:02","level":"info","message":"[GITHUB] Creating repository: email-otp-sender"}
+{"timestamp":"2026-02-11 10:49:05","level":"info","message":"[GITHUB] Repository created successfully"}
+{"timestamp":"2026-02-11 10:49:17","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/main.py"}
+{"timestamp":"2026-02-11 10:49:19","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:49:27","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/.gitignore"}
+{"timestamp":"2026-02-11 10:49:28","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:49:36","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/requirements.txt"}
+{"timestamp":"2026-02-11 10:49:38","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:49:52","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/config.py"}
+{"timestamp":"2026-02-11 10:49:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 10:49:55","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:50:06","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/main.py"}
+{"timestamp":"2026-02-11 10:50:11","level":"error","message":"[GITHUB_CREATE_OR_UPDATE_FILE] Tool execution failed: GitHub API error: 422","stack":"Error: GitHub API error: 422\n    at makeGithubRequest (/home/xprogrammmer/Documents/Axle-Api/src/lib/api.ts:309:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async <anonymous> (/home/xprogrammmer/Documents/Axle-Api/src/tools/github.ts:209:24)\n    at async execute (/home/xprogrammmer/Documents/Axle-Api/src/tools/base.ts:83:18)\n    at async B.t.execute (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:403:30)\n    at async B.runAsync (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/tools/function_tool.ts:117:14)\n    at async wn (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:196:10)\n    at async he (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:318:28)\n    at async St (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/functions.ts:229:10)\n    at async o.postprocess (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/@google+adk@0.2.1_d875c88cd61cb37cc5d6452bbfcc26af/node_modules/@google/adk/src/agents/llm_agent.ts:1129:35)"}
+{"timestamp":"2026-02-11 10:50:18","level":"info","message":"[GITHUB] Getting file contents: Manuel-Technologies/email-otp-sender/main.py"}
+{"timestamp":"2026-02-11 10:50:19","level":"info","message":"[GITHUB] File retrieved successfully"}
+{"timestamp":"2026-02-11 10:50:28","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/main.py"}
+{"timestamp":"2026-02-11 10:50:29","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:50:39","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/README.md"}
+{"timestamp":"2026-02-11 10:50:41","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:50:49","level":"info","message":"[GITHUB] Getting file contents: Manuel-Technologies/email-otp-sender/requirements.txt"}
+{"timestamp":"2026-02-11 10:50:50","level":"info","message":"[GITHUB] File retrieved successfully"}
+{"timestamp":"2026-02-11 10:50:59","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/requirements.txt"}
+{"timestamp":"2026-02-11 10:51:01","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:51:10","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/api.py"}
+{"timestamp":"2026-02-11 10:51:12","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:51:20","level":"info","message":"[GITHUB] Getting file contents: Manuel-Technologies/email-otp-sender/README.md"}
+{"timestamp":"2026-02-11 10:51:21","level":"info","message":"[GITHUB] File retrieved successfully"}
+{"timestamp":"2026-02-11 10:51:33","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/email-otp-sender/README.md"}
+{"timestamp":"2026-02-11 10:51:35","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:51:50","level":"info","message":"Job completed","jobId":"1149","executionId":"698cf92598d13af03867a17a","success":true}
+{"timestamp":"2026-02-11 10:53:40","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-02-11 10:53:40","level":"debug","message":"Loaded integration: github"}
+{"timestamp":"2026-02-11 10:53:40","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"698cf85698d13af03867a137","toolCount":197}
+{"timestamp":"2026-02-11 10:53:42","level":"info","message":"MongoSessionService.load success","id":"698cfa4398d13af03867a19a","historyLength":0}
+{"timestamp":"2026-02-11 10:53:56","level":"info","message":"[GITHUB] Creating repository: VeriFlow.NET"}
+{"timestamp":"2026-02-11 10:53:58","level":"info","message":"[GITHUB] Repository created successfully"}
+{"timestamp":"2026-02-11 10:54:12","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/VeriFlow.NET/.gitignore"}
+{"timestamp":"2026-02-11 10:54:13","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:54:20","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/VeriFlow.NET/README.md"}
+{"timestamp":"2026-02-11 10:54:23","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:54:44","level":"info","message":"[GITHUB] Creating/updating file: Manuel-Technologies/VeriFlow.NET/src/VeriFlow.Core/IVeriFlowService.cs"}
+{"timestamp":"2026-02-11 10:54:46","level":"info","message":"[GITHUB] File created/updated successfully"}
+{"timestamp":"2026-02-11 10:54:47","level":"error","message":"ADK Runner runAsync execution failed","error":{"stack":"InsufficientCreditsError: INSUFFICIENT_CREDITS\n    at processJob (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:1061:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Worker.processJob (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:600:22)\n    at async Worker.retryIfFailed (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:730:16)","message":"INSUFFICIENT_CREDITS","code":"INSUFFICIENT_CREDITS","available":0,"required":5,"name":"InsufficientCreditsError"}}
+{"timestamp":"2026-02-11 10:54:47","level":"error","message":"Execution failed","error":{"stack":"InsufficientCreditsError: INSUFFICIENT_CREDITS\n    at processJob (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:1061:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async Worker.processJob (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:600:22)\n    at async Worker.retryIfFailed (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:730:16)","message":"INSUFFICIENT_CREDITS","code":"INSUFFICIENT_CREDITS","available":0,"required":5,"name":"InsufficientCreditsError"}}
+{"timestamp":"2026-02-11 10:54:48","level":"error","message":"Job failed","jobId":"1150","executionId":"698cfa4398d13af03867a19a","error":"INSUFFICIENT_CREDITS"}
+{"timestamp":"2026-02-11 10:54:59","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-02-11 10:54:59","level":"debug","message":"Loaded integration: github"}
+{"timestamp":"2026-02-11 10:55:00","level":"error","message":"Execution failed","error":{"stack":"InsufficientCreditsError: INSUFFICIENT_CREDITS: requires 2, available 0\n    at CreditManagerService.assertHasCredits (/home/xprogrammmer/Documents/Axle-Api/src/services/CreditManagerService.ts:75:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async processJob (/home/xprogrammmer/Documents/Axle-Api/src/worker/index.ts:321:5)\n    at async Worker.processJob (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:600:22)\n    at async Worker.retryIfFailed (/home/xprogrammmer/Documents/Axle-Api/node_modules/.pnpm/bullmq@1.91.1/node_modules/bullmq/src/classes/worker.ts:730:16)","message":"INSUFFICIENT_CREDITS: requires 2, available 0","code":"INSUFFICIENT_CREDITS","available":0,"required":2,"name":"InsufficientCreditsError"}}
+{"timestamp":"2026-02-11 10:55:01","level":"error","message":"Job failed","jobId":"1150","executionId":"698cfa4398d13af03867a19a","error":"INSUFFICIENT_CREDITS: requires 2, available 0"}
+{"timestamp":"2026-02-11 11:03:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 11:17:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 11:18:13","level":"info","message":"[OutRay] Tunnel ready: https://outgoing-probably.outray.app"}
+{"timestamp":"2026-02-11 11:18:46","level":"error","message":"Scheduler worker error read ETIMEDOUT","errno":-110,"code":"ETIMEDOUT","syscall":"read","stack":"Error: read ETIMEDOUT\n    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)"}
+{"timestamp":"2026-02-11 11:18:46","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-11 11:31:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 11:41:37","level":"error","message":"[OutRay] Error: getaddrinfo EAI_AGAIN api.outray.dev"}
+{"timestamp":"2026-02-11 11:41:41","level":"error","message":"[OutRay] Error: getaddrinfo EAI_AGAIN api.outray.dev"}
+{"timestamp":"2026-02-11 11:41:53","level":"info","message":"[OutRay] Tunnel ready: https://outgoing-probably.outray.app"}
+{"timestamp":"2026-02-11 11:45:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 11:59:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 12:09:18","level":"info","message":"[OutRay] Tunnel ready: https://outgoing-probably.outray.app"}
+{"timestamp":"2026-02-11 12:13:53","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-11 12:16:01","level":"info","message":"Received SIGTERM, shutting down..."}

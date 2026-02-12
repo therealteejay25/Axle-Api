@@ -26,15 +26,14 @@ export const createCheckoutSession = async (
 
   // Create checkout
   const checkout = await polar.checkouts.create({
-    productPriceId,
+    products: [productPriceId],
     successUrl,
     customerEmail: user.email,
     metadata: {
       userId: user._id.toString(),
       plan
     },
-    // If user already has a Polar customer ID, we could pass it, but Polar handles email matching often.
-    // customerId: user.polarUserId
+  
   });
 
   logger.info("Checkout session created", { userId, plan, checkoutId: checkout.id });
@@ -46,12 +45,7 @@ export const createCheckoutSession = async (
  * Handle successful checkout
  */
 export const handleCheckoutComplete = async (payload: any): Promise<void> => {
-  // Payload structure depends on the event. 
-  // For 'subscription.created', 'subscription.active', payload is the subscription object.
-  // We need to extract metadata or match by email if metadata isn't on the subscription object directly (it usually is on checkout).
-
-  // If payload is from checkout.created or similar, it might have metadata.
-  // If payload is subscription, we might need to look up the user by customer email or ID.
+ 
 
   let userId: string | undefined;
   let plan: PlanType | undefined;

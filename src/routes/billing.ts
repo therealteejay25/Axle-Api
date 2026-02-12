@@ -5,14 +5,6 @@ import {
   createPortalSession,
   getSubscriptionDetails
 } from "../services/subscription";
-// import { stripe } from "../lib/stripe"; // Removed
-
-// ============================================
-// BILLING DASHBOARD ROUTES
-// ============================================
-// User-facing billing endpoints
-// ============================================
-
 const router = Router();
 
 router.use(authMiddleware);
