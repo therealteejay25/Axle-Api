@@ -105,9 +105,9 @@ const startServer = async () => {
     });
   }
 
-  const server = app.listen(PORT, () => {
+  const server = app.listen(Number(PORT), "0.0.0.0", () => {
     const envLabel = env.IS_PROD ? "PRODUCTION" : "development";
-    logger.info(`[${envLabel}] Axle API listening on http://localhost:${PORT}`);
+    logger.info(`[${envLabel}] Axle API listening on 0.0.0.0:${PORT}`);
     logger.info(`API v${apiVersion}: /api/${apiVersion}/`);
     logger.info(`Health: http://localhost:${PORT}/health/live`);
   });
