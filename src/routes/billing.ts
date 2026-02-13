@@ -38,7 +38,7 @@ router.get("/subscription", async (req: Request, res: Response) => {
 // Create checkout session for new subscription
 router.post("/checkout", async (req: Request, res: Response) => {
   try {
-    const { plan } = req.body;
+    const { plan, discountCode } = req.body;
 
     // Updated plans
     if (!plan || !['pro', 'premium', 'custom'].includes(plan)) {
@@ -52,7 +52,8 @@ router.post("/checkout", async (req: Request, res: Response) => {
       req.user!.id,
       plan,
       successUrl,
-      cancelUrl
+      cancelUrl,
+      discountCode
     );
 
     res.json({ url: checkoutUrl });

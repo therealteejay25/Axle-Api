@@ -1,6 +1,7 @@
 import { polar, PLAN_TO_PRICE } from "../lib/polar";
 import { User, PlanType, PLAN_LIMITS } from "../models/User";
 import { logger } from "./logger";
+import { getCoupon } from "./coupon";
 
 // ============================================
 // SUBSCRIPTION SERVICE (POLAR)
@@ -15,7 +16,8 @@ export const createCheckoutSession = async (
   userId: string,
   plan: PlanType,
   successUrl: string,
-  _cancelUrl: string // Polar checkout might not support cancel URL in the same way or it's configured in dashboard
+  _cancelUrl: string, // Polar checkout might not support cancel URL in the same way or it's configured in dashboard
+  discountCode?: string
 ): Promise<string> => {
 
   const user = await User.findById(userId);
@@ -23,6 +25,17 @@ export const createCheckoutSession = async (
 
   const productPriceId = PLAN_TO_PRICE[plan];
   if (!productPriceId) throw new Error(`No Polar price configured for plan: ${plan}`);
+
+  let discountId: string | undefined;
+
+  if (discountCode) {
+    const coupon = await getCoupon(discountCode);
+    if (coupon) {
+      discountId = coupon.id;
+    } else {
+      logger.warn("Discount code provided but not found/valid", { discountCode });
+    }
+  }
 
   // Create checkout
   const checkout = await polar.checkouts.create({
@@ -33,10 +46,11 @@ export const createCheckoutSession = async (
       userId: user._id.toString(),
       plan
     },
-  
+    discountId,
+    allowDiscountCodes: true,
   });
 
-  logger.info("Checkout session created", { userId, plan, checkoutId: checkout.id });
+  logger.info("Checkout session created", { userId, plan, checkoutId: checkout.id, discountCode, discountId });
 
   return checkout.url;
 };
@@ -45,7 +59,7 @@ export const createCheckoutSession = async (
  * Handle successful checkout
  */
 export const handleCheckoutComplete = async (payload: any): Promise<void> => {
- 
+
 
   let userId: string | undefined;
   let plan: PlanType | undefined;

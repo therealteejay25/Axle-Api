@@ -19,6 +19,7 @@ import approvalsRoutes from "./approvals";
 import feedbackRoutes from "./feedback";
 import { handleCallback } from "../controllers/oauth";
 import polarWebhooksRoutes from "./polarWebhooks";
+import couponsRoutes from "./coupons";
 // ============================================
 // MAIN ROUTER
 // ============================================
@@ -42,6 +43,7 @@ router.use("/integrations", integrationsRoutes);
 router.use("/integrations/health", integrationHealthRoutes);
 router.use("/webhooks", webhooksRoutes);
 router.use("/billing", billingRoutes);
+router.use("/coupons", couponsRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/profile", profileRoutes);
 router.use("/chatbot", chatbotRoutes);
