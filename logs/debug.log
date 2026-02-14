@@ -24976,3 +24976,135 @@
 {"timestamp":"2026-02-11 12:09:18","level":"info","message":"[OutRay] Tunnel ready: https://outgoing-probably.outray.app"}
 {"timestamp":"2026-02-11 12:13:53","level":"debug","message":"[KeepAlive] Ping successful"}
 {"timestamp":"2026-02-11 12:16:01","level":"info","message":"Received SIGTERM, shutting down..."}
+{"timestamp":"2026-02-14 07:55:02","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-14 07:55:02","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-14 07:55:02","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-14 07:55:04","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-14 07:55:04","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-14 07:55:04","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-14 07:55:04","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-14 07:55:05","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 07:55:05","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 07:55:05","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 07:55:05","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 07:55:11","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-14 07:55:12","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-14 07:55:13","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-14 07:55:13","level":"info","message":"[OutRay] Tunnel ready: https://logical-bank.outray.app"}
+{"timestamp":"2026-02-14 07:55:13","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-14 07:55:14","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-14 07:55:15","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-14 07:55:16","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-14 07:55:17","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-14 07:55:18","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-14 07:55:18","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-14 07:55:19","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-14 07:55:20","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-14 07:55:21","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-14 07:55:21","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-14 07:55:22","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-14 07:55:23","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-14 07:55:24","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-14 07:55:25","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-14 07:55:25","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-14 07:55:25","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-14 07:55:26","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-14 07:55:26","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-14 07:55:26","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-14 07:55:26","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-14 07:55:26","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-14 08:09:26","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-14 08:19:15","level":"info","message":"Received SIGTERM, shutting down..."}
+{"timestamp":"2026-02-14 08:19:25","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-14 08:19:25","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-14 08:19:25","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-14 08:19:26","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-14 08:19:26","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-14 08:19:26","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-14 08:19:26","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-14 08:19:27","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 08:19:27","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 08:19:27","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 08:19:27","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 08:19:33","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-14 08:19:34","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-14 08:19:34","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-14 08:19:35","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-14 08:19:36","level":"info","message":"[OutRay] Tunnel ready: https://dishonest-dentist.outray.app"}
+{"timestamp":"2026-02-14 08:19:36","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-14 08:19:37","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-14 08:19:37","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-14 08:19:38","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-14 08:19:39","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-14 08:19:40","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-14 08:19:41","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-14 08:19:41","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-14 08:19:42","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-14 08:19:43","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-14 08:19:44","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-14 08:19:45","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-14 08:19:46","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-14 08:19:46","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-14 08:19:47","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-14 08:19:47","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-14 08:19:47","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-14 08:19:47","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-14 08:19:47","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-14 08:19:47","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-14 08:19:47","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-14 08:30:23","level":"info","message":"Received SIGTERM, shutting down..."}
+{"timestamp":"2026-02-14 08:30:35","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-14 08:30:35","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-14 08:30:35","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-14 08:30:43","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-14 08:30:43","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-14 08:30:43","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-14 08:30:43","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-14 08:30:44","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 08:30:44","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 08:30:44","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 08:30:44","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 08:30:50","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-14 08:30:51","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-14 08:30:51","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-14 08:30:52","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-14 08:30:53","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-14 08:30:54","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-14 08:30:55","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-14 08:30:56","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-14 08:30:56","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-14 08:30:57","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-14 08:30:57","level":"info","message":"[OutRay] Tunnel ready: https://unlucky-democracy.outray.app"}
+{"timestamp":"2026-02-14 08:30:58","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-14 08:30:59","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-14 08:30:59","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-14 08:31:00","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-14 08:31:01","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-14 08:31:01","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-14 08:31:02","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-14 08:31:03","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-14 08:31:04","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-14 08:31:04","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-14 08:31:04","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-14 08:31:04","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-14 08:31:04","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-14 08:31:04","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-14 08:31:04","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-14 08:32:15","level":"info","message":"Received SIGTERM, shutting down..."}
+{"timestamp":"2026-02-14 08:32:21","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-14 08:32:21","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-14 08:32:21","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-14 08:32:23","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-14 08:32:23","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-14 08:32:23","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-14 08:32:23","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-14 08:32:23","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 08:32:24","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-14 08:32:24","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 08:32:24","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-14 08:32:25","level":"error","message":"[OutRay] Error: Invalid Auth Token"}
+{"timestamp":"2026-02-14 08:32:29","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-14 08:32:30","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-14 08:32:30","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-14 08:32:31","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-14 08:32:32","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}

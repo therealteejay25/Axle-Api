@@ -23,8 +23,13 @@ router.post("/", async (req: Request, res: Response) => {
     // Use rawBody captured in index.ts for verification
     if (webhookSecret && (req as any).rawBody) {
         try {
-            validateEvent((req as any).rawBody, req.headers as any, webhookSecret);
-        } catch (err) {
+            if (process.env.SKIP_WEBHOOK_VALIDATION !== "true") {
+                validateEvent((req as any).rawBody, req.headers as any, webhookSecret);
+            } else {
+                logger.warn("Skipping webhook validation for testing");
+            }
+        } catch (err: any) {
+            console.error("DEBUG: Validation Error:", err.message);
             return res.status(400).json({ error: "Invalid signature" });
         }
     }
@@ -42,17 +47,17 @@ router.post("/", async (req: Request, res: Response) => {
         switch (event.type) {
             case "subscription.created":
             case "subscription.active":
-                // Polar events structure might differ, ensure mapping is correct in service
-                await handleCheckoutComplete(event);
+                // Pass event.data as the payload
+                await handleCheckoutComplete(event.data);
                 break;
 
             case "subscription.updated":
-                await handleSubscriptionUpdated(event);
+                await handleSubscriptionUpdated(event.data);
                 break;
 
             case "subscription.revoked":
             case "subscription.canceled":
-                await handleSubscriptionDeleted(event);
+                await handleSubscriptionDeleted(event.data);
                 break;
 
             default:
