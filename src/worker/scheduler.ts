@@ -28,22 +28,43 @@ export const initSchedulerWorker = () => {
         
         logger.info(`Successfully processed scheduled job ${job.id}`);
       } catch (err: any) {
-        logger.error(`Failed to process scheduled job ${job.id}`, err);
+        logger.error(`Failed to process scheduled job ${job.id}`, {
+          error: err.message,
+          stack: err.stack,
+          jobData: job.data
+        });
         throw err;
       }
     },
     { 
       connection: redis,
-      concurrency: 10 // Allow multiple concurrent triggers
+      concurrency: 10, // Allow multiple concurrent triggers
+      settings: {
+        stalledInterval: 30 * 1000, // 30 seconds
+        maxStalledCount: 1,
+      }
     }
   );
   
+  worker.on("completed", (job) => {
+    logger.info(`Scheduler job ${job.id} completed successfully`);
+  });
+  
   worker.on("failed", (job, err) => {
-    logger.error(`Scheduler job ${job?.id} failed`, err);
+    logger.error(`Scheduler job ${job?.id} failed`, {
+      error: err.message,
+      jobData: job?.data,
+      attemptsMade: job?.attemptsMade,
+      failedReason: job?.failedReason
+    });
   });
   
   worker.on("error", (err) => {
-    logger.error("Scheduler worker error", err);
+    logger.error("Scheduler worker error", { error: err.message, stack: err.stack });
+  });
+
+  worker.on("stalled", (jobId) => {
+    logger.warn(`Scheduler job ${jobId} stalled`);
   });
   
   logger.info("Scheduler Worker started");

@@ -25,10 +25,11 @@ export class NotionService {
         }
     }
 
-    async search(query: string, filter?: any) {
+    async search(query?: string, filter?: any, sort?: any) {
         return this.notion.search({
             query,
             filter,
+            sort,
             page_size: 20,
         });
     }
@@ -114,11 +115,13 @@ export class NotionService {
         });
     }
 
-    async queryDatabase(databaseId: string, filter?: any, sorts?: any[]) {
+    async queryDatabase(databaseId: string, filter?: any, sorts?: any[], startCursor?: string, pageSize: number = 100) {
         return (this.notion.databases as any).query({
             database_id: databaseId,
             filter,
             sorts,
+            start_cursor: startCursor,
+            page_size: pageSize,
         });
     }
 
@@ -141,5 +144,20 @@ export class NotionService {
 
     async getMe() {
         return this.notion.users.me({});
+    }
+
+    async getBlock(blockId: string) {
+        return this.notion.blocks.retrieve({ block_id: blockId });
+    }
+
+    async updateBlock(blockId: string, content: any) {
+        return this.notion.blocks.update({
+            block_id: blockId,
+            ...content,
+        } as any);
+    }
+
+    async getUser(userId: string) {
+        return this.notion.users.retrieve({ user_id: userId });
     }
 }

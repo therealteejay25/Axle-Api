@@ -22,8 +22,11 @@ const schedulerQueue = new Queue(SCHEDULER_QUEUE, { connection: redis });
  * Initialize all scheduled triggers
  */
 export const initScheduler = async (): Promise<void> => {
+  logger.info("Initializing scheduler...");
+  
   // Clear existing repeatable jobs
   const repeatableJobs = await schedulerQueue.getRepeatableJobs();
+  logger.info(`Clearing ${repeatableJobs.length} existing repeatable jobs`);
   for (const job of repeatableJobs) {
     await schedulerQueue.removeRepeatableByKey(job.key);
   }
@@ -31,24 +34,36 @@ export const initScheduler = async (): Promise<void> => {
   // Find all enabled schedule triggers
   const triggers = await Trigger.find({
     type: "schedule",
-    enabled: true
-  }).populate("agentId");
+    active: true
+  }).populate("agent");
+
+  logger.info(`Found ${triggers.length} enabled schedule triggers`);
 
   let scheduledCount = 0;
 
   for (const trigger of triggers) {
-    if (!trigger.config.cron) {
+    if (!trigger.cronExpression) {
       logger.warn(`Schedule trigger ${trigger._id} has no cron expression`);
       continue;
     }
 
-    const agent = await Agent.findById(trigger.agentId);
+    const agent = await Agent.findById(trigger.agent);
     if (!agent || agent.status !== "active") {
-      logger.debug(`Skipping trigger for inactive agent ${trigger.agentId}`);
+      logger.debug(`Skipping trigger for inactive agent ${trigger.agent}`);
       continue;
     }
 
     try {
+      // Validate cron expression before scheduling
+      const cronParser = require('cron-parser');
+      const user = await require("../models/User").User.findById(trigger.user);
+      const timezone = user?.timeZone || "UTC";
+      
+      const interval = cronParser.parseExpression(trigger.cronExpression, {
+        tz: timezone
+      });
+      const nextRun = interval.next().toDate();
+      
       await schedulerQueue.add(
         `trigger-${trigger._id}`,
         {
@@ -58,8 +73,8 @@ export const initScheduler = async (): Promise<void> => {
         },
         {
           repeat: { 
-            cron: trigger.config.cron,
-            tz: trigger.config.timezone || "UTC"
+            cron: trigger.cronExpression,
+            tz: timezone
           },
           jobId: `schedule-${trigger._id}`
         }
@@ -67,7 +82,9 @@ export const initScheduler = async (): Promise<void> => {
 
       scheduledCount++;
       logger.info(`Scheduled trigger ${trigger._id}`, {
-        cron: trigger.config.cron,
+        cron: trigger.cronExpression,
+        timezone,
+        nextRun: nextRun.toISOString(),
         agentId: agent._id
       });
     } catch (err: any) {
@@ -83,18 +100,21 @@ export const initScheduler = async (): Promise<void> => {
  */
 export const addScheduleTrigger = async (triggerId: string): Promise<void> => {
   const trigger = await Trigger.findById(triggerId);
-  if (!trigger || trigger.type !== "schedule" || !trigger.enabled) {
+  if (!trigger || trigger.type !== "schedule" || !trigger.active) {
     return;
   }
 
-  const agent = await Agent.findById(trigger.agentId);
+  const agent = await Agent.findById(trigger.agent);
   if (!agent) {
-    throw new Error(`Agent not found: ${trigger.agentId}`);
+    throw new Error(`Agent not found: ${trigger.agent}`);
   }
 
-  if (!trigger.config.cron) {
+  if (!trigger.cronExpression) {
     throw new Error("Schedule trigger requires cron expression");
   }
+
+  const user = await require("../models/User").User.findById(trigger.user);
+  const timezone = user?.timeZone || "UTC";
 
   await schedulerQueue.add(
     `trigger-${trigger._id}`,
@@ -105,8 +125,8 @@ export const addScheduleTrigger = async (triggerId: string): Promise<void> => {
     },
     {
       repeat: { 
-        cron: trigger.config.cron,
-        tz: trigger.config.timezone || "UTC"
+        cron: trigger.cronExpression,
+        tz: timezone
       },
       jobId: `schedule-${trigger._id}`
     }
@@ -166,7 +186,7 @@ export const processScheduledTrigger = async (
 
   // Update trigger last triggered time
   await Trigger.findByIdAndUpdate(triggerId, {
-    lastTriggeredAt: new Date()
+    lastFiredAt: new Date()
   });
 
   // Enqueue execution job

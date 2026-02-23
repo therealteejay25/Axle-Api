@@ -25,9 +25,9 @@ export const buildFocusedContext = async (
     // Continue without memories
   }
 
-  // Get conversation history (increased to recent 100 messages for full context)
+  // Get conversation history (recent 20 messages for focused context)
   const recentMessages = Array.isArray(payload?.messages)
-    ? payload.messages.slice(-100)
+    ? payload.messages.slice(-20)
     : [];
 
   // Format conversation history
@@ -43,6 +43,34 @@ export const buildFocusedContext = async (
   const memorySection = memories.length > 0
     ? `\n## Your Memories\n${memories.map(m => `- [${m.category}] ${m.content}`).join("\n")}`
     : "";
+
+  // RAG retrieval section - if thread has attached files or agent has ingested docs
+  let ragSection = "";
+  try {
+    const hasAttachedFiles = Array.isArray(payload?.attachedFiles) && payload.attachedFiles.length > 0;
+    const hasIngestedDocs = githubRepo?.owner && githubRepo?.repo; // Simplified check
+    
+    if (hasAttachedFiles || hasIngestedDocs) {
+      const { EmbeddingService } = await import("../services/EmbeddingService");
+      
+      // Query RAG index with user message + filter by userId
+      const ragResults = await EmbeddingService.query({
+        indexName: "axle-rag",
+        queryText: currentTask,
+        filter: { userId: user._id.toString() },
+        topK: 5,
+      });
+
+      if (ragResults.length > 0) {
+        ragSection = `\n## Relevant context from your files:\n${ragResults.map((r, i) => 
+          `${i + 1}. ${r.text.slice(0, 500)}${r.text.length > 500 ? '...' : ''}`
+        ).join("\n\n")}`;
+      }
+    }
+  } catch (error) {
+    // Continue without RAG if it fails
+    console.error("RAG retrieval failed:", error);
+  }
 
   // GitHub context if available
   const githubRepo = payload?.githubRepo;
@@ -86,7 +114,7 @@ While you must stay strictly within your scope, you must be **creatively helpful
 ## Current Context
 - **Now**: ${new Date().toISOString()}
 - **Connected Services**: ${integrations.length > 0 ? integrations.join(", ") : "None"}
-${userContext}${memorySection}${githubSection}
+${userContext}${memorySection}${ragSection}${githubSection}
 
 ${conversationHistory ? `## Recent Conversation\n${conversationHistory}\n` : ""}
 

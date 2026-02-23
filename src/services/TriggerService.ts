@@ -33,7 +33,8 @@ class TriggerServiceClass {
     userId: string;
     schedule: string; // cron expression or natural language
     task: string;
-    enabled?: boolean;
+    active?: boolean;
+    name?: string;
   }) {
     // Parse natural language to cron if needed
     const cronExpression = this.parseToCron(params.schedule);
@@ -46,19 +47,17 @@ class TriggerServiceClass {
     }
 
     const trigger = await Trigger.create({
-      agentId: new Types.ObjectId(params.agentId),
+      user: new Types.ObjectId(params.userId),
+      agent: new Types.ObjectId(params.agentId),
       type: "schedule",
-      enabled: params.enabled !== false,
-      config: {
-        cron: cronExpression,
-        timezone: "UTC", // Default timezone
-        task: params.task,
-      },
-      lastTriggeredAt: undefined,
+      name: params.name || `Schedule: ${params.schedule}`,
+      active: params.active !== false,
+      cronExpression,
+      lastFiredAt: undefined,
     });
 
     // Register with BullMQ scheduler
-    if (trigger.enabled) {
+    if (trigger.active) {
       try {
         await addScheduleTrigger(trigger._id.toString());
       } catch (error) {
@@ -183,7 +182,7 @@ class TriggerServiceClass {
 
     // Update database
     await Trigger.findByIdAndUpdate(triggerId, {
-      enabled: false,
+      active: false,
     });
   }
 
@@ -195,24 +194,25 @@ class TriggerServiceClass {
     userId: string;
     source: string;
     payload: any;
+    webhookToken?: string;
   }) {
     logger.info(`Handling webhook for agent ${params.agentId} from ${params.source}`);
 
     // Find or create webhook trigger
     let trigger = await Trigger.findOne({
-      agentId: new Types.ObjectId(params.agentId),
+      agent: new Types.ObjectId(params.agentId),
       type: "webhook",
-      "config.source": params.source,
+      webhookToken: params.webhookToken,
     });
 
     if (!trigger) {
       trigger = await Trigger.create({
-        agentId: new Types.ObjectId(params.agentId),
+        user: new Types.ObjectId(params.userId),
+        agent: new Types.ObjectId(params.agentId),
         type: "webhook",
-        enabled: true,
-        config: {
-          source: params.source,
-        },
+        name: `Webhook: ${params.source}`,
+        active: true,
+        webhookToken: params.webhookToken,
       });
     }
 
@@ -257,7 +257,7 @@ class TriggerServiceClass {
     });
 
     // Update trigger stats
-    trigger.lastTriggeredAt = new Date();
+    trigger.lastFiredAt = new Date();
     await trigger.save();
 
     logger.info(`Webhook trigger fired`, {

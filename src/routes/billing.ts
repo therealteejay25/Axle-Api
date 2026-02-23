@@ -1,152 +1,389 @@
 import { Router, Request, Response } from "express";
 import { authMiddleware } from "../middleware/auth";
-import {
-  createCheckoutSession,
-  createPortalSession,
-  getSubscriptionDetails
-} from "../services/subscription";
+import { validateEvent } from "@polar-sh/sdk/webhooks";
+import { env } from "../config/env";
+import { User, PLAN_LIMITS } from "../models/User";
+import { CreditTransaction } from "../models/CreditTransaction";
+import { logger } from "../services/logger";
+import * as PolarService from "../services/PolarService";
+import { getAllCreditPackages, getCreditPackage } from "../config/creditPackages";
+import { CreditManagerService } from "../services/CreditManagerService";
+
+// ============================================
+// BILLING ROUTES
+// ============================================
+
 const router = Router();
 
-router.use(authMiddleware);
-
-// Get current subscription details
-router.get("/subscription", async (req: Request, res: Response) => {
+/**
+ * POST /api/v1/billing/checkout
+ * Create Polar checkout session
+ */
+router.post("/checkout", authMiddleware, async (req: Request, res: Response) => {
   try {
-    const details = await getSubscriptionDetails(req.user!.id);
+    const { plan } = req.body;
 
-    res.json({
-      subscription: details,
-      // Natural language enhancements
-      summaryText: `You're on the ${details.planName} plan with ${details.credits} of ${details.creditsLimit} credits remaining`,
-      statusText: details.status === "active"
-        ? "✅ Your subscription is active"
-        // Polar might return other statuses
-        : details.status === "past_due"
-          ? "⚠️ Payment failed - please update your payment method"
-          : details.status === "canceled"
-            ? "❌ Subscription canceled"
-            : "🆓 You're on the free plan",
-      nextBillingText: details.nextBillingDate
-        ? `Next billing: ${new Date(details.nextBillingDate).toLocaleDateString()}`
-        : null
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Create checkout session for new subscription
-router.post("/checkout", async (req: Request, res: Response) => {
-  try {
-    const { plan, discountCode } = req.body;
-
-    // Updated plans
-    if (!plan || !['pro', 'premium', 'custom'].includes(plan)) {
-      return res.status(400).json({ error: "Invalid plan" });
+    if (!["pro", "premium", "custom"].includes(plan)) {
+      return res.status(400).json({ error: "Invalid plan. Supported plans: pro, premium, custom" });
     }
 
-    const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing`;
-
-    const checkoutUrl = await createCheckoutSession(
+    const checkoutUrl = await PolarService.createCheckoutSession(
       req.user!.id,
-      plan,
-      successUrl,
-      cancelUrl,
-      discountCode
+      plan
     );
 
     res.json({ url: checkoutUrl });
   } catch (err: any) {
+    logger.error("Checkout creation failed", { error: err.message });
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get customer portal link
-router.post("/portal", async (req: Request, res: Response) => {
-  try {
-    const returnUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing`;
+/**
+ * POST /api/v1/billing/webhook
+ * Handle Polar webhooks (raw body required)
+ */
+router.post("/webhook", async (req: Request, res: Response) => {
+  const signature = req.headers["polar-webhook-signature"] as string;
 
-    const portalUrl = await createPortalSession(req.user!.id, returnUrl);
-
-    res.json({ url: portalUrl });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get invoice history
-router.get("/invoices", async (req: Request, res: Response) => {
-  try {
-    // Polar API for invoices might differ or not be directly available via SDK in the same way yet.
-    // We can return a placeholder or empty list for now until we implement Polar invoice fetching if needed.
-    // Or we leave it empty as the Portal usually handles this.
-    res.json({ invoices: [] });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get available plans
-router.get("/plans", async (req: Request, res: Response) => {
-  const plans = [
-    {
-      id: "pro",
-      name: "Pro",
-      price: 9.99,
-      priceText: "$9.99/month",
-      agentLimit: 10,
-      monthlyCredits: 1000,
-      description: "Perfect for indie hackers and small projects",
-      features: [
-        "5 agents",
-        "1,000 monthly credits (~250 executions)",
-        "Email support",
-        "All 80+ integrations",
-        "3 active schedule triggers per agent",
-        "Webhook triggers",
-        "3 proactive Agents Access"
-      ]
-    },
-    {
-      id: "premium",
-      name: "Premium",
-      price: 49.99,
-      priceText: "$49.99/month",
-      agentLimit: 50,
-      monthlyCredits: 5000,
-      popular: true,
-      description: "Best for growing teams",
-      features: [
-        "20 agents",
-        "5,000 monthly credits (~1,250 executions)",
-        "Priority support",
-        "Advanced features (memory, reasoning)",
-        "Webhook triggers",
-        "10 proactive Agents Access"
-      ]
-    },
-    {
-      id: "custom",
-      name: "Custom",
-      price: 249.99,
-      priceText: "$249.99/month",
-      agentLimit: Number.POSITIVE_INFINITY,
-      monthlyCredits: 20000,
-      description: "Enterprise-grade automation",
-      features: [
-        "Unlimited agents",
-        "20,000 monthly credits (~5,000 executions)",
-        "Unlimited team members",
-        "Dedicated support",
-        "SLA guarantees",
-        "White-label option",
-        "On-premise deployment"
-      ]
+  // Validate webhook signature using raw body
+  if ((req as any).rawBody) {
+    try {
+      validateEvent(
+        (req as any).rawBody,
+        req.headers as any,
+        env.POLAR_WEBHOOK_SECRET
+      );
+      logger.debug("Webhook signature validated successfully");
+    } catch (err: any) {
+      logger.error("Webhook signature validation failed", { error: err.message });
+      return res.status(400).json({ error: "Invalid signature" });
     }
-  ];
+  } else {
+    logger.warn("Webhook received without raw body for signature validation");
+    return res.status(400).json({ error: "Raw body required for signature validation" });
+  }
 
-  res.json({ plans });
+  const event = req.body;
+
+  if (!event || !event.type) {
+    logger.error("Invalid webhook payload", { payload: event });
+    return res.status(400).json({ error: "Invalid payload" });
+  }
+
+  logger.info("Received Polar webhook", { type: event.type, eventId: event.id });
+
+  try {
+    switch (event.type) {
+      case "subscription.created":
+        await handleSubscriptionCreated(event.data);
+        break;
+
+      case "subscription.updated":
+        await handleSubscriptionUpdated(event.data);
+        break;
+
+      case "subscription.canceled":
+        await handleSubscriptionCanceled(event.data);
+        break;
+
+      case "checkout.completed":
+        await handleCheckoutCompleted(event.data);
+        break;
+
+      default:
+        logger.info("Unhandled Polar event type", { type: event.type });
+    }
+
+    res.json({ received: true });
+  } catch (err: any) {
+    logger.error("Webhook handler error", { error: err.message, eventType: event.type });
+    res.status(500).json({ error: "Webhook handler failed" });
+  }
 });
+
+/**
+ * GET /api/v1/billing/status
+ * Get current user plan and subscription status
+ */
+router.get("/status", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.user!.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const limits = PLAN_LIMITS[user.plan];
+
+    res.json({
+      plan: user.plan,
+      subscriptionStatus: user.subscriptionStatus || "free",
+      credits: user.credits,
+      creditsLimit: limits.monthlyCredits,
+      agentLimit: limits.agentLimit,
+      polarCustomerId: user.polarCustomerId,
+      polarSubscriptionId: user.polarSubscriptionId,
+      subscriptionCurrentPeriodEnd: user.subscriptionCurrentPeriodEnd,
+    });
+  } catch (err: any) {
+    logger.error("Failed to get billing status", { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/v1/billing/credits/packages
+ * Get available credit packages
+ */
+router.get("/credits/packages", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const packages = getAllCreditPackages();
+    res.json({ packages });
+  } catch (err: any) {
+    logger.error("Failed to get credit packages", { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/v1/billing/credits/checkout
+ * Create Polar checkout session for credit purchase
+ */
+router.post("/credits/checkout", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { packageId, discountCode } = req.body;
+
+    if (!packageId) {
+      return res.status(400).json({ error: "Package ID is required" });
+    }
+
+    const pkg = getCreditPackage(packageId);
+    if (!pkg) {
+      return res.status(400).json({ error: "Invalid package ID" });
+    }
+
+    if (!pkg.productId) {
+      logger.error("Credit package missing product ID", { packageId });
+      return res.status(500).json({ error: "Credit package not configured properly" });
+    }
+
+    // Create checkout session with Polar
+    const checkoutUrl = await PolarService.createCreditCheckoutSession({
+      userId: req.user!.id,
+      productId: pkg.productId,
+      packageId: pkg.id,
+      credits: pkg.credits,
+      discountCode
+    });
+
+    logger.info("Credit checkout session created", {
+      userId: req.user!.id,
+      packageId,
+      credits: pkg.credits
+    });
+
+    res.json({
+      url: checkoutUrl,
+      packageDetails: {
+        credits: pkg.credits,
+        price: pkg.price,
+        label: pkg.label
+      }
+    });
+  } catch (err: any) {
+    logger.error("Credit checkout creation failed", { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/v1/billing/credits/history
+ * Get user's credit transaction history
+ */
+router.get("/credits/history", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const transactions = await CreditTransaction.find({ userId: req.user!.id })
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .lean();
+
+    res.json({ transactions });
+  } catch (err: any) {
+    logger.error("Failed to get credit history", { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ============================================
+// WEBHOOK HANDLERS
+// ============================================
+
+/**
+ * Handle subscription.created event
+ */
+async function handleSubscriptionCreated(data: any): Promise<void> {
+  const { id: subscriptionId, customer_id, status, metadata } = data;
+
+  let user = null;
+
+  // Try to find user by metadata userId
+  if (metadata?.userId) {
+    user = await User.findById(metadata.userId);
+  }
+
+  // Fallback: find by customer_id
+  if (!user && customer_id) {
+    user = await User.findOne({ polarCustomerId: customer_id });
+  }
+
+  if (!user) {
+    logger.error("User not found for subscription.created", { subscriptionId, customer_id });
+    return;
+  }
+
+  // Get plan from metadata or default to pro
+  const plan = (metadata?.plan as "pro" | "premium" | "custom") || "pro";
+
+  // Update user
+  user.plan = plan;
+  user.polarCustomerId = customer_id;
+  user.polarSubscriptionId = subscriptionId;
+  user.subscriptionStatus = status;
+  user.credits = PLAN_LIMITS[plan].monthlyCredits;
+
+  if (data.current_period_end) {
+    user.subscriptionCurrentPeriodEnd = new Date(data.current_period_end);
+  }
+
+  await user.save();
+
+  logger.info("Subscription created", { userId: user._id, subscriptionId, plan });
+}
+
+/**
+ * Handle subscription.updated event
+ */
+async function handleSubscriptionUpdated(data: any): Promise<void> {
+  const { id: subscriptionId, status, metadata } = data;
+
+  const user = await User.findOne({ polarSubscriptionId: subscriptionId });
+  if (!user) {
+    logger.error("User not found for subscription.updated", { subscriptionId });
+    return;
+  }
+
+  // Update status
+  user.subscriptionStatus = status;
+
+  if (status === "active") {
+    // Get plan from metadata or keep existing
+    const plan = (metadata?.plan as "pro" | "premium" | "custom") || user.plan;
+    if (plan !== "free") {
+      user.plan = plan;
+      user.credits = PLAN_LIMITS[plan].monthlyCredits;
+    }
+  } else if (status === "canceled") {
+    user.plan = "free";
+    user.credits = PLAN_LIMITS.free.monthlyCredits;
+  }
+
+  if (data.current_period_end) {
+    user.subscriptionCurrentPeriodEnd = new Date(data.current_period_end);
+  }
+
+  await user.save();
+
+  logger.info("Subscription updated", { userId: user._id, subscriptionId, status, plan: user.plan });
+}
+
+/**
+ * Handle subscription.canceled event
+ */
+async function handleSubscriptionCanceled(data: any): Promise<void> {
+  const { id: subscriptionId } = data;
+
+  const user = await User.findOne({ polarSubscriptionId: subscriptionId });
+  if (!user) {
+    logger.error("User not found for subscription.canceled", { subscriptionId });
+    return;
+  }
+
+  user.plan = "free";
+  user.subscriptionStatus = "canceled";
+  user.credits = PLAN_LIMITS.free.monthlyCredits;
+
+  await user.save();
+
+  logger.info("Subscription canceled", { userId: user._id, subscriptionId });
+}
+
+/**
+ * Handle checkout.completed event (for credit purchases)
+ */
+async function handleCheckoutCompleted(data: any): Promise<void> {
+  const { id: checkoutId, customer_id, status, metadata } = data;
+
+  // Check if this is a credit purchase (vs subscription)
+  if (!metadata?.packageId || !metadata?.credits) {
+    logger.info("Checkout completed but not a credit purchase", { checkoutId });
+    return;
+  }
+
+  // Check for duplicate processing
+  const existingTransaction = await CreditTransaction.findOne({
+    polarCheckoutId: checkoutId
+  });
+
+  if (existingTransaction) {
+    logger.info("Checkout already processed", { checkoutId });
+    return;
+  }
+
+  // Find user
+  let user = null;
+  if (metadata?.userId) {
+    user = await User.findById(metadata.userId);
+  }
+  if (!user && customer_id) {
+    user = await User.findOne({ polarCustomerId: customer_id });
+  }
+
+  if (!user) {
+    logger.error("User not found for credit purchase", { checkoutId, customer_id });
+    return;
+  }
+
+  const credits = parseInt(metadata.credits);
+
+  // Atomically add credits
+  const result = await CreditManagerService.addCreditsAtomic({
+    userId: user._id.toString(),
+    amount: credits,
+    source: "purchase",
+    metadata: { checkoutId, packageId: metadata.packageId }
+  });
+
+  if (!result.ok) {
+    logger.error("Failed to add credits", { userId: user._id, checkoutId });
+    return;
+  }
+
+  // Log transaction
+  await CreditTransaction.create({
+    userId: user._id,
+    credits,
+    amount: data.amount || 0,
+    status: "completed",
+    polarCheckoutId: checkoutId,
+    packageId: metadata.packageId,
+    source: "purchase"
+  });
+
+  logger.info("Credits added successfully", {
+    userId: user._id,
+    credits,
+    newBalance: result.credits
+  });
+}
 
 export default router;

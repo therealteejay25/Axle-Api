@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { authMiddleware } from "../middleware/auth";
 import { createCoupon, getCoupon } from "../services/coupon";
 import { logger } from "../services/logger";
+import { polarConfigManager } from "../services/PolarConfigManager";
 import { z } from "zod";
 
 const router = Router();
@@ -20,6 +21,16 @@ const CreateCouponSchema = z.object({
 // TODO: Add refined admin check if needed, currently just authMiddleware
 router.post("/", authMiddleware, async (req: Request, res: Response) => {
     try {
+        // Check if coupons feature is enabled
+        if (!polarConfigManager.isFeatureEnabled('coupons')) {
+            const validation = polarConfigManager.getValidationResult();
+            return res.status(503).json({ 
+                error: "Coupon creation is currently unavailable",
+                details: `Missing configuration: ${validation?.missingVariables.join(', ')}`,
+                missingVariables: validation?.missingVariables
+            });
+        }
+
         const user = req.user;
         // Basic check for admin - adjust based on actual user model roles
         // if (user?.role !== 'admin') {
@@ -66,6 +77,14 @@ router.post("/", authMiddleware, async (req: Request, res: Response) => {
 // Get/Validate coupon
 router.get("/:code", async (req: Request, res: Response) => {
     try {
+        // Check if coupons feature is enabled
+        if (!polarConfigManager.isFeatureEnabled('coupons')) {
+            return res.status(503).json({ 
+                error: "Coupon validation is currently unavailable",
+                details: "Coupon service is disabled due to configuration issues"
+            });
+        }
+
         const { code } = req.params;
         const coupon = await getCoupon(code);
 

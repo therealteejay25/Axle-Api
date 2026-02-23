@@ -99,4 +99,37 @@ export class CreditManagerService {
         if (!updated) return { ok: false };
         return { ok: true, credits: updated.credits };
     }
+
+    static async addCreditsAtomic(params: {
+        userId: string;
+        amount: number;
+        source: "purchase" | "refund" | "bonus" | "subscription";
+        metadata?: any;
+    }): Promise<{ ok: boolean; credits?: number }> {
+        const amount = Math.max(0, Math.ceil(params.amount));
+        if (!amount) {
+            const credits = await CreditManagerService.getUserCredits(params.userId);
+            return { ok: true, credits };
+        }
+
+        const updated = await User.findOneAndUpdate(
+            { _id: params.userId },
+            { $inc: { credits: amount } },
+            { new: true }
+        ).select("credits");
+
+        if (!updated) return { ok: false };
+
+        // Log the credit addition
+        const { logger } = await import("./logger");
+        logger.info("Credits added", {
+            userId: params.userId,
+            amount,
+            source: params.source,
+            newBalance: updated.credits,
+            metadata: params.metadata,
+        });
+
+        return { ok: true, credits: updated.credits };
+    }
 }

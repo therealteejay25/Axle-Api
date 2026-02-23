@@ -27,11 +27,11 @@ export const processWebhook = async (
   webhookPath: string,
   payload: WebhookPayload
 ): Promise<{ success: boolean; executionId?: string; error?: string }> => {
-  // Find trigger by webhook path
+  // Find trigger by webhook token
   const trigger = await Trigger.findOne({
     type: "webhook",
-    "config.webhookPath": webhookPath,
-    enabled: true
+    webhookToken: webhookPath,
+    active: true
   });
 
   if (!trigger) {
@@ -40,7 +40,7 @@ export const processWebhook = async (
   }
 
   // Get agent
-  const agent = await Agent.findById(trigger.agentId);
+  const agent = await Agent.findById(trigger.agent);
   if (!agent || agent.status !== "active") {
     logger.warn(`Agent not active for webhook: ${webhookPath}`);
     return { success: false, error: "Agent not active" };
@@ -62,7 +62,7 @@ export const processWebhook = async (
 
   // Update trigger last triggered time
   await Trigger.findByIdAndUpdate(trigger._id, {
-    lastTriggeredAt: new Date()
+    lastFiredAt: new Date()
   });
 
   // Enqueue execution job

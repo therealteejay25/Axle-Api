@@ -30,7 +30,7 @@ router.get("/", async (req: Request, res: Response) => {
         // Get trigger counts for each agent
         const agentsWithCounts = await Promise.all(
             agents.map(async (agent) => {
-                const triggerCount = await Trigger.countDocuments({ agentId: agent._id });
+                const triggerCount = await Trigger.countDocuments({ agent: agent._id });
                 return { ...agent, triggerCount };
             })
         );
@@ -93,7 +93,7 @@ router.get("/:id", async (req: Request, res: Response) => {
         }
 
         // Get triggers
-        const triggers = await Trigger.find({ agentId: agent._id }).lean();
+        const triggers = await Trigger.find({ agent: agent._id }).lean();
 
         res.json({ agent: { ...agent, triggers } });
     } catch (err: any) {
@@ -213,7 +213,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
         }
 
         // Unregister schedule triggers before deletion
-        const agentTriggers = await Trigger.find({ agentId: agent._id }).select("_id type").lean();
+        const agentTriggers = await Trigger.find({ agent: agent._id }).select("_id type").lean();
         const scheduleTriggerIds = agentTriggers
             .filter((t: any) => t.type === "schedule")
             .map((t: any) => String(t._id));
@@ -222,7 +222,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
         // Delete associated data
         await Promise.all([
-            Trigger.deleteMany({ agentId: agent._id }),
+            Trigger.deleteMany({ agent: agent._id }),
             Execution.deleteMany({ agentId: agent._id }),
             agent.deleteOne()
         ]);

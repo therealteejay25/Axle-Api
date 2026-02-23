@@ -25191,3 +25191,864 @@
 {"timestamp":"2026-02-14 09:32:23","level":"info","message":"Scheduler initialized"}
 {"timestamp":"2026-02-14 09:32:23","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
 {"timestamp":"2026-02-14 09:32:23","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-21 11:19:46","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-21 11:19:48","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-21 11:19:49","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-21 11:19:52","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-21 11:19:52","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-21 11:19:52","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-21 11:19:52","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-21 11:19:55","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-21 11:19:55","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-21 11:19:55","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-21 11:19:55","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-21 11:20:48","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-21 11:20:49","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-21 11:20:50","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-21 11:20:50","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-21 11:20:51","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-21 11:20:52","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-21 11:20:53","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-21 11:20:53","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-21 11:20:54","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-21 11:20:55","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-21 11:20:57","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-21 11:20:57","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-21 11:20:58","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-21 11:20:59","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-21 11:21:00","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-21 11:21:01","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-21 11:21:02","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-21 11:21:03","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-21 11:21:03","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-21 11:21:03","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-21 11:21:03","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-21 11:21:03","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-21 11:21:03","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-21 11:21:03","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-21 11:21:03","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-21 11:26:54","level":"debug","message":"Loaded integration: google"}
+{"timestamp":"2026-02-21 11:26:55","level":"debug","message":"Loaded integration: github"}
+{"timestamp":"2026-02-21 11:26:56","level":"debug","message":"Loaded integration: twitter"}
+{"timestamp":"2026-02-21 11:26:56","level":"debug","message":"Loaded integration: slack"}
+{"timestamp":"2026-02-21 11:26:56","level":"debug","message":"Loaded integration: notion"}
+{"timestamp":"2026-02-21 11:26:56","level":"debug","message":"Loaded integration: linear"}
+{"timestamp":"2026-02-21 11:26:57","level":"debug","message":"Loaded integration: figma"}
+{"timestamp":"2026-02-21 11:26:58","level":"info","message":"[WORKER] Initializing agent with 197 tools:","agentId":"6984823377c0de9853f8915c","toolCount":197}
+{"timestamp":"2026-02-21 11:27:00","level":"info","message":"MongoSessionService.load success","id":"6999886acc93729dfb15e249","historyLength":0}
+{"timestamp":"2026-02-21 11:27:07","level":"info","message":"Job completed","jobId":"1239","executionId":"6999886acc93729dfb15e249","success":true}
+{"timestamp":"2026-02-21 11:35:04","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-21 11:49:04","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM","POLAR_WEBHOOK_SECRET"],"disabledFeatures":["checkout","webhooks"]}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM, POLAR_WEBHOOK_SECRET"}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM","POLAR_WEBHOOK_SECRET"],"disabledFeatures":["checkout","webhooks"]}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM, POLAR_WEBHOOK_SECRET"}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 04:23:21","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM","POLAR_WEBHOOK_SECRET"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM, POLAR_WEBHOOK_SECRET","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 04:23:23","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 04:23:23","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 04:23:23","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 04:23:27","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 04:23:27","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 04:23:27","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 04:23:27","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 04:23:29","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 04:23:29","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 04:23:29","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 04:23:29","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 04:23:37","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 04:23:38","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 04:23:39","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 04:23:40","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 04:23:41","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 04:23:42","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 04:23:43","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 04:23:43","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 04:23:44","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 04:23:45","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-22 04:23:46","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-22 04:23:46","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-22 04:23:47","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-22 04:23:48","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-22 04:23:49","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-22 04:23:49","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-22 04:23:50","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-22 04:23:51","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-22 04:23:52","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-22 04:23:52","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-22 04:23:52","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 04:23:52","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 04:23:52","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 04:23:52","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 04:23:52","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 04:28:12","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 04:28:13","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 04:28:13","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 04:28:13","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 04:28:15","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 04:28:15","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 04:28:15","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 04:28:15","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 04:28:16","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 04:28:16","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 04:28:16","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 04:28:16","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 04:28:22","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 04:28:22","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 04:28:23","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 04:28:24","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 04:28:25","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 04:28:25","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 04:28:26","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 04:28:28","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 04:28:29","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 04:28:29","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-22 04:28:30","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-22 04:28:31","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-22 04:28:33","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-22 04:28:33","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-22 04:28:35","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-22 04:28:37","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-22 04:28:38","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-22 04:28:38","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-22 04:28:39","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-22 04:28:39","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-22 04:28:39","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 04:28:39","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 04:28:39","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 04:28:39","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 04:28:39","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 04:32:14","level":"info","message":"Starting template seeding..."}
+{"timestamp":"2026-02-22 04:32:16","level":"info","message":"Cleared existing templates"}
+{"timestamp":"2026-02-22 04:32:16","level":"info","message":"Successfully seeded 12 templates"}
+{"timestamp":"2026-02-22 04:37:23","level":"info","message":"Agent created from template","userId":"6947325cc0b2ea5724e45758","templateId":"699a78c09e73018ec43f5dea","agentId":"699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 04:37:25","level":"info","message":"Socket connected: srvf1qmfCvbLiaPtAAAB"}
+{"timestamp":"2026-02-22 04:37:25","level":"info","message":"Socket srvf1qmfCvbLiaPtAAAB subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 04:37:25","level":"info","message":"Socket connected: 4Civ1tHSHmQn12XLAAAD"}
+{"timestamp":"2026-02-22 04:37:25","level":"info","message":"Socket 4Civ1tHSHmQn12XLAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 04:37:28","level":"info","message":"Socket 4Civ1tHSHmQn12XLAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 04:37:30","level":"info","message":"Execution job enqueued","jobId":"1241","executionId":"699a79f9c0c04430bfa5b3df","agentId":"699a79f1c0c04430bfa5b3cb","triggerType":"manual"}
+{"timestamp":"2026-02-22 04:37:30","level":"info","message":"Manual run triggered","agentId":"699a79f1c0c04430bfa5b3cb","executionId":"699a79f9c0c04430bfa5b3df"}
+{"timestamp":"2026-02-22 04:38:25","level":"error","message":"Checkout creation failed","error":"Unable to make request: TypeError: fetch failed"}
+{"timestamp":"2026-02-22 04:38:30","level":"info","message":"Checkout session created","userId":"6947325cc0b2ea5724e45758","plan":"pro","checkoutId":"de862009-9c81-461a-aa75-1445d87e9141"}
+{"timestamp":"2026-02-22 04:38:33","level":"info","message":"Socket disconnected: srvf1qmfCvbLiaPtAAAB"}
+{"timestamp":"2026-02-22 04:38:33","level":"info","message":"Socket disconnected: 4Civ1tHSHmQn12XLAAAD"}
+{"timestamp":"2026-02-22 04:42:39","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 04:56:39","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:01:19","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:01:23","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:01:30","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 05:01:30","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 05:01:30","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 05:01:33","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:01:33","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:03:11","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:03:12","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:03:18","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:03:18","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:03:19","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:03:22","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:03:22","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:03:22","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:03:23","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:03:25","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:03:25","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:03:28","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:03:28","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:03:41","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 05:03:45","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 05:03:46","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 05:03:47","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 05:03:48","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 05:03:49","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 05:03:50","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 05:03:51","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 05:03:52","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 05:03:53","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-22 05:03:54","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-22 05:03:55","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-22 05:03:55","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-22 05:03:56","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-22 05:03:57","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-22 05:03:59","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-22 05:04:00","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-22 05:04:01","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-22 05:04:02","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-22 05:04:02","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-22 05:04:02","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 05:04:02","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 05:04:02","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 05:04:02","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:04:03","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:04:45","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:04:47","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:04:47","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:04:48","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:04:50","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:04:50","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:04:50","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:04:50","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:04:52","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:04:52","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:04:53","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:04:53","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:05:21","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 05:05:22","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 05:05:23","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 05:05:24","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 05:05:25","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 05:05:29","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 05:05:30","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 05:05:31","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 05:05:34","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:05:47","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:05:48","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:05:48","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:05:49","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:05:57","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:05:57","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:05:57","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:05:57","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:05:58","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:05:58","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:05:59","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:05:59","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:06:13","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:06:29","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:06:30","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:06:30","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:06:30","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:06:43","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:06:43","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:06:43","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:06:43","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:06:54","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 05:06:59","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:06:59","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:06:59","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:06:59","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:07:02","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 05:07:04","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 05:07:05","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 05:07:06","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 05:07:07","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:08:12","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:08:14","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:08:16","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:08:17","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:08:28","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:08:28","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:08:28","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:08:28","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:08:42","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:08:43","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:08:43","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:08:44","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:09:06","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:09:07","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:09:10","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:09:10","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:24:16","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:24:18","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:24:18","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:24:18","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:26:02","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:26:03","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:26:03","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:26:04","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:26:18","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:26:18","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:26:18","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:26:18","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:26:20","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:26:20","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:26:20","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:26:20","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:26:23","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 05:26:24","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 05:26:24","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 05:26:25","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 05:26:26","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 05:26:27","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 05:26:29","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 05:26:30","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 05:26:31","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 05:26:32","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-22 05:26:33","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-22 05:26:34","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-22 05:26:35","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-22 05:26:36","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-22 05:26:37","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-22 05:26:38","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-22 05:26:39","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-22 05:26:40","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-22 05:26:41","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-22 05:26:41","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-22 05:26:41","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 05:26:41","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 05:26:41","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 05:26:41","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:26:41","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:32:50","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:33:00","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 05:33:01","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 05:33:01","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 05:33:01","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 05:33:11","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 05:33:11","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 05:33:11","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
+{"timestamp":"2026-02-22 05:33:11","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 05:33:21","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 05:33:22","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 05:33:22","level":"warn","message":"[Redis] Retrying connection in 300ms... (Attempt 3)"}
+{"timestamp":"2026-02-22 05:33:22","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 05:33:30","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:33:30","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:33:30","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:35:51","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:35:55","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:35:55","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:35:59","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:36:04","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:36:04","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:36:04","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:36:04","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:36:06","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:36:06","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:36:06","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:36:06","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:37:37","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:37:37","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:37:37","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:37:37","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:37:37","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 05:37:38","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 05:37:38","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 05:37:38","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 05:37:38","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 05:37:43","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 05:37:43","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 05:37:44","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 05:37:49","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 05:37:49","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 05:37:49","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 05:37:49","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:37:51","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:37:51","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 05:37:53","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:37:53","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 05:37:59","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 05:38:00","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 05:38:01","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 05:38:02","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 05:38:03","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 05:38:04","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 05:38:05","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 05:38:06","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 05:38:07","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 05:38:08","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-22 05:38:09","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-22 05:38:10","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-22 05:38:11","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-22 05:38:11","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-22 05:38:12","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-22 05:38:13","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-22 05:38:14","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-22 05:38:15","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-22 05:38:16","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-22 05:38:16","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-22 05:38:16","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 05:38:16","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 05:38:16","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 05:38:16","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 05:38:16","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:26:47","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 20:26:57","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:26:57","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 20:26:57","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 20:26:57","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:27:05","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 20:27:06","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 20:27:19","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:28:21","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 20:28:31","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:31","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 20:28:31","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 20:28:31","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:46","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:46","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 20:28:46","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
+{"timestamp":"2026-02-22 20:28:46","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:49","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:49","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:50","level":"warn","message":"[Redis] Retrying connection in 300ms... (Attempt 3)"}
+{"timestamp":"2026-02-22 20:28:50","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:50","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:50","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:50","level":"warn","message":"[Redis] Retrying connection in 400ms... (Attempt 4)"}
+{"timestamp":"2026-02-22 20:28:50","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:50","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:50","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:50","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:50","level":"warn","message":"[Redis] Retrying connection in 500ms... (Attempt 5)"}
+{"timestamp":"2026-02-22 20:28:50","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:50","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:51","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:51","level":"warn","message":"[Redis] Retrying connection in 600ms... (Attempt 6)"}
+{"timestamp":"2026-02-22 20:28:51","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:51","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:51","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:51","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:51","level":"warn","message":"[Redis] Retrying connection in 700ms... (Attempt 7)"}
+{"timestamp":"2026-02-22 20:28:51","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:52","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:52","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:52","level":"warn","message":"[Redis] Retrying connection in 800ms... (Attempt 8)"}
+{"timestamp":"2026-02-22 20:28:52","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:52","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:53","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:53","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:53","level":"warn","message":"[Redis] Retrying connection in 900ms... (Attempt 9)"}
+{"timestamp":"2026-02-22 20:28:53","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:53","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:28:54","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:28:54","level":"warn","message":"[Redis] Retrying connection in 1000ms... (Attempt 10)"}
+{"timestamp":"2026-02-22 20:28:54","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:28:54","level":"error","message":"[CacheService] Redis error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","errno":-3001,"code":"EAI_AGAIN","syscall":"getaddrinfo","hostname":"redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com","stack":"Error: getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)"}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:29:16","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 20:29:26","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:29:26","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 20:29:26","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 20:29:26","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:29:37","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 20:29:39","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 20:29:39","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 20:29:50","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 20:30:38","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 20:30:38","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 20:30:38","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 20:30:38","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 20:30:52","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 20:30:52","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 20:30:52","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 20:30:52","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 20:30:56","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:56","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 20:30:56","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:56","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
+{"timestamp":"2026-02-22 20:30:56","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:56","level":"warn","message":"[Redis] Retrying connection in 300ms... (Attempt 3)"}
+{"timestamp":"2026-02-22 20:30:56","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:56","level":"warn","message":"[Redis] Retrying connection in 400ms... (Attempt 4)"}
+{"timestamp":"2026-02-22 20:30:57","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:57","level":"warn","message":"[Redis] Retrying connection in 500ms... (Attempt 5)"}
+{"timestamp":"2026-02-22 20:30:57","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:57","level":"warn","message":"[Redis] Retrying connection in 600ms... (Attempt 6)"}
+{"timestamp":"2026-02-22 20:30:58","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:58","level":"warn","message":"[Redis] Retrying connection in 700ms... (Attempt 7)"}
+{"timestamp":"2026-02-22 20:30:59","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:59","level":"warn","message":"[Redis] Retrying connection in 800ms... (Attempt 8)"}
+{"timestamp":"2026-02-22 20:30:59","level":"error","message":"Worker error","error":"getaddrinfo EAI_AGAIN redis-13385.c257.us-east-1-3.ec2.cloud.redislabs.com"}
+{"timestamp":"2026-02-22 20:30:59","level":"warn","message":"[Redis] Retrying connection in 900ms... (Attempt 9)"}
+{"timestamp":"2026-02-22 20:31:12","level":"error","message":"Worker error","error":"connect ETIMEDOUT"}
+{"timestamp":"2026-02-22 20:31:12","level":"warn","message":"[Redis] Retrying connection in 1000ms... (Attempt 10)"}
+{"timestamp":"2026-02-22 20:31:28","level":"error","message":"Worker error","error":"connect ETIMEDOUT"}
+{"timestamp":"2026-02-22 20:31:28","level":"warn","message":"[Redis] Retrying connection in 1100ms... (Attempt 11)"}
+{"timestamp":"2026-02-22 20:31:48","level":"error","message":"Worker error","error":"connect ETIMEDOUT"}
+{"timestamp":"2026-02-22 20:31:48","level":"warn","message":"[Redis] Retrying connection in 1200ms... (Attempt 12)"}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 20:49:37","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 20:49:39","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 20:49:39","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 20:49:39","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 20:49:45","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 20:49:45","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 20:49:45","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 20:49:45","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 20:49:50","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 20:49:50","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 20:49:50","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 20:49:50","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 20:49:57","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 20:49:58","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 20:49:58","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 20:49:59","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 20:50:00","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 20:50:01","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 20:50:02","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 20:50:03","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 20:50:04","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 20:50:04","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-22 20:50:05","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-22 20:50:06","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-22 20:50:07","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-22 20:50:08","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-22 20:50:09","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-22 20:50:10","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-22 20:50:11","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-22 20:50:12","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-22 20:50:13","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-22 20:50:13","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-22 20:50:13","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 20:50:13","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 20:50:13","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 20:50:13","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 20:50:13","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 20:50:51","level":"info","message":"[API HELPER] Refreshing Google tokens for user 6947325cc0b2ea5724e45758"}
+{"timestamp":"2026-02-22 20:50:51","level":"info","message":"[API HELPER] Google tokens updated in database for user 6947325cc0b2ea5724e45758"}
+{"timestamp":"2026-02-22 20:50:52","level":"info","message":"[API HELPER] Refreshing Google tokens for user 6947325cc0b2ea5724e45758"}
+{"timestamp":"2026-02-22 20:50:52","level":"info","message":"[API HELPER] Google tokens updated in database for user 6947325cc0b2ea5724e45758"}
+{"timestamp":"2026-02-22 20:57:04","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 20:57:04","level":"error","message":"Worker error","error":"read ECONNRESET"}
+{"timestamp":"2026-02-22 20:57:04","level":"error","message":"Scheduler worker error read ECONNRESET","errno":-4077,"code":"ECONNRESET","syscall":"read","stack":"Error: read ECONNRESET\n    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)"}
+{"timestamp":"2026-02-22 20:57:04","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 20:57:04","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 20:57:09","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 20:57:09","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:01:08","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 21:01:15","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 21:01:20","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 21:01:20","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 21:01:39","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 21:01:39","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 21:01:39","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 21:01:39","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 21:01:52","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 21:01:52","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 21:01:52","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 21:01:52","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 21:02:04","level":"error","message":"Worker error","error":"connect ETIMEDOUT"}
+{"timestamp":"2026-02-22 21:02:04","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 21:02:06","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 21:02:07","level":"info","message":"Scheduled trigger 696638dbcc1c79ce30f40c66","cron":"0 7 * * *","agentId":"696638d9cc1c79ce30f40c63"}
+{"timestamp":"2026-02-22 21:02:08","level":"info","message":"Scheduled trigger 69663bc6cc1c79ce30f40de0","cron":"0 14 * * *","agentId":"69663bc5cc1c79ce30f40ddd"}
+{"timestamp":"2026-02-22 21:02:09","level":"info","message":"Scheduled trigger 6966482acc1c79ce30f41012","cron":"0 21 * * *","agentId":"69664829cc1c79ce30f4100f"}
+{"timestamp":"2026-02-22 21:02:10","level":"info","message":"Scheduled trigger 6969269d2e6a51b8eb1b8ebc","cron":"0 9 * * 2","agentId":"6969269b2e6a51b8eb1b8eb9"}
+{"timestamp":"2026-02-22 21:02:11","level":"info","message":"Scheduled trigger 6969371d5c123aa314430157","cron":"0 7 * * *","agentId":"6969371c5c123aa314430151"}
+{"timestamp":"2026-02-22 21:02:12","level":"info","message":"Scheduled trigger 6969377b5c123aa3144301d7","cron":"0 8 * * *","agentId":"696937795c123aa3144301d1"}
+{"timestamp":"2026-02-22 21:02:19","level":"error","message":"Worker error","error":"connect ETIMEDOUT"}
+{"timestamp":"2026-02-22 21:02:19","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
+{"timestamp":"2026-02-22 21:02:26","level":"info","message":"Scheduled trigger 696939bc5c123aa314430288","cron":"0 9 * * *","agentId":"696939bb5c123aa314430284"}
+{"timestamp":"2026-02-22 21:02:27","level":"info","message":"Scheduled trigger 69693a105c123aa31443033e","cron":"0 9 * * *","agentId":"69693a0e5c123aa314430333"}
+{"timestamp":"2026-02-22 21:02:28","level":"info","message":"Scheduled trigger 69693b915c123aa3144304df","cron":"0 9 * * *","agentId":"69693b905c123aa3144304db"}
+{"timestamp":"2026-02-22 21:02:31","level":"info","message":"Scheduled trigger 69693d745c123aa31443076b","cron":"0 6 * * *","agentId":"69693d735c123aa314430768"}
+{"timestamp":"2026-02-22 21:02:33","level":"error","message":"Worker error","error":"connect ETIMEDOUT"}
+{"timestamp":"2026-02-22 21:02:33","level":"warn","message":"[Redis] Retrying connection in 300ms... (Attempt 3)"}
+{"timestamp":"2026-02-22 21:02:34","level":"info","message":"Scheduled trigger 69693fd55c123aa31443091b","cron":"0 9 * * *","agentId":"69693fd45c123aa314430918"}
+{"timestamp":"2026-02-22 21:02:35","level":"info","message":"Scheduled trigger 69695e0b73b9e979a431779a","cron":"0 9 * * *","agentId":"69695e0a73b9e979a4317794"}
+{"timestamp":"2026-02-22 21:02:38","level":"info","message":"Scheduled trigger 696963bc18dc4761d2e9e3bf","cron":"0 9 * * *","agentId":"696963bb18dc4761d2e9e3bc"}
+{"timestamp":"2026-02-22 21:02:39","level":"info","message":"Scheduled trigger 6969ea0223a1970bf307a244","cron":"0 9 * * *","agentId":"6969ea0123a1970bf307a241"}
+{"timestamp":"2026-02-22 21:02:43","level":"info","message":"Scheduled trigger 696a06330e253de7c71d98ac","cron":"0 9 * * 0","agentId":"696a06320e253de7c71d98a9"}
+{"timestamp":"2026-02-22 21:02:43","level":"info","message":"Scheduled trigger 696bfbd94253a1969f910205","cron":"0 9 * * *","agentId":"696bfbd74253a1969f910202"}
+{"timestamp":"2026-02-22 21:02:44","level":"info","message":"Scheduled trigger 6977c100ffa5e9cf02a29194","cron":"0 21 * * *","agentId":"6977bfdcffa5e9cf02a28f4a"}
+{"timestamp":"2026-02-22 21:02:45","level":"info","message":"Scheduled trigger 698b49677d89cacb939b0855","cron":"0 9 * * 2","agentId":"698b49667d89cacb939b0852"}
+{"timestamp":"2026-02-22 21:02:45","level":"info","message":"Scheduler initialized: 18 triggers scheduled"}
+{"timestamp":"2026-02-22 21:02:45","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 21:02:45","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 21:02:45","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 21:02:45","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 21:02:45","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 21:02:55","level":"error","message":"Scheduler worker error connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 21:02:55","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 21:16:45","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:23:38","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 21:23:41","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 21:23:41","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 21:23:41","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:24:01","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 21:24:11","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 21:24:11","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 21:24:11","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 21:24:11","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 21:24:31","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 21:24:49","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 21:24:49","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 21:24:49","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 21:24:49","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 21:24:51","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 21:24:52","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 21:24:52","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 21:31:26","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 21:31:26","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 21:38:40","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 21:38:40","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 21:38:40","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 21:38:44","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 21:38:45","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 21:44:54","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 21:44:54","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-22 22:57:08","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-22 22:57:18","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-22 22:57:18","level":"error","message":"[CacheService] Redis error: connect ETIMEDOUT","errorno":"ETIMEDOUT","code":"ETIMEDOUT","syscall":"connect","stack":"Error: connect ETIMEDOUT\n    at Socket.<anonymous> (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\ioredis@5.8.2\\node_modules\\ioredis\\built\\Redis.js:171:41)\n    at Object.onceWrapper (node:events:622:28)\n    at Socket.emit (node:events:508:28)\n    at Socket._onTimeout (node:net:604:8)\n    at listOnTimeout (node:internal/timers:608:17)\n    at process.processTimers (node:internal/timers:543:7)"}
+{"timestamp":"2026-02-22 22:57:18","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-22 22:57:18","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-22 22:57:22","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-22 22:57:22","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-22 22:57:22","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-22 22:57:42","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-22 22:57:42","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-22 22:57:42","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-22 22:57:42","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 22:57:49","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 22:57:49","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-22 22:57:49","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 22:57:49","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-22 22:57:49","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-22 22:57:50","level":"info","message":"Clearing 18 existing repeatable jobs"}
+{"timestamp":"2026-02-22 22:58:08","level":"info","message":"Found 19 enabled schedule triggers"}
+{"timestamp":"2026-02-22 22:58:08","level":"debug","message":"Skipping trigger for inactive agent {\n  brain: {\n    model: 'google/gemini-2.0-flash-001',\n    temperature: 0.7,\n    maxTokens: 2048\n  },\n  settings: {\n    tone: 'professional',\n    maxActionsPerRun: 10,\n    approvalRequired: false\n  },\n  _id: new ObjectId('6956ffdd2d3ad10a603a6691'),\n  ownerId: new ObjectId('6956a03af564d720e860d959'),\n  name: 'My  agent',\n  description: 'Help  me  post on my x',\n  instructions: 'Post on my x account',\n  status: 'paused',\n  rules: [],\n  integrations: [],\n  actions: [],\n  blueprintHistory: [],\n  createdAt: 2026-01-01T23:14:37.739Z,\n  updatedAt: 2026-01-01T23:33:31.726Z,\n  __v: 0,\n  id: '6956ffdd2d3ad10a603a6691'\n}"}
+{"timestamp":"2026-02-22 22:58:09","level":"error","message":"Failed to schedule trigger 696638dbcc1c79ce30f40c66: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:09","level":"error","message":"Failed to schedule trigger 69663bc6cc1c79ce30f40de0: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:09","level":"error","message":"Failed to schedule trigger 6966482acc1c79ce30f41012: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:10","level":"error","message":"Failed to schedule trigger 6969269d2e6a51b8eb1b8ebc: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:10","level":"error","message":"Failed to schedule trigger 6969371d5c123aa314430157: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:10","level":"error","message":"Failed to schedule trigger 6969377b5c123aa3144301d7: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:10","level":"error","message":"Failed to schedule trigger 696939bc5c123aa314430288: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:11","level":"error","message":"Failed to schedule trigger 69693a105c123aa31443033e: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:11","level":"error","message":"Failed to schedule trigger 69693b915c123aa3144304df: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:11","level":"error","message":"Failed to schedule trigger 69693d745c123aa31443076b: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:11","level":"error","message":"Failed to schedule trigger 69693fd55c123aa31443091b: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:12","level":"error","message":"Failed to schedule trigger 69695e0b73b9e979a431779a: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:12","level":"error","message":"Failed to schedule trigger 696963bc18dc4761d2e9e3bf: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:12","level":"error","message":"Failed to schedule trigger 6969ea0223a1970bf307a244: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:13","level":"error","message":"Failed to schedule trigger 696a06330e253de7c71d98ac: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:13","level":"error","message":"Failed to schedule trigger 696bfbd94253a1969f910205: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:13","level":"error","message":"Failed to schedule trigger 6977c100ffa5e9cf02a29194: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:13","level":"error","message":"Failed to schedule trigger 698b49677d89cacb939b0855: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:59:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async startServer (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\index.ts:129:3)"}
+{"timestamp":"2026-02-22 22:58:13","level":"info","message":"Scheduler initialized: 0 triggers scheduled"}
+{"timestamp":"2026-02-22 22:58:14","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-22 22:58:14","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-22 22:58:14","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-22 22:58:14","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-22 22:58:14","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 23:10:11","level":"info","message":"Socket connected: Svv2ArOtssyM2SMcAAAB"}
+{"timestamp":"2026-02-22 23:10:11","level":"info","message":"Socket Svv2ArOtssyM2SMcAAAB subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:10:11","level":"info","message":"Socket connected: cr2mEa2GxS6lkq4hAAAD"}
+{"timestamp":"2026-02-22 23:10:11","level":"info","message":"Socket cr2mEa2GxS6lkq4hAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:11:00","level":"info","message":"Socket cr2mEa2GxS6lkq4hAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:11:01","level":"info","message":"Socket cr2mEa2GxS6lkq4hAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:11:03","level":"info","message":"Socket cr2mEa2GxS6lkq4hAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:11:03","level":"info","message":"Socket cr2mEa2GxS6lkq4hAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:12:14","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 23:20:30","level":"info","message":"Socket cr2mEa2GxS6lkq4hAAAD subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:20:33","level":"info","message":"Socket disconnected: Svv2ArOtssyM2SMcAAAB"}
+{"timestamp":"2026-02-22 23:20:33","level":"info","message":"Socket disconnected: cr2mEa2GxS6lkq4hAAAD"}
+{"timestamp":"2026-02-22 23:20:39","level":"info","message":"Socket connected: H_tDSQs6qypyOTDCAAAF"}
+{"timestamp":"2026-02-22 23:20:39","level":"info","message":"Socket H_tDSQs6qypyOTDCAAAF subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:20:39","level":"info","message":"Socket connected: n4pK4LXJ8xA3VLGcAAAH"}
+{"timestamp":"2026-02-22 23:20:39","level":"info","message":"Socket n4pK4LXJ8xA3VLGcAAAH subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:23:37","level":"info","message":"Socket n4pK4LXJ8xA3VLGcAAAH subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:23:37","level":"info","message":"Socket n4pK4LXJ8xA3VLGcAAAH subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:23:38","level":"info","message":"Socket n4pK4LXJ8xA3VLGcAAAH subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:23:38","level":"info","message":"Socket n4pK4LXJ8xA3VLGcAAAH subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:24:45","level":"info","message":"Socket disconnected: H_tDSQs6qypyOTDCAAAF"}
+{"timestamp":"2026-02-22 23:24:45","level":"info","message":"Socket disconnected: n4pK4LXJ8xA3VLGcAAAH"}
+{"timestamp":"2026-02-22 23:24:48","level":"info","message":"Socket connected: 6Q9Ve34wUrEhmof_AAAJ"}
+{"timestamp":"2026-02-22 23:24:48","level":"info","message":"Socket 6Q9Ve34wUrEhmof_AAAJ subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:24:48","level":"info","message":"Socket connected: wR-ZWnGyuZq2NHn4AAAL"}
+{"timestamp":"2026-02-22 23:24:48","level":"info","message":"Socket wR-ZWnGyuZq2NHn4AAAL subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:26:14","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 23:29:17","level":"info","message":"Socket wR-ZWnGyuZq2NHn4AAAL subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:31:11","level":"info","message":"Socket disconnected: 6Q9Ve34wUrEhmof_AAAJ"}
+{"timestamp":"2026-02-22 23:31:12","level":"info","message":"Socket disconnected: wR-ZWnGyuZq2NHn4AAAL"}
+{"timestamp":"2026-02-22 23:31:23","level":"info","message":"Socket connected: 2MW4sD2bvtq0I62qAAAN"}
+{"timestamp":"2026-02-22 23:31:23","level":"info","message":"Socket 2MW4sD2bvtq0I62qAAAN subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:31:23","level":"info","message":"Socket connected: tyXtmjvVUB3njSc2AAAP"}
+{"timestamp":"2026-02-22 23:31:23","level":"info","message":"Socket tyXtmjvVUB3njSc2AAAP subscribed to agent:699a79f1c0c04430bfa5b3cb"}
+{"timestamp":"2026-02-22 23:36:21","level":"info","message":"Socket disconnected: 2MW4sD2bvtq0I62qAAAN"}
+{"timestamp":"2026-02-22 23:36:21","level":"info","message":"Socket disconnected: tyXtmjvVUB3njSc2AAAP"}
+{"timestamp":"2026-02-22 23:36:39","level":"info","message":"Socket connected: nP2WRvTwg462BUGdAAAR"}
+{"timestamp":"2026-02-22 23:36:39","level":"info","message":"Socket connected: 16JQsTDI7peaw9GrAAAT"}
+{"timestamp":"2026-02-22 23:40:14","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-22 23:54:14","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 00:08:14","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 00:22:14","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 16:24:20","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 16:24:20","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 16:30:15","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 16:30:15","level":"info","message":"[Redis] Client is ready"}

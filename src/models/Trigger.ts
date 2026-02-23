@@ -12,25 +12,28 @@ export type TriggerType = "schedule" | "webhook" | "manual";
 
 export interface ITrigger extends Document {
   _id: Types.ObjectId;
-  agentId: Types.ObjectId;
+  user: Types.ObjectId;
+  agent: Types.ObjectId;
   type: TriggerType;
-  config: {
-    // For schedule type
-    cron?: string;
-    timezone?: string;
-    // For webhook type
-    source?: string; // e.g., "github.push", "slack.message"
-    webhookPath?: string; // unique path for this webhook
-  };
-  enabled: boolean;
-  lastTriggeredAt?: Date;
+  name: string;
+  active: boolean;
+  cronExpression?: string;
+  webhookToken?: string;
+  webhookSecret?: string;
+  lastFiredAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const TriggerSchema = new Schema<ITrigger>(
   {
-    agentId: {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
+    agent: {
       type: Schema.Types.ObjectId,
       ref: "Agent",
       required: true,
@@ -41,30 +44,39 @@ const TriggerSchema = new Schema<ITrigger>(
       enum: ["schedule", "webhook", "manual"],
       required: true
     },
-    config: {
-      cron: { type: String },
-      timezone: { type: String, default: "UTC" },
-      source: { type: String },
-      webhookPath: { type: String, unique: true, sparse: true }
+    name: {
+      type: String,
+      required: true
     },
-    enabled: {
+    active: {
       type: Boolean,
       default: true,
       index: true
     },
-    lastTriggeredAt: { type: Date }
+    cronExpression: {
+      type: String,
+      required: false
+    },
+    webhookToken: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
+    webhookSecret: {
+      type: String,
+      required: false
+    },
+    lastFiredAt: {
+      type: Date,
+      required: false
+    }
   },
   { timestamps: true }
 );
 
 // Compound index for finding active triggers
-TriggerSchema.index({ agentId: 1, enabled: 1 });
-TriggerSchema.index({ type: 1, enabled: 1 });
-
-// Unique webhook paths - Redundant
-// TriggerSchema.index(
-//   { "config.webhookPath": 1 }, 
-//   { unique: true, sparse: true }
-// );
+TriggerSchema.index({ user: 1, agent: 1 });
+TriggerSchema.index({ type: 1, active: 1 });
+TriggerSchema.index({ webhookToken: 1 }, { unique: true, sparse: true });
 
 export const Trigger = model<ITrigger>("Trigger", TriggerSchema);

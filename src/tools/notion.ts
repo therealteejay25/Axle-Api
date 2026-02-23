@@ -3,935 +3,1318 @@ import { logger } from "../services/logger";
 import { BaseNotionTool } from "./base";
 import { NotionService } from "../services/notion.service";
 
+// ============================================
+// NOTION TOOL SUITE - COMPREHENSIVE (45 tools)
+// ============================================
+
 export class NotionToolSuite extends BaseNotionTool {
-    constructor(userId: string) {
-        super(userId);
-    }
+  constructor(userId: string) {
+    super(userId);
+  }
 
-    private async getNotionService(): Promise<NotionService> {
-        const service = await NotionService.fromUserId(this.userId);
-        if (!service) {
-            throw new Error("Notion account not connected. Please connect your Notion account first.");
+  private async getNotionService(): Promise<NotionService> {
+    const service = await NotionService.fromUserId(this.userId);
+    if (!service) {
+      throw new Error("Notion account not connected. Please connect your Notion account first.");
+    }
+    return service;
+  }
+
+  // ============================================
+  // PAGES (8 tools)
+  // ============================================
+
+  // Get page by ID including properties
+  createGetPageTool() {
+    return this.createTool(
+      "notion_get_page",
+      "Get page by ID including properties",
+      z.object({
+        pageId: z.string().min(1, "Page ID is required"),
+      }),
+      async ({ pageId }) => {
+        try {
+          logger.info(`[NOTION] Getting page: ${pageId}`);
+          const service = await this.getNotionService();
+          const page = await service.getPage(pageId);
+
+          return {
+            success: true,
+            data: page,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Get page failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to get page",
+          };
         }
-        return service;
-    }
+      }
+    );
+  }
 
-    // 1. Search tool
-    createSearchTool() {
-        return this.createTool(
-            "notion_search",
-            "Search for pages or databases in Notion by title.",
-            z.object({
-                query: z.string().describe("The text to search for."),
-                filter: z.enum(["page", "database"]).optional().describe("Filter results by object type."),
-            }),
-            async ({ query, filter }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Searching for: ${query}`);
+  // Create a page in a database or as child of a page with properties
+  createCreatePageTool() {
+    return this.createTool(
+      "notion_create_page",
+      "Create a page in a database or as child of a page with properties",
+      z.object({
+        parentId: z.string().min(1, "Parent ID is required"),
+        parentType: z.enum(["page", "database"]).describe("Type of parent (page or database)"),
+        title: z.string().min(1, "Title is required"),
+        properties: z.any().optional().describe("Additional properties for the page"),
+        content: z.array(z.any()).optional().describe("Initial content blocks for the page"),
+      }),
+      async ({ parentId, parentType, title, properties = {}, content }) => {
+        try {
+          logger.info(`[NOTION] Creating page in ${parentType}: ${parentId}`);
+          const service = await this.getNotionService();
 
-                const filterParam = filter ? { property: "object", value: filter } : undefined;
-                const result = await service.search(query, filterParam);
+          const parent = parentType === "page" ? { page_id: parentId } : { database_id: parentId };
 
-                return {
-                    success: true,
-                    results: result.results.map((item: any) => ({
-                        id: item.id,
-                        type: item.object,
-                        title: item.properties?.title?.title?.[0]?.plain_text || item.title?.[0]?.plain_text || "Untitled",
-                        url: item.url,
-                    })),
-                };
-            }
-        );
-    }
+          // Set title in properties
+          const finalProperties: any = { ...properties };
+          if (parentType === "page") {
+            finalProperties.title = { title: [{ text: { content: title } }] };
+          } else {
+            // For databases, find the title property or use "Name"
+            const titleKey = Object.keys(properties).find(k => properties[k]?.type === "title") || "Name";
+            finalProperties[titleKey] = { title: [{ text: { content: title } }] };
+          }
 
-    // 2. Get Page tool
-    createGetPageTool() {
-        return this.createTool(
-            "notion_get_page",
-            "Retrieve the metadata and properties of a specific Notion page.",
-            z.object({
-                pageId: z.string().describe("The ID of the page to retrieve."),
-            }),
-            async ({ pageId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Getting page: ${pageId}`);
+          const page = await service.createPage(parent, finalProperties, content);
 
-                const page = await service.getPage(pageId);
-                return {
-                    success: true,
-                    page,
-                };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: {
+              pageId: page.id,
+              url: (page as any).url,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Create page failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to create page",
+          };
+        }
+      }
+    );
+  }
 
-    // 3. Get Page Content tool
-    createGetPageContentTool() {
-        return this.createTool(
-            "notion_get_page_content",
-            "Retrieve the content (blocks) of a Notion page or block.",
-            z.object({
-                blockId: z.string().describe("The ID of the page or block to get children from."),
-            }),
-            async ({ blockId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Getting content for block: ${blockId}`);
+  // Update page properties
+  createUpdatePageTool() {
+    return this.createTool(
+      "notion_update_page",
+      "Update page properties (title, status, date, etc.)",
+      z.object({
+        pageId: z.string().min(1, "Page ID is required"),
+        properties: z.any().describe("Properties to update"),
+      }),
+      async ({ pageId, properties }) => {
+        try {
+          logger.info(`[NOTION] Updating page: ${pageId}`);
+          const service = await this.getNotionService();
+          const page = await service.updatePageProperties(pageId, properties);
 
-                const content = await service.getPageContent(blockId);
-                return {
-                    success: true,
-                    blocks: content.results,
-                };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: page,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Update page failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to update page",
+          };
+        }
+      }
+    );
+  }
 
-    // 4. Create Page tool
-    createCreatePageTool() {
-        return this.createTool(
-            "notion_create_page",
-            "Create a new page in a parent page or database entries.",
-            z.object({
-                parentId: z.string().describe("The ID of the parent page or database."),
-                parentType: z.enum(["page", "database"]).describe("The type of the parent."),
-                title: z.string().describe("The title of the new page."),
-                properties: z.any().optional().describe("Additional properties for the page (especially if parent is a database)."),
-                content: z.array(z.any()).optional().describe("Initial content (blocks) for the page."),
-            }),
-            async ({ parentId, parentType, title, properties = {}, content }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Creating page in ${parentType}: ${parentId}`);
+  // Archive (soft-delete) a page
+  createArchivePageTool() {
+    return this.createTool(
+      "notion_archive_page",
+      "Archive (soft-delete) a page",
+      z.object({
+        pageId: z.string().min(1, "Page ID is required"),
+      }),
+      async ({ pageId }) => {
+        try {
+          logger.info(`[NOTION] Archiving page: ${pageId}`);
+          const service = await this.getNotionService();
+          await service.updatePageProperties(pageId, { archived: true });
 
-                const parent = parentType === "page" ? { page_id: parentId } : { database_id: parentId };
+          return {
+            success: true,
+            message: "Page archived successfully",
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Archive page failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to archive page",
+          };
+        }
+      }
+    );
+  }
 
-                // Ensure title is set in properties
-                const finalProperties = { ...properties };
-                if (parentType === "page") {
-                    finalProperties.title = {
-                        title: [{ text: { content: title } }]
-                    };
-                } else {
-                    // Databases might have different title property names, usually "Name" or "title"
-                    const titleKey = Object.keys(properties).find(k => properties[k].type === "title") || "Name";
-                    finalProperties[titleKey] = {
-                        title: [{ text: { content: title } }]
-                    };
+  // Un-archive a page
+  createRestorePageTool() {
+    return this.createTool(
+      "notion_restore_page",
+      "Un-archive a page",
+      z.object({
+        pageId: z.string().min(1, "Page ID is required"),
+      }),
+      async ({ pageId }) => {
+        try {
+          logger.info(`[NOTION] Restoring page: ${pageId}`);
+          const service = await this.getNotionService();
+          await service.updatePageProperties(pageId, { archived: false });
+
+          return {
+            success: true,
+            message: "Page restored successfully",
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Restore page failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to restore page",
+          };
+        }
+      }
+    );
+  }
+
+  // Duplicate a page
+  createDuplicatePageTool() {
+    return this.createTool(
+      "notion_duplicate_page",
+      "Duplicate a page (create with same content)",
+      z.object({
+        pageId: z.string().min(1, "Page ID is required"),
+        newTitle: z.string().optional().describe("Title for the duplicated page"),
+      }),
+      async ({ pageId, newTitle }) => {
+        try {
+          logger.info(`[NOTION] Duplicating page: ${pageId}`);
+          const service = await this.getNotionService();
+
+          // Get original page
+          const originalPage: any = await service.getPage(pageId);
+          const content = await service.getPageContent(pageId);
+
+          // Extract parent
+          const parent = originalPage.parent;
+
+          // Copy properties and update title if provided
+          const properties = { ...originalPage.properties };
+          if (newTitle) {
+            const titleKey = Object.keys(properties).find(k => properties[k]?.type === "title") || "title";
+            properties[titleKey] = { title: [{ text: { content: newTitle } }] };
+          }
+
+          // Create new page with same content
+          const blocks = content.results.map((b: any) => {
+            const { id, created_time, created_by, last_edited_time, last_edited_by, has_children, archived, ...rest } = b;
+            return rest;
+          });
+
+          const newPage = await service.createPage(parent, properties, blocks);
+
+          return {
+            success: true,
+            data: {
+              pageId: newPage.id,
+              url: (newPage as any).url,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Duplicate page failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to duplicate page",
+          };
+        }
+      }
+    );
+  }
+
+  // Get all blocks from a page as readable text
+  createGetPageContentTool() {
+    return this.createTool(
+      "notion_get_page_content",
+      "Get all blocks from a page as readable text",
+      z.object({
+        pageId: z.string().min(1, "Page ID is required"),
+      }),
+      async ({ pageId }) => {
+        try {
+          logger.info(`[NOTION] Getting page content: ${pageId}`);
+          const service = await this.getNotionService();
+          const content = await service.getPageContent(pageId);
+
+          // Convert blocks to readable text
+          const text = content.results
+            .map((b: any) => {
+              const blockType = b.type;
+              const blockContent = b[blockType];
+              if (blockContent?.rich_text) {
+                return blockContent.rich_text.map((rt: any) => rt.plain_text).join("");
+              }
+              return "";
+            })
+            .filter(t => t.length > 0)
+            .join("\n");
+
+          return {
+            success: true,
+            data: {
+              blocks: content.results,
+              text,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Get page content failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to get page content",
+          };
+        }
+      }
+    );
+  }
+
+  // Search pages by title or content
+  createSearchPagesTool() {
+    return this.createTool(
+      "notion_search_pages",
+      "Search pages by title or content",
+      z.object({
+        query: z.string().min(1, "Search query is required"),
+      }),
+      async ({ query }) => {
+        try {
+          logger.info(`[NOTION] Searching pages: ${query}`);
+          const service = await this.getNotionService();
+          const result = await service.search(query, { property: "object", value: "page" });
+
+          return {
+            success: true,
+            data: {
+              results: result.results.map((item: any) => ({
+                id: item.id,
+                title: item.properties?.title?.title?.[0]?.plain_text || 
+                       item.properties?.Name?.title?.[0]?.plain_text || 
+                       "Untitled",
+                url: item.url,
+              })),
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Search pages failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to search pages",
+          };
+        }
+      }
+    );
+  }
+
+  // ============================================
+  // BLOCKS (15 tools)
+  // ============================================
+
+  // List all child blocks of a page or block
+  createGetBlocksTool() {
+    return this.createTool(
+      "notion_get_blocks",
+      "List all child blocks of a page or block",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+      }),
+      async ({ blockId }) => {
+        try {
+          logger.info(`[NOTION] Getting blocks: ${blockId}`);
+          const service = await this.getNotionService();
+          const content = await service.getPageContent(blockId);
+
+          return {
+            success: true,
+            data: {
+              blocks: content.results,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Get blocks failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to get blocks",
+          };
+        }
+      }
+    );
+  }
+
+  // Append blocks to a page
+  createAppendBlocksTool() {
+    return this.createTool(
+      "notion_append_blocks",
+      "Append blocks to a page (paragraph, heading, todo, bullet, code, etc.)",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        children: z.array(z.any()).describe("List of blocks to append"),
+      }),
+      async ({ blockId, children }) => {
+        try {
+          logger.info(`[NOTION] Appending blocks to: ${blockId}`);
+          const service = await this.getNotionService();
+          const result = await service.appendBlock(blockId, children);
+
+          return {
+            success: true,
+            data: {
+              results: result.results,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append blocks failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append blocks",
+          };
+        }
+      }
+    );
+  }
+
+  // Update a block's content
+  createUpdateBlockTool() {
+    return this.createTool(
+      "notion_update_block",
+      "Update a block's content",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        content: z.any().describe("New content for the block"),
+      }),
+      async ({ blockId, content }) => {
+        try {
+          logger.info(`[NOTION] Updating block: ${blockId}`);
+          const service = await this.getNotionService();
+          const block = await service.updateBlock(blockId, content);
+
+          return {
+            success: true,
+            data: block,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Update block failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to update block",
+          };
+        }
+      }
+    );
+  }
+
+  // Delete a block
+  createDeleteBlockTool() {
+    return this.createTool(
+      "notion_delete_block",
+      "Delete a block",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+      }),
+      async ({ blockId }) => {
+        try {
+          logger.info(`[NOTION] Deleting block: ${blockId}`);
+          const service = await this.getNotionService();
+          await service.deleteBlock(blockId);
+
+          return {
+            success: true,
+            message: "Block deleted successfully",
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Delete block failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to delete block",
+          };
+        }
+      }
+    );
+  }
+
+  // Get a specific block
+  createGetBlockTool() {
+    return this.createTool(
+      "notion_get_block",
+      "Get a specific block",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+      }),
+      async ({ blockId }) => {
+        try {
+          logger.info(`[NOTION] Getting block: ${blockId}`);
+          const service = await this.getNotionService();
+          const block = await service.getBlock(blockId);
+
+          return {
+            success: true,
+            data: block,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Get block failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to get block",
+          };
+        }
+      }
+    );
+  }
+
+  // Quick helper: append a paragraph text block
+  createAppendParagraphTool() {
+    return this.createTool(
+      "notion_append_paragraph",
+      "Quick helper: append a paragraph text block",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        text: z.string().min(1, "Text is required"),
+      }),
+      async ({ blockId, text }) => {
+        try {
+          logger.info(`[NOTION] Appending paragraph to: ${blockId}`);
+          const service = await this.getNotionService();
+          const blocks = [{ paragraph: { rich_text: [{ text: { content: text } }] } }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append paragraph failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append paragraph",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a heading (h1, h2, or h3)
+  createAppendHeadingTool() {
+    return this.createTool(
+      "notion_append_heading",
+      "Append a heading (h1, h2, or h3)",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        text: z.string().min(1, "Text is required"),
+        level: z.enum(["1", "2", "3"]).default("1").describe("Heading level (1, 2, or 3)"),
+      }),
+      async ({ blockId, text, level }) => {
+        try {
+          logger.info(`[NOTION] Appending heading ${level} to: ${blockId}`);
+          const service = await this.getNotionService();
+          const headingType = `heading_${level}`;
+          const blocks = [{ [headingType]: { rich_text: [{ text: { content: text } }] } }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append heading failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append heading",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a to-do checkbox block with checked status
+  createAppendTodoTool() {
+    return this.createTool(
+      "notion_append_todo",
+      "Append a to-do checkbox block with checked status",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        text: z.string().min(1, "Text is required"),
+        checked: z.boolean().default(false).describe("Whether the todo is checked"),
+      }),
+      async ({ blockId, text, checked }) => {
+        try {
+          logger.info(`[NOTION] Appending todo to: ${blockId}`);
+          const service = await this.getNotionService();
+          const blocks = [{ to_do: { rich_text: [{ text: { content: text } }], checked } }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append todo failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append todo",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a bulleted list item
+  createAppendBulletTool() {
+    return this.createTool(
+      "notion_append_bullet",
+      "Append a bulleted list item",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        text: z.string().min(1, "Text is required"),
+      }),
+      async ({ blockId, text }) => {
+        try {
+          logger.info(`[NOTION] Appending bullet to: ${blockId}`);
+          const service = await this.getNotionService();
+          const blocks = [{ bulleted_list_item: { rich_text: [{ text: { content: text } }] } }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append bullet failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append bullet",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a numbered list item
+  createAppendNumberedTool() {
+    return this.createTool(
+      "notion_append_numbered",
+      "Append a numbered list item",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        text: z.string().min(1, "Text is required"),
+      }),
+      async ({ blockId, text }) => {
+        try {
+          logger.info(`[NOTION] Appending numbered item to: ${blockId}`);
+          const service = await this.getNotionService();
+          const blocks = [{ numbered_list_item: { rich_text: [{ text: { content: text } }] } }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append numbered failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append numbered item",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a code block with language and content
+  createAppendCodeTool() {
+    return this.createTool(
+      "notion_append_code",
+      "Append a code block with language and content",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        code: z.string().min(1, "Code content is required"),
+        language: z.string().default("javascript").describe("Programming language"),
+      }),
+      async ({ blockId, code, language }) => {
+        try {
+          logger.info(`[NOTION] Appending code block to: ${blockId}`);
+          const service = await this.getNotionService();
+          const blocks = [{ code: { rich_text: [{ text: { content: code } }], language } }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append code failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append code",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a horizontal divider
+  createAppendDividerTool() {
+    return this.createTool(
+      "notion_append_divider",
+      "Append a horizontal divider",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+      }),
+      async ({ blockId }) => {
+        try {
+          logger.info(`[NOTION] Appending divider to: ${blockId}`);
+          const service = await this.getNotionService();
+          const blocks = [{ divider: {} }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append divider failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append divider",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a callout block with emoji and text
+  createAppendCalloutTool() {
+    return this.createTool(
+      "notion_append_callout",
+      "Append a callout block with emoji and text",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        text: z.string().min(1, "Text is required"),
+        emoji: z.string().default("💡").describe("Emoji icon for the callout"),
+      }),
+      async ({ blockId, text, emoji }) => {
+        try {
+          logger.info(`[NOTION] Appending callout to: ${blockId}`);
+          const service = await this.getNotionService();
+          const blocks = [{ 
+            callout: { 
+              rich_text: [{ text: { content: text } }],
+              icon: { emoji }
+            } 
+          }];
+          const result = await service.appendBlock(blockId, blocks);
+
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append callout failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append callout",
+          };
+        }
+      }
+    );
+  }
+
+  // Append a simple table block with rows and columns
+  createAppendTableTool() {
+    return this.createTool(
+      "notion_append_table",
+      "Append a simple table block with rows and columns",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        tableWidth: z.number().min(1).describe("Number of columns"),
+        rows: z.array(z.array(z.string())).describe("Array of rows, each row is an array of cell values"),
+      }),
+      async ({ blockId, tableWidth, rows }) => {
+        try {
+          logger.info(`[NOTION] Appending table to: ${blockId}`);
+          const service = await this.getNotionService();
+          
+          const tableBlock: any = {
+            table: {
+              table_width: tableWidth,
+              has_column_header: true,
+              has_row_header: false,
+              children: rows.map(row => ({
+                table_row: {
+                  cells: row.map(cell => [{ text: { content: cell } }])
                 }
-
-                const page = await service.createPage(parent, finalProperties, content);
-                return {
-                    success: true,
-                    pageId: page.id,
-                    url: (page as any).url,
-                };
+              }))
             }
-        );
-    }
+          };
 
-    // 5. Update Page Properties tool
-    createUpdatePagePropertiesTool() {
-        return this.createTool(
-            "notion_update_page_properties",
-            "Update the properties of an existing Notion page.",
-            z.object({
-                pageId: z.string().describe("The ID of the page to update."),
-                properties: z.any().describe("The properties to update (JSON object)."),
-            }),
-            async ({ pageId, properties }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Updating page properties: ${pageId}`);
+          const blocks = [tableBlock];
+          const result = await service.appendBlock(blockId, blocks);
 
-                const page = await service.updatePageProperties(pageId, properties);
-                return {
-                    success: true,
-                    page,
-                };
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append table failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append table",
+          };
+        }
+      }
+    );
+  }
+
+  // Append an image block from URL
+  createAppendImageTool() {
+    return this.createTool(
+      "notion_append_image",
+      "Append an image block from URL",
+      z.object({
+        blockId: z.string().min(1, "Block ID is required"),
+        imageUrl: z.string().url("Must be a valid URL"),
+        caption: z.string().optional().describe("Optional caption for the image"),
+      }),
+      async ({ blockId, imageUrl, caption }) => {
+        try {
+          logger.info(`[NOTION] Appending image to: ${blockId}`);
+          const service = await this.getNotionService();
+          
+          const imageBlock: any = {
+            image: {
+              type: "external",
+              external: { url: imageUrl }
             }
-        );
-    }
+          };
 
-    // 6. Append Block tool
-    createAppendBlockTool() {
-        return this.createTool(
-            "notion_append_block",
-            "Append new content blocks to a Notion page or block.",
-            z.object({
-                blockId: z.string().describe("The ID of the page or block to append to."),
-                children: z.array(z.any()).describe("List of blocks to append."),
-            }),
-            async ({ blockId, children }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Appending blocks to: ${blockId}`);
+          if (caption) {
+            imageBlock.image.caption = [{ text: { content: caption } }];
+          }
 
-                const result = await service.appendBlock(blockId, children);
-                return {
-                    success: true,
-                    results: result.results,
-                };
-            }
-        );
-    }
+          const blocks = [imageBlock];
+          const result = await service.appendBlock(blockId, blocks);
 
-    // 7. List Databases tool
-    createListDatabasesTool() {
-        return this.createTool(
-            "notion_list_databases",
-            "List all databases the integration has access to.",
-            z.object({}),
-            async () => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Listing databases`);
+          return {
+            success: true,
+            data: result.results,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Append image failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to append image",
+          };
+        }
+      }
+    );
+  }
 
-                const result = await service.listDatabases();
-                return {
-                    success: true,
-                    databases: result.results.map((db: any) => ({
-                        id: db.id,
-                        title: db.title?.[0]?.plain_text || "Untitled",
-                        url: db.url,
-                    })),
-                };
-            }
-        );
-    }
+  // ============================================
+  // DATABASES (7 tools)
+  // ============================================
 
-    // 8. Query Database tool
-    createByQueryDatabaseTool() {
-        return this.createTool(
-            "notion_query_database",
-            "Query a Notion database with filters and sorts.",
-            z.object({
-                databaseId: z.string().describe("The ID of the database to query."),
-                filter: z.any().optional().describe("Filter conditions."),
-                sorts: z.array(z.any()).optional().describe("Sort conditions."),
-            }),
-            async ({ databaseId, filter, sorts }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Querying database: ${databaseId}`);
+  // List all databases the integration has access to
+  createListDatabasesTool() {
+    return this.createTool(
+      "notion_list_databases",
+      "List all databases the integration has access to",
+      z.object({}),
+      async () => {
+        try {
+          logger.info(`[NOTION] Listing databases`);
+          const service = await this.getNotionService();
+          const result = await service.listDatabases();
 
-                const result = await service.queryDatabase(databaseId, filter, sorts);
-                return {
-                    success: true,
-                    results: result.results,
-                };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: {
+              databases: result.results.map((db: any) => ({
+                id: db.id,
+                title: db.title?.[0]?.plain_text || "Untitled",
+                url: db.url,
+              })),
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] List databases failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to list databases",
+          };
+        }
+      }
+    );
+  }
 
-    // 9. Add Comment tool
-    createAddCommentTool() {
-        return this.createTool(
-            "notion_add_comment",
-            "Add a comment to a Notion page or discussion.",
-            z.object({
-                pageId: z.string().optional().describe("The ID of the page to comment on."),
-                discussionId: z.string().optional().describe("The ID of the discussion thread."),
-                content: z.string().describe("The comment content."),
-            }),
-            async ({ pageId, discussionId, content }) => {
-                const service = await this.getNotionService();
-                if (!pageId && !discussionId) {
-                    throw new Error("Either pageId or discussionId must be provided.");
-                }
+  // Get database schema (all properties and their types)
+  createGetDatabaseTool() {
+    return this.createTool(
+      "notion_get_database",
+      "Get database schema (all properties and their types)",
+      z.object({
+        databaseId: z.string().min(1, "Database ID is required"),
+      }),
+      async ({ databaseId }) => {
+        try {
+          logger.info(`[NOTION] Getting database: ${databaseId}`);
+          const service = await this.getNotionService();
+          const database: any = await service.retrieveDatabase(databaseId);
 
-                logger.info(`[NOTION] Adding comment to ${pageId || discussionId}`);
+          return {
+            success: true,
+            data: {
+              id: database.id,
+              title: database.title?.[0]?.plain_text || "Untitled",
+              properties: database.properties,
+              url: database.url,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Get database failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to get database",
+          };
+        }
+      }
+    );
+  }
 
-                const parent = pageId ? { page_id: pageId } : { discussion_id: discussionId };
-                const result = await service.addComment(parent, content);
+  // Query a database with filters, sorts, pagination
+  createQueryDatabaseTool() {
+    return this.createTool(
+      "notion_query_database",
+      "Query a database with filters, sorts, pagination",
+      z.object({
+        databaseId: z.string().min(1, "Database ID is required"),
+        filter: z.any().optional().describe("Filter conditions"),
+        sorts: z.array(z.any()).optional().describe("Sort conditions"),
+        startCursor: z.string().optional().describe("Pagination cursor"),
+        pageSize: z.number().min(1).max(100).default(100).describe("Number of results per page"),
+      }),
+      async ({ databaseId, filter, sorts, startCursor, pageSize }) => {
+        try {
+          logger.info(`[NOTION] Querying database: ${databaseId}`);
+          const service = await this.getNotionService();
+          const result = await service.queryDatabase(databaseId, filter, sorts, startCursor, pageSize);
 
-                return {
-                    success: true,
-                    comment: result,
-                };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: {
+              results: result.results,
+              hasMore: result.has_more,
+              nextCursor: result.next_cursor,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Query database failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to query database",
+          };
+        }
+      }
+    );
+  }
 
-    // 10. List Users tool
-    createListUsersTool() {
-        return this.createTool(
-            "notion_list_users",
-            "List all users in the Notion workspace.",
-            z.object({}),
-            async () => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Listing users`);
+  // Create a new database inside a page with defined properties
+  createCreateDatabaseTool() {
+    return this.createTool(
+      "notion_create_database",
+      "Create a new database inside a page with defined properties",
+      z.object({
+        parentPageId: z.string().min(1, "Parent page ID is required"),
+        title: z.string().min(1, "Title is required"),
+        properties: z.any().describe("Database properties schema"),
+      }),
+      async ({ parentPageId, title, properties }) => {
+        try {
+          logger.info(`[NOTION] Creating database: ${title}`);
+          const service = await this.getNotionService();
+          const database = await service.createDatabase(parentPageId, title, properties);
 
-                const result = await service.listUsers();
-                return {
-                    success: true,
-                    users: result.results.map((user: any) => ({
-                        id: user.id,
-                        name: user.name,
-                        type: user.type,
-                        avatarUrl: user.avatar_url,
-                    })),
-                };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: {
+              databaseId: database.id,
+              url: (database as any).url,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Create database failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to create database",
+          };
+        }
+      }
+    );
+  }
 
-    // --- Database Management ---
+  // Update database title or properties schema
+  createUpdateDatabaseTool() {
+    return this.createTool(
+      "notion_update_database",
+      "Update database title or properties schema",
+      z.object({
+        databaseId: z.string().min(1, "Database ID is required"),
+        title: z.string().optional().describe("New title for the database"),
+        properties: z.any().optional().describe("Properties to add or update"),
+      }),
+      async ({ databaseId, title, properties }) => {
+        try {
+          logger.info(`[NOTION] Updating database: ${databaseId}`);
+          const service = await this.getNotionService();
+          const database = await service.updateDatabase(databaseId, properties, title);
 
-    // 11. Create Database
-    createCreateDatabaseTool() {
-        return this.createTool(
-            "notion_create_database",
-            "Create a new database in a parent page.",
-            z.object({
-                parentPageId: z.string().describe("The ID of the parent page."),
-                title: z.string().describe("The title of the new database."),
-                properties: z.any().describe("The properties (schema) of the database."),
-            }),
-            async ({ parentPageId, title, properties }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Creating database: ${title}`);
-                const db = await service.createDatabase(parentPageId, title, properties);
-                return { success: true, databaseId: db.id, url: (db as any).url };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: database,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Update database failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to update database",
+          };
+        }
+      }
+    );
+  }
 
-    // 12. Delete Row (Block)
-    createDeleteRowTool() {
-        return this.createTool(
-            "notion_delete_row",
-            "Delete a row (page) or any block in Notion.",
-            z.object({
-                blockOrPageId: z.string().describe("The ID of the row/page or block to delete."),
-            }),
-            async ({ blockOrPageId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Deleting block: ${blockOrPageId}`);
-                await service.deleteBlock(blockOrPageId);
-                return { success: true, message: "Deleted successfully" };
-            }
-        );
-    }
+  // Query with pre-built filter helper
+  createFilterDatabaseTool() {
+    return this.createTool(
+      "notion_filter_database",
+      "Query with pre-built filter helper (equals, contains, before, after, checkbox, etc.)",
+      z.object({
+        databaseId: z.string().min(1, "Database ID is required"),
+        propertyName: z.string().min(1, "Property name to filter on"),
+        filterType: z.enum(["equals", "contains", "does_not_equal", "does_not_contain", "is_empty", "is_not_empty", "before", "after", "on_or_before", "on_or_after", "checkbox"]).describe("Type of filter"),
+        value: z.any().optional().describe("Value to filter by (not needed for is_empty/is_not_empty)"),
+      }),
+      async ({ databaseId, propertyName, filterType, value }) => {
+        try {
+          logger.info(`[NOTION] Filtering database: ${databaseId} by ${propertyName} ${filterType}`);
+          const service = await this.getNotionService();
 
-    // 13. List Properties
-    createListPropertiesTool() {
-        return this.createTool(
-            "notion_list_properties",
-            "Retrieve the schema/properties of a Notion database.",
-            z.object({
-                databaseId: z.string().describe("The ID of the database."),
-            }),
-            async ({ databaseId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Retrieving database schema: ${databaseId}`);
-                const db = await service.retrieveDatabase(databaseId) as any;
-                return { success: true, properties: db.properties };
-            }
-        );
-    }
+          // Build filter based on type
+          let filter: any = { property: propertyName };
 
-    // 14. Add / Update Property
-    createUpdateDatabaseSchemaTool() {
-        return this.createTool(
-            "notion_update_database_schema",
-            "Add, update, or rename properties in a Notion database.",
-            z.object({
-                databaseId: z.string().describe("The ID of the database."),
-                properties: z.any().describe("The properties to add or update."),
-                title: z.string().optional().describe("Optional new title for the database."),
-            }),
-            async ({ databaseId, properties, title }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Updating database schema: ${databaseId}`);
-                const db = await service.updateDatabase(databaseId, properties, title);
-                return { success: true, database: db };
-            }
-        );
-    }
+          switch (filterType) {
+            case "equals":
+              filter.rich_text = { equals: value };
+              break;
+            case "contains":
+              filter.rich_text = { contains: value };
+              break;
+            case "does_not_equal":
+              filter.rich_text = { does_not_equal: value };
+              break;
+            case "does_not_contain":
+              filter.rich_text = { does_not_contain: value };
+              break;
+            case "is_empty":
+              filter.rich_text = { is_empty: true };
+              break;
+            case "is_not_empty":
+              filter.rich_text = { is_not_empty: true };
+              break;
+            case "before":
+              filter.date = { before: value };
+              break;
+            case "after":
+              filter.date = { after: value };
+              break;
+            case "on_or_before":
+              filter.date = { on_or_before: value };
+              break;
+            case "on_or_after":
+              filter.date = { on_or_after: value };
+              break;
+            case "checkbox":
+              filter.checkbox = { equals: value };
+              break;
+          }
 
-    // --- Task Management ---
+          const result = await service.queryDatabase(databaseId, filter);
 
-    // 15. Create Task
-    createCreateTaskTool() {
-        return this.createTool(
-            "notion_create_task",
-            "Create a task in a database with status, assignee, and priority.",
-            z.object({
-                databaseId: z.string().describe("The ID of the task database."),
-                title: z.string().describe("Task title."),
-                status: z.string().optional().describe("Task status (e.g., 'To Do')."),
-                assigneeId: z.string().optional().describe("User ID to assign."),
-                priority: z.string().optional().describe("Priority level."),
-                dueDate: z.string().optional().describe("Due date (ISO format)."),
-            }),
-            async ({ databaseId, title, status, assigneeId, priority, dueDate }) => {
-                const service = await this.getNotionService();
-                const properties: any = {
-                    Name: { title: [{ text: { content: title } }] }
-                };
-                if (status) properties.Status = { status: { name: status } };
-                if (assigneeId) properties.Assignee = { people: [{ id: assigneeId }] };
-                if (priority) properties.Priority = { select: { name: priority } };
-                if (dueDate) properties["Due Date"] = { date: { start: dueDate } };
+          return {
+            success: true,
+            data: {
+              results: result.results,
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Filter database failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to filter database",
+          };
+        }
+      }
+    );
+  }
 
-                const page = await service.createPage({ database_id: databaseId }, properties);
-                return { success: true, taskId: page.id, url: (page as any).url };
-            }
-        );
-    }
+  // ============================================
+  // USERS (3 tools)
+  // ============================================
 
-    // 16. Update Task Status
-    createUpdateTaskStatusTool() {
-        return this.createTool(
-            "notion_update_task_status",
-            "Update the status of a Notion task.",
-            z.object({
-                taskId: z.string().describe("The ID of the task."),
-                status: z.string().describe("The new status (e.g., 'Done', 'In Progress')."),
-            }),
-            async ({ taskId, status }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Updating task status: ${taskId} -> ${status}`);
-                // Try "Status" first, fallback to "status"
-                const properties: any = {
-                    Status: { status: { name: status } }
-                };
-                try {
-                    await service.updatePageProperties(taskId, properties);
-                } catch {
-                    await service.updatePageProperties(taskId, {
-                        status: { status: { name: status } }
-                    });
-                }
-                return { success: true };
-            }
-        );
-    }
+  // List all users in the workspace
+  createListUsersTool() {
+    return this.createTool(
+      "notion_list_users",
+      "List all users in the workspace",
+      z.object({}),
+      async () => {
+        try {
+          logger.info(`[NOTION] Listing users`);
+          const service = await this.getNotionService();
+          const result = await service.listUsers();
 
-    // 17. Assign Task
-    createAssignTaskTool() {
-        return this.createTool(
-            "notion_assign_task",
-            "Assign a task to a user in Notion.",
-            z.object({
-                taskId: z.string().describe("The ID of the task."),
-                userId: z.string().describe("The Notion user ID to assign."),
-            }),
-            async ({ taskId, userId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Assigning task: ${taskId} to ${userId}`);
-                await service.updatePageProperties(taskId, {
-                    Assignee: { people: [{ id: userId }] }
-                });
-                return { success: true };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: {
+              users: result.results.map((user: any) => ({
+                id: user.id,
+                name: user.name,
+                type: user.type,
+                avatarUrl: user.avatar_url,
+                email: user.person?.email,
+              })),
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] List users failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to list users",
+          };
+        }
+      }
+    );
+  }
 
-    // 18. Set Task Due Date
-    createSetTaskDueDateTool() {
-        return this.createTool(
-            "notion_set_task_due_date",
-            "Set or update the due date for a Notion task.",
-            z.object({
-                taskId: z.string().describe("The ID of the task."),
-                dueDate: z.string().describe("The due date (ISO format)."),
-            }),
-            async ({ taskId, dueDate }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Setting task due date: ${taskId} -> ${dueDate}`);
-                await service.updatePageProperties(taskId, {
-                    "Due Date": { date: { start: dueDate } }
-                });
-                return { success: true };
-            }
-        );
-    }
+  // Get a specific user by ID
+  createGetUserTool() {
+    return this.createTool(
+      "notion_get_user",
+      "Get a specific user by ID",
+      z.object({
+        userId: z.string().min(1, "User ID is required"),
+      }),
+      async ({ userId }) => {
+        try {
+          logger.info(`[NOTION] Getting user: ${userId}`);
+          const service = await this.getNotionService();
+          const user = await service.getUser(userId);
 
-    // 19. Update Task Priority
-    createUpdateTaskPriorityTool() {
-        return this.createTool(
-            "notion_task_priority_update",
-            "Update the priority of a Notion task.",
-            z.object({
-                taskId: z.string().describe("The ID of the task."),
-                priority: z.string().describe("The priority level (e.g., 'High', 'Medium', 'Low')."),
-            }),
-            async ({ taskId, priority }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Updating task priority: ${taskId} -> ${priority}`);
-                await service.updatePageProperties(taskId, {
-                    Priority: { select: { name: priority } }
-                });
-                return { success: true };
-            }
-        );
-    }
+          return {
+            success: true,
+            data: user,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Get user failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to get user",
+          };
+        }
+      }
+    );
+  }
 
-    // 20. Add Task Comment (Alias for Comment)
-    createAddTaskCommentTool() {
-        return this.createTool(
-            "notion_add_task_comment",
-            "Add a note or comment to a specific task.",
-            z.object({
-                taskId: z.string().describe("The ID of the task."),
-                comment: z.string().describe("The comment content."),
-            }),
-            async ({ taskId, comment }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Adding task comment: ${taskId}`);
-                await service.addComment({ page_id: taskId }, comment);
-                return { success: true };
-            }
-        );
-    }
+  // Get the currently authenticated bot user
+  createGetMeTool() {
+    return this.createTool(
+      "notion_get_me",
+      "Get the currently authenticated bot user",
+      z.object({}),
+      async () => {
+        try {
+          logger.info(`[NOTION] Getting current bot user`);
+          const service = await this.getNotionService();
+          const me = await service.getMe();
 
-    // 21. Get Task Overview
-    createGetTaskOverviewTool() {
-        return this.createTool(
-            "notion_get_task_overview",
-            "Get an overview of all tasks in a database (optionally filtered by user).",
-            z.object({
-                databaseId: z.string().describe("The ID of the task database."),
-                userId: z.string().optional().describe("Filter by user ID."),
-            }),
-            async ({ databaseId, userId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Getting task overview for database: ${databaseId}`);
-                const filter: any = userId ? {
-                    property: "Assignee",
-                    people: { contains: userId }
-                } : undefined;
+          return {
+            success: true,
+            data: me,
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Get me failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to get current user",
+          };
+        }
+      }
+    );
+  }
 
-                const result = await service.queryDatabase(databaseId, filter);
-                return {
-                    success: true,
-                    tasks: result.results.map((t: any) => ({
-                        id: t.id,
-                        title: t.properties?.Name?.title?.[0]?.plain_text || "Untitled",
-                        status: t.properties?.Status?.status?.name || t.properties?.status?.status?.name,
-                        assignee: t.properties?.Assignee?.people?.[0]?.name,
-                        priority: t.properties?.Priority?.select?.name,
-                        dueDate: t.properties?.["Due Date"]?.date?.start,
-                    }))
-                };
-            }
-        );
-    }
+  // ============================================
+  // SEARCH (1 tool)
+  // ============================================
 
-    // 22. Search Tasks
-    createSearchTasksTool() {
-        return this.createTool(
-            "notion_search_tasks",
-            "Search for tasks by keyword across the workspace.",
-            z.object({
-                query: z.string().describe("The keyword to search for."),
-            }),
-            async ({ query }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Searching tasks for: ${query}`);
+  // Global search across pages and databases with optional filter
+  createSearchTool() {
+    return this.createTool(
+      "notion_search",
+      "Global search across pages and databases with optional filter",
+      z.object({
+        query: z.string().optional().describe("Search query (empty for all)"),
+        filter: z.enum(["page", "database"]).optional().describe("Filter by object type"),
+        sort: z.object({
+          direction: z.enum(["ascending", "descending"]),
+          timestamp: z.enum(["last_edited_time"]),
+        }).optional().describe("Sort options"),
+      }),
+      async ({ query, filter, sort }) => {
+        try {
+          logger.info(`[NOTION] Searching: ${query || "all"}`);
+          const service = await this.getNotionService();
+          
+          const filterParam = filter ? { property: "object", value: filter } : undefined;
+          const result = await service.search(query, filterParam, sort);
 
-                const result = await service.search(query, { property: "object", value: "page" });
-                // Filter results to likely tasks (those containing 'task' related properties or in likely databases)
-                return {
-                    success: true,
-                    results: result.results.map((item: any) => ({
-                        id: item.id,
-                        title: item.properties?.Name?.title?.[0]?.plain_text || item.properties?.title?.title?.[0]?.plain_text || "Untitled",
-                        url: item.url,
-                    }))
-                };
-            }
-        );
-    }
-
-    // 23. Archive Task (Alias for Delete Row)
-    createArchiveTaskTool() {
-        return this.createTool(
-            "notion_archive_task",
-            "Archive (remove from active view) a task.",
-            z.object({
-                taskId: z.string().describe("The ID of the task to archive."),
-            }),
-            async ({ taskId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Archiving task: ${taskId}`);
-                // In Notion, archiving usually means deleting the block or moving it to an 'Archive' status.
-                // We'll use deleteBlock as requested ("remove from active view").
-                await service.deleteBlock(taskId);
-                return { success: true };
-            }
-        );
-    }
-
-    // --- Meeting & Notes ---
-
-    // 24. Create Meeting Note
-    createCreateMeetingNoteTool() {
-        return this.createTool(
-            "notion_create_meeting_note",
-            "Create a structured meeting note page.",
-            z.object({
-                parentPageId: z.string().describe("The ID of the parent page or database."),
-                title: z.string().describe("Meeting title."),
-                date: z.string().optional().describe("Meeting date."),
-                participants: z.array(z.string()).optional().describe("List of participant names/IDs."),
-            }),
-            async ({ parentPageId, title, date, participants }) => {
-                const service = await this.getNotionService();
-                const content: any[] = [
-                    { heading_1: { rich_text: [{ text: { content: "Meeting Minutes" } }] } },
-                    { heading_2: { rich_text: [{ text: { content: "Attendees" } }] } },
-                    { bulleted_list_item: { rich_text: [{ text: { content: participants?.join(", ") || "No attendees listed" } }] } },
-                    { heading_2: { rich_text: [{ text: { content: "Agenda" } }] } },
-                    { bulleted_list_item: { rich_text: [{ text: { content: "..." } }] } },
-                    { heading_2: { rich_text: [{ text: { content: "Action Items" } }] } }
-                ];
-
-                const props: any = {
-                    title: { title: [{ text: { content: title } }] }
-                };
-                if (date) props.Date = { date: { start: date } };
-
-                const page = await service.createPage({ page_id: parentPageId }, props, content);
-                return { success: true, pageId: page.id, url: (page as any).url };
-            }
-        );
-    }
-
-    // 25. Tag Notes
-    createTagNotesTool() {
-        return this.createTool(
-            "notion_tag_notes",
-            "Add tags to a Notion note/page.",
-            z.object({
-                pageId: z.string().describe("The ID of the page."),
-                tags: z.array(z.string()).describe("List of tags to add (Multi-select properties)."),
-            }),
-            async ({ pageId, tags }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Tagging page: ${pageId} with ${tags.join(", ")}`);
-                await service.updatePageProperties(pageId, {
-                    Tags: { multi_select: tags.map(t => ({ name: t })) }
-                });
-                return { success: true };
-            }
-        );
-    }
-
-    // 26. List Notes by Tag
-    createListNotesByTagTool() {
-        return this.createTool(
-            "notion_list_notes_by_tag",
-            "Fetch notes/pages filtered by a specific tag.",
-            z.object({
-                databaseId: z.string().describe("The ID of the database to search in."),
-                tag: z.string().describe("The tag to filter by."),
-            }),
-            async ({ databaseId, tag }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Listing notes by tag: ${tag}`);
-                const result = await service.queryDatabase(databaseId, {
-                    property: "Tags",
-                    multi_select: { contains: tag }
-                });
-                return {
-                    success: true,
-                    notes: result.results.map((n: any) => ({
-                        id: n.id,
-                        title: n.properties?.title?.title?.[0]?.plain_text || n.properties?.Name?.title?.[0]?.plain_text || "Untitled",
-                        url: n.url
-                    }))
-                };
-            }
-        );
-    }
-
-    // 27. Share Note with User
-    createShareNoteWithUserTool() {
-        return this.createTool(
-            "notion_share_note_with_user",
-            "Share a note with a user by adding a comment mention.",
-            z.object({
-                pageId: z.string().describe("The ID of the page."),
-                userId: z.string().describe("The Notion user ID to share with."),
-            }),
-            async ({ pageId, userId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Sharing note: ${pageId} with user: ${userId}`);
-                await service.addComment({ page_id: pageId }, `Shared with user ID: ${userId}`);
-                return { success: true, message: "User notified via comment (sharing via API limited)" };
-            }
-        );
-    }
-
-    // 28. Merge Notes
-    createMergeNotesTool() {
-        return this.createTool(
-            "notion_merge_notes",
-            "Combine content from multiple pages into one destination page.",
-            z.object({
-                sourcePageIds: z.array(z.string()).describe("List of page IDs to merge FROM."),
-                destinationPageId: z.string().describe("The page ID to merge INTO."),
-            }),
-            async ({ sourcePageIds, destinationPageId }) => {
-                const service = await this.getNotionService();
-                logger.info(`[NOTION] Merging ${sourcePageIds.length} pages into ${destinationPageId}`);
-
-                for (const sourceId of sourcePageIds) {
-                    const content = await service.getPageContent(sourceId);
-                    if (content.results.length > 0) {
-                        const blocks = content.results.map((b: any) => {
-                            const { id, created_time, created_by, last_edited_time, last_edited_by, has_children, archived, ...rest } = b;
-                            return rest;
-                        });
-                        await service.appendBlock(destinationPageId, blocks);
-                    }
-                }
-                return { success: true };
-            }
-        );
-    }
-
-    // --- AI & Automation ---
-
-    // 29. Summarize Notes
-    createSummarizeNotesTool() {
-        return this.createTool(
-            "notion_summarize_notes",
-            "Generate an AI-powered summary of a Notion page's content.",
-            z.object({
-                pageId: z.string().describe("The ID of the page to summarize."),
-            }),
-            async ({ pageId }) => {
-                const service = await this.getNotionService();
-                const content = await service.getPageContent(pageId);
-                const text = content.results
-                    .map((b: any) => b[b.type]?.rich_text?.[0]?.plain_text || "")
-                    .filter(t => t.length > 0)
-                    .join("\n");
-
-                return {
-                    success: true,
-                    originalContent: text,
-                    instruction: "The agent should now synthesize this content into a summary for the user."
-                };
-            }
-        );
-    }
-
-    // 30. Extract Action Items
-    createExtractActionItemsTool() {
-        return this.createTool(
-            "notion_extract_action_items",
-            "Extract tasks and action items from a Notion page.",
-            z.object({
-                pageId: z.string().describe("The ID of the page."),
-            }),
-            async ({ pageId }) => {
-                const service = await this.getNotionService();
-                const content = await service.getPageContent(pageId);
-                const items = content.results
-                    .map((b: any) => ({ type: b.type, text: b[b.type]?.rich_text?.[0]?.plain_text || "" }))
-                    .filter(i => i.text.length > 0);
-
-                return {
-                    success: true,
-                    content: items,
-                    instruction: "The agent should identify action items from this list and suggest creating tasks for them."
-                };
-            }
-        );
-    }
-
-    // 31. Generate To-Do from Text
-    createGenerateTodoFromTextTool() {
-        return this.createTool(
-            "notion_generate_todo_from_text",
-            "Convert raw text into a list of Notion checkboxes in a page.",
-            z.object({
-                pageId: z.string().describe("The ID of the destination page."),
-                text: z.string().describe("The raw text containing to-do items."),
-            }),
-            async ({ pageId, text }) => {
-                const service = await this.getNotionService();
-                const items = text.split("\n").filter(line => line.trim().length > 0);
-                const blocks = items.map(item => ({
-                    to_do: { rich_text: [{ text: { content: item } }] }
-                }));
-
-                await service.appendBlock(pageId, blocks);
-                return { success: true, message: `Added ${blocks.length} to-do items.` };
-            }
-        );
-    }
-
-    // 32. Cross Reference Pages
-    createCrossReferencePagesTool() {
-        return this.createTool(
-            "notion_cross_reference_pages",
-            "Create bidirectional links between two Notion pages.",
-            z.object({
-                pageIdA: z.string().describe("The first page ID."),
-                pageIdB: z.string().describe("The second page ID."),
-            }),
-            async ({ pageIdA, pageIdB }) => {
-                const service = await this.getNotionService();
-
-                const linkToB = [{ paragraph: { rich_text: [{ text: { content: "Related: " }, mention: { page: { id: pageIdB } } }] } }];
-                const linkToA = [{ paragraph: { rich_text: [{ text: { content: "Related: " }, mention: { page: { id: pageIdA } } }] } }];
-
-                await service.appendBlock(pageIdA, linkToB as any);
-                await service.appendBlock(pageIdB, linkToA as any);
-
-                return { success: true };
-            }
-        );
-    }
-
-    // 33. Analyze DB Trends
-    createAnalyzeDbTrendsTool() {
-        return this.createTool(
-            "notion_analyze_db_trends",
-            "Analyze data in a Notion database to identify trends or summaries.",
-            z.object({
-                databaseId: z.string().describe("The ID of the database."),
-            }),
-            async ({ databaseId }) => {
-                const service = await this.getNotionService();
-                const result = await service.queryDatabase(databaseId);
-
-                const data = result.results.map((r: any) => ({
-                    properties: r.properties
-                }));
-
-                return {
-                    success: true,
-                    data,
-                    instruction: "The agent should analyze this database export and provide a summary of trends (e.g., most common status, upcoming deadlines)."
-                };
-            }
-        );
-    }
-
-    // 34. Automate Reminders
-    createAutomateRemindersTool() {
-        return this.createTool(
-            "notion_automate_reminders",
-            "Set up a reminder for a task or page.",
-            z.object({
-                pageId: z.string().describe("The ID of the page/task."),
-                reminderDate: z.string().describe("The date for the reminder (ISO format)."),
-            }),
-            async ({ pageId, reminderDate }) => {
-                const service = await this.getNotionService();
-                // Notion reminders are part of the 'Date' property
-                await service.updatePageProperties(pageId, {
-                    "Reminder": { date: { start: reminderDate } }
-                });
-                return { success: true };
-            }
-        );
-    }
-
-    // 35. Sync External Docs (Placeholder/Informative)
-    createSyncExternalDocsTool() {
-        return this.createTool(
-            "notion_sync_external_docs",
-            "Log a sync operation from external docs (Google/Outlook) to Notion.",
-            z.object({
-                externalSource: z.string().describe("The source platform (e.g., Google Docs)."),
-                pageId: z.string().describe("The destination Notion page ID."),
-                contentSnippet: z.string().describe("A snippet of synced content."),
-            }),
-            async ({ externalSource, pageId, contentSnippet }) => {
-                const service = await this.getNotionService();
-                await service.appendBlock(pageId, [
-                    { callout: { rich_text: [{ text: { content: `Synced from ${externalSource}: ${contentSnippet}` } }] } }
-                ]);
-                return { success: true };
-            }
-        );
-    }
-
-    // Helper method to get all tools
-    getTools() {
-        return [
-            this.createSearchTool(),
-            this.createGetPageTool(),
-            this.createGetPageContentTool(),
-            this.createCreatePageTool(),
-            this.createUpdatePagePropertiesTool(),
-            this.createAppendBlockTool(),
-            this.createListDatabasesTool(),
-            this.createByQueryDatabaseTool(),
-            this.createAddCommentTool(),
-            this.createListUsersTool(),
-            this.createCreateDatabaseTool(),
-            this.createDeleteRowTool(),
-            this.createListPropertiesTool(),
-            this.createUpdateDatabaseSchemaTool(),
-            this.createCreateTaskTool(),
-            this.createUpdateTaskStatusTool(),
-            this.createAssignTaskTool(),
-            this.createSetTaskDueDateTool(),
-            this.createUpdateTaskPriorityTool(),
-            this.createAddTaskCommentTool(),
-            this.createGetTaskOverviewTool(),
-            this.createSearchTasksTool(),
-            this.createArchiveTaskTool(),
-            this.createCreateMeetingNoteTool(),
-            this.createTagNotesTool(),
-            this.createListNotesByTagTool(),
-            this.createShareNoteWithUserTool(),
-            this.createMergeNotesTool(),
-            this.createSummarizeNotesTool(),
-            this.createExtractActionItemsTool(),
-            this.createGenerateTodoFromTextTool(),
-            this.createCrossReferencePagesTool(),
-            this.createAnalyzeDbTrendsTool(),
-            this.createAutomateRemindersTool(),
-            this.createSyncExternalDocsTool(),
-        ];
-    }
+          return {
+            success: true,
+            data: {
+              results: result.results.map((item: any) => ({
+                id: item.id,
+                type: item.object,
+                title: item.properties?.title?.title?.[0]?.plain_text || 
+                       item.properties?.Name?.title?.[0]?.plain_text || 
+                       item.title?.[0]?.plain_text || 
+                       "Untitled",
+                url: item.url,
+              })),
+            },
+          };
+        } catch (error: any) {
+          logger.error("[NOTION] Search failed:", error);
+          return {
+            success: false,
+            error: error.message || "Failed to search",
+          };
+        }
+      }
+    );
+  }
 }
 
-export const createNotionSearchTool = (userId: string) => new NotionToolSuite(userId).createSearchTool();
+// ============================================
+// FACTORY FUNCTIONS - Individual Tool Exports
+// ============================================
+
+// Pages (8 tools)
 export const createNotionGetPageTool = (userId: string) => new NotionToolSuite(userId).createGetPageTool();
-export const createNotionGetPageContentTool = (userId: string) => new NotionToolSuite(userId).createGetPageContentTool();
 export const createNotionCreatePageTool = (userId: string) => new NotionToolSuite(userId).createCreatePageTool();
-export const createNotionUpdatePagePropertiesTool = (userId: string) => new NotionToolSuite(userId).createUpdatePagePropertiesTool();
-export const createNotionAppendBlockTool = (userId: string) => new NotionToolSuite(userId).createAppendBlockTool();
+export const createNotionUpdatePageTool = (userId: string) => new NotionToolSuite(userId).createUpdatePageTool();
+export const createNotionArchivePageTool = (userId: string) => new NotionToolSuite(userId).createArchivePageTool();
+export const createNotionRestorePageTool = (userId: string) => new NotionToolSuite(userId).createRestorePageTool();
+export const createNotionDuplicatePageTool = (userId: string) => new NotionToolSuite(userId).createDuplicatePageTool();
+export const createNotionGetPageContentTool = (userId: string) => new NotionToolSuite(userId).createGetPageContentTool();
+export const createNotionSearchPagesTool = (userId: string) => new NotionToolSuite(userId).createSearchPagesTool();
+
+// Blocks (15 tools)
+export const createNotionGetBlocksTool = (userId: string) => new NotionToolSuite(userId).createGetBlocksTool();
+export const createNotionAppendBlocksTool = (userId: string) => new NotionToolSuite(userId).createAppendBlocksTool();
+export const createNotionUpdateBlockTool = (userId: string) => new NotionToolSuite(userId).createUpdateBlockTool();
+export const createNotionDeleteBlockTool = (userId: string) => new NotionToolSuite(userId).createDeleteBlockTool();
+export const createNotionGetBlockTool = (userId: string) => new NotionToolSuite(userId).createGetBlockTool();
+export const createNotionAppendParagraphTool = (userId: string) => new NotionToolSuite(userId).createAppendParagraphTool();
+export const createNotionAppendHeadingTool = (userId: string) => new NotionToolSuite(userId).createAppendHeadingTool();
+export const createNotionAppendTodoTool = (userId: string) => new NotionToolSuite(userId).createAppendTodoTool();
+export const createNotionAppendBulletTool = (userId: string) => new NotionToolSuite(userId).createAppendBulletTool();
+export const createNotionAppendNumberedTool = (userId: string) => new NotionToolSuite(userId).createAppendNumberedTool();
+export const createNotionAppendCodeTool = (userId: string) => new NotionToolSuite(userId).createAppendCodeTool();
+export const createNotionAppendDividerTool = (userId: string) => new NotionToolSuite(userId).createAppendDividerTool();
+export const createNotionAppendCalloutTool = (userId: string) => new NotionToolSuite(userId).createAppendCalloutTool();
+export const createNotionAppendTableTool = (userId: string) => new NotionToolSuite(userId).createAppendTableTool();
+export const createNotionAppendImageTool = (userId: string) => new NotionToolSuite(userId).createAppendImageTool();
+
+// Databases (7 tools)
 export const createNotionListDatabasesTool = (userId: string) => new NotionToolSuite(userId).createListDatabasesTool();
-export const createNotionQueryDatabaseTool = (userId: string) => new NotionToolSuite(userId).createByQueryDatabaseTool();
-export const createNotionAddCommentTool = (userId: string) => new NotionToolSuite(userId).createAddCommentTool();
-export const createNotionListUsersTool = (userId: string) => new NotionToolSuite(userId).createListUsersTool();
-
-export const createNotionSearchTasksTool = (userId: string) => new NotionToolSuite(userId).createSearchTasksTool();
-export const createNotionArchiveTaskTool = (userId: string) => new NotionToolSuite(userId).createArchiveTaskTool();
-
+export const createNotionGetDatabaseTool = (userId: string) => new NotionToolSuite(userId).createGetDatabaseTool();
+export const createNotionQueryDatabaseTool = (userId: string) => new NotionToolSuite(userId).createQueryDatabaseTool();
 export const createNotionCreateDatabaseTool = (userId: string) => new NotionToolSuite(userId).createCreateDatabaseTool();
-export const createNotionDeleteRowTool = (userId: string) => new NotionToolSuite(userId).createDeleteRowTool();
-export const createNotionListPropertiesTool = (userId: string) => new NotionToolSuite(userId).createListPropertiesTool();
-export const createNotionUpdateDatabaseSchemaTool = (userId: string) => new NotionToolSuite(userId).createUpdateDatabaseSchemaTool();
+export const createNotionUpdateDatabaseTool = (userId: string) => new NotionToolSuite(userId).createUpdateDatabaseTool();
+export const createNotionFilterDatabaseTool = (userId: string) => new NotionToolSuite(userId).createFilterDatabaseTool();
 
-export const createNotionCreateTaskTool = (userId: string) => new NotionToolSuite(userId).createCreateTaskTool();
-export const createNotionUpdateTaskStatusTool = (userId: string) => new NotionToolSuite(userId).createUpdateTaskStatusTool();
-export const createNotionAssignTaskTool = (userId: string) => new NotionToolSuite(userId).createAssignTaskTool();
-export const createNotionSetTaskDueDateTool = (userId: string) => new NotionToolSuite(userId).createSetTaskDueDateTool();
-export const createNotionUpdateTaskPriorityTool = (userId: string) => new NotionToolSuite(userId).createUpdateTaskPriorityTool();
-export const createNotionAddTaskCommentTool = (userId: string) => new NotionToolSuite(userId).createAddTaskCommentTool();
-export const createNotionGetTaskOverviewTool = (userId: string) => new NotionToolSuite(userId).createGetTaskOverviewTool();
+// Users (3 tools)
+export const createNotionListUsersTool = (userId: string) => new NotionToolSuite(userId).createListUsersTool();
+export const createNotionGetUserTool = (userId: string) => new NotionToolSuite(userId).createGetUserTool();
+export const createNotionGetMeTool = (userId: string) => new NotionToolSuite(userId).createGetMeTool();
 
-export const createNotionCreateMeetingNoteTool = (userId: string) => new NotionToolSuite(userId).createCreateMeetingNoteTool();
-export const createNotionTagNotesTool = (userId: string) => new NotionToolSuite(userId).createTagNotesTool();
-export const createNotionListNotesByTagTool = (userId: string) => new NotionToolSuite(userId).createListNotesByTagTool();
-export const createNotionShareNoteWithUserTool = (userId: string) => new NotionToolSuite(userId).createShareNoteWithUserTool();
-export const createNotionMergeNotesTool = (userId: string) => new NotionToolSuite(userId).createMergeNotesTool();
+// Search (1 tool)
+export const createNotionSearchTool = (userId: string) => new NotionToolSuite(userId).createSearchTool();
 
-export const createNotionSummarizeNotesTool = (userId: string) => new NotionToolSuite(userId).createSummarizeNotesTool();
-export const createNotionExtractActionItemsTool = (userId: string) => new NotionToolSuite(userId).createExtractActionItemsTool();
-export const createNotionGenerateTodoFromTextTool = (userId: string) => new NotionToolSuite(userId).createGenerateTodoFromTextTool();
-export const createNotionCrossReferencePagesTool = (userId: string) => new NotionToolSuite(userId).createCrossReferencePagesTool();
-export const createNotionAnalyzeDbTrendsTool = (userId: string) => new NotionToolSuite(userId).createAnalyzeDbTrendsTool();
-export const createNotionAutomateRemindersTool = (userId: string) => new NotionToolSuite(userId).createAutomateRemindersTool();
-export const createNotionSyncExternalDocsTool = (userId: string) => new NotionToolSuite(userId).createSyncExternalDocsTool();
+// ============================================
+// MAIN EXPORT FUNCTION
+// ============================================
+export const createNotionTools = (userId: string) => {
+  const suite = new NotionToolSuite(userId);
+  return [
+    // Pages (8 tools)
+    suite.createGetPageTool(),
+    suite.createCreatePageTool(),
+    suite.createUpdatePageTool(),
+    suite.createArchivePageTool(),
+    suite.createRestorePageTool(),
+    suite.createDuplicatePageTool(),
+    suite.createGetPageContentTool(),
+    suite.createSearchPagesTool(),
 
-export const createNotionTools = (userId: string) => new NotionToolSuite(userId).getTools();
+    // Blocks (15 tools)
+    suite.createGetBlocksTool(),
+    suite.createAppendBlocksTool(),
+    suite.createUpdateBlockTool(),
+    suite.createDeleteBlockTool(),
+    suite.createGetBlockTool(),
+    suite.createAppendParagraphTool(),
+    suite.createAppendHeadingTool(),
+    suite.createAppendTodoTool(),
+    suite.createAppendBulletTool(),
+    suite.createAppendNumberedTool(),
+    suite.createAppendCodeTool(),
+    suite.createAppendDividerTool(),
+    suite.createAppendCalloutTool(),
+    suite.createAppendTableTool(),
+    suite.createAppendImageTool(),
+
+    // Databases (7 tools)
+    suite.createListDatabasesTool(),
+    suite.createGetDatabaseTool(),
+    suite.createQueryDatabaseTool(),
+    suite.createCreateDatabaseTool(),
+    suite.createUpdateDatabaseTool(),
+    suite.createFilterDatabaseTool(),
+
+    // Users (3 tools)
+    suite.createListUsersTool(),
+    suite.createGetUserTool(),
+    suite.createGetMeTool(),
+
+    // Search (1 tool)
+    suite.createSearchTool(),
+  ];
+};

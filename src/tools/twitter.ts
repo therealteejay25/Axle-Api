@@ -3,7 +3,7 @@ import { logger } from "../services/logger";
 import { BaseXTool } from "./base";
 
 // ============================================
-// X (TWITTER) TOOL SUITE
+// X (TWITTER) TOOL SUITE - COMPREHENSIVE (28 tools)
 // ============================================
 
 export class XToolSuite extends BaseXTool {
@@ -11,733 +11,421 @@ export class XToolSuite extends BaseXTool {
     super(userId);
   }
 
-  // Post tweet tool
-  createPostTweetTool() {
-    return this.createTool(
-      "twitter_post_tweet",
-      "Send a standard 280-character post",
-      z.object({
-        text: z.string().min(1).max(280, "Tweet cannot exceed 280 characters"),
-      }),
-      async ({ text }) => {
-        try {
-          logger.info(`[TWITTER] Posting tweet: ${text.substring(0, 50)}...`);
+  // ============================================
+  // READING (11 tools)
+  // ============================================
 
-            const result = await this.executeTwitterRequest("/tweets", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ text }),
-          });
-
-          if (!result || !result.data) {
-            throw new Error("Invalid response from Twitter API");
-          }
-
-          logger.info(
-            `[TWITTER] Tweet posted successfully. ID: ${result.data.id}`
-          );
-
-          return {
-            success: true,
-            data: {
-              id: result.data.id,
-              text: result.data.text,
-              createdAt: result.data.created_at,
-              authorId: result.data.author_id,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Post tweet failed:", error);
-          const errorMessage = error?.message || "Failed to post tweet";
-
-          // Convert technical errors to user-friendly messages
-          if (
-            errorMessage.includes("404") ||
-            errorMessage.includes("Not Found")
-          ) {
-            return {
-              success: false,
-              error:
-                "Twitter API endpoint not found. Please check your Twitter integration settings or reconnect your account.",
-            };
-          }
-          if (
-            errorMessage.includes("401") ||
-            errorMessage.includes("Unauthorized")
-          ) {
-            return {
-              success: false,
-              error:
-                "Twitter authentication failed. Please reconnect your Twitter account.",
-            };
-          }
-          if (
-            errorMessage.includes("403") ||
-            errorMessage.includes("Forbidden")
-          ) {
-            return {
-              success: false,
-              error:
-                "Twitter API access denied. Please check your Twitter app permissions.",
-            };
-          }
-
-          return {
-            success: false,
-            error: errorMessage.includes("Twitter API error")
-              ? errorMessage
-              : `Failed to post tweet: ${errorMessage}`,
-          };
-        }
+  createGetTweetTool() {
+    return this.createTool("twitter_get_tweet", "Get a specific tweet by ID", z.object({ tweetId: z.string().min(1) }), async ({ tweetId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/tweets/${tweetId}?tweet.fields=created_at,author_id,text,public_metrics`);
+        return { success: true, data: result.data };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get tweet" };
       }
-    );
+    });
   }
 
-  // Post thread tool
-  createPostThreadTool() {
-    return this.createTool(
-      "twitter_post_thread",
-      "Post a thread (multiple connected tweets) on X (Twitter)",
-      z.object({
-        tweets: z
-          .array(z.string().min(1).max(280))
-          .min(2)
-          .max(25, "Thread cannot exceed 25 tweets"),
-      }),
-      async ({ tweets }) => {
-        try {
-          logger.info(`[TWITTER] Posting thread with ${tweets.length} tweets`);
-
-          const postedTweets = [];
-
-          for (let i = 0; i < tweets.length; i++) {
-            const tweet = tweets[i];
-            const isReply = i > 0;
-
-            const result = await this.executeTwitterRequest("/tweets", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                text: tweet,
-                ...(isReply &&
-                  postedTweets.length > 0 && {
-                  reply: {
-                    in_reply_to_tweet_id:
-                      postedTweets[postedTweets.length - 1].id,
-                  },
-                }),
-              }),
-            });
-
-            postedTweets.push({
-              id: result.data.id,
-              text: result.data.text,
-              position: i + 1,
-            });
-          }
-
-          logger.info(
-            `[TWITTER] Thread posted successfully with ${postedTweets.length} tweets`
-          );
-
-          return {
-            success: true,
-            data: {
-              thread: postedTweets,
-              totalTweets: postedTweets.length,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Post thread failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to post thread",
-          };
+  createSearchTweetsTool() {
+    return this.createTool("twitter_search_tweets", "Search recent tweets with query", z.object({ query: z.string().min(1), maxResults: z.number().min(10).max(100).default(20) }), async ({ query, maxResults }) => {
+      try {
+        const params = new URLSearchParams({ query, max_results: maxResults.toString(), "tweet.fields": "created_at,author_id,text,public_metrics" });
+        const result = await this.executeTwitterRequest(`/2/tweets/search/recent?${params}`);
+        return { success: true, data: { tweets: result.data || [], totalCount: result.data?.length || 0 } };
+      } catch (error: any) {
+        if (error.message?.includes("403") || error.message?.includes("404")) {
+          return { success: false, error: "Twitter API Search restricted. Use web_search tool instead: web_search('site:twitter.com your query')" };
         }
+        return { success: false, error: error.message || "Failed to search tweets" };
       }
-    );
+    });
   }
 
-  // Like tweet tool
-  createLikeTweetTool() {
-    return this.createTool(
-      "twitter_like_tweet",
-      "Engage with content",
-      z.object({
-        tweetId: z.string().min(1, "Tweet ID is required"),
-      }),
-      async ({ tweetId }) => {
-        try {
-          logger.info(`[TWITTER] Liking tweet: ${tweetId}`);
-
-          const result = await this.executeTwitterRequest(
-            `/2/users/{userId}/likes`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ tweet_id: tweetId }),
-            }
-          );
-
-          logger.info(`[TWITTER] Tweet liked successfully`);
-
-          return {
-            success: true,
-            data: {
-              tweetId,
-              liked: true,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Like tweet failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to like tweet",
-          };
-        }
+  createGetUserTool() {
+    return this.createTool("twitter_get_user", "Get user profile by username or ID", z.object({ username: z.string().optional(), userId: z.string().optional() }), async ({ username, userId }) => {
+      try {
+        if (!username && !userId) throw new Error("Either username or userId required");
+        const endpoint = username ? `/2/users/by/username/${username}` : `/2/users/${userId}`;
+        const result = await this.executeTwitterRequest(`${endpoint}?user.fields=created_at,description,id,location,name,profile_image_url,protected,public_metrics,url,username,verified`);
+        return { success: true, data: result.data };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get user" };
       }
-    );
+    });
   }
 
-  // Search recent tweets tool
-  createSearchRecentTweetsTool() {
-    return this.createTool(
-      "twitter_search_recent",
-      "Search for recent tweets on X (Twitter)",
-      z.object({
-        query: z.string().min(1, "Search query cannot be empty"),
-        maxResults: z
-          .number()
-          .min(10)
-          .max(100)
-          .default(20)
-          .describe("Maximum number of tweets to return"),
-        startTime: z
-          .string()
-          .optional()
-          .describe("Start time in ISO 8601 format"),
-        endTime: z.string().optional().describe("End time in ISO 8601 format"),
-      }),
-      async ({ query, maxResults, startTime, endTime }) => {
-        try {
-          logger.info(`[TWITTER] Searching recent tweets: ${query}`);
-
-          const params = new URLSearchParams({
-            query,
-            max_results: maxResults.toString(),
-            "tweet.fields": "created_at,author_id,text,public_metrics",
-            "user.fields": "username,name",
-            expansions: "author_id",
-            ...(startTime && { start_time: startTime }),
-            ...(endTime && { end_time: endTime }),
-          });
-
-          const result = await this.executeTwitterRequest(
-            `/2/tweets/search/recent?${params}`
-          );
-
-          const tweets = result.data || [];
-          logger.info(`[TWITTER] Found ${tweets.length} tweets`);
-
-          return {
-            success: true,
-            data: {
-              tweets: tweets.map((tweet: any) => ({
-                id: tweet.id,
-                text: tweet.text,
-                createdAt: tweet.created_at,
-                authorId: tweet.author_id,
-                metrics: tweet.public_metrics,
-                author: result.includes?.users?.find(
-                  (user: any) => user.id === tweet.author_id
-                ),
-              })),
-              totalCount: tweets.length,
-              query,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Search recent tweets failed:", error);
-          
-          const errorMessage = error?.message || "";
-          if (
-            errorMessage.includes("403") || 
-            errorMessage.includes("404") || 
-            errorMessage.includes("401") ||
-            errorMessage.includes("Not Found")
-          ) {
-            return {
-              success: false,
-              error: "Twitter API Search is restricted on this account (likely Free Tier). Please use the 'web_search' tool to search X/Twitter instead. Example: web_search('site:twitter.com wagwan')",
-            };
-          }
-
-          return {
-            success: false,
-            error: errorMessage || "Failed to search tweets",
-          };
-        }
+  createGetUserTweetsTool() {
+    return this.createTool("twitter_get_user_tweets", "Get recent tweets from a user's timeline", z.object({ userId: z.string().min(1), maxResults: z.number().min(5).max(100).default(10) }), async ({ userId, maxResults }) => {
+      try {
+        const params = new URLSearchParams({ max_results: maxResults.toString(), "tweet.fields": "created_at,text,public_metrics" });
+        const result = await this.executeTwitterRequest(`/2/users/${userId}/tweets?${params}`);
+        return { success: true, data: { tweets: result.data || [] } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get user tweets" };
       }
-    );
+    });
   }
 
-  // Delete tweet tool
-  createDeleteTweetTool() {
-    return this.createTool(
-      "twitter_delete_tweet",
-      "Remove a post",
-      z.object({
-        tweetId: z.string().min(1, "Tweet ID is required"),
-      }),
-      async ({ tweetId }) => {
-        try {
-          logger.info(`[TWITTER] Deleting tweet: ${tweetId}`);
-
-          const result = await this.executeTwitterRequest(
-            `/2/tweets/${tweetId}`,
-            {
-              method: "DELETE",
-            }
-          );
-
-          logger.info(`[TWITTER] Tweet deleted successfully`);
-
-          return {
-            success: true,
-            data: {
-              tweetId,
-              deleted: result.data.deleted,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Delete tweet failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to delete tweet",
-          };
-        }
-      }
-    );
-  }
-
-  // Get user info tool
-  createGetUserInfoTool() {
-    return this.createTool(
-      "twitter_get_user_info",
-      "Get profile data and follower counts",
-      z.object({
-        username: z
-          .string()
-          .optional()
-          .describe("Username without @ (e.g., 'elonmusk')"),
-        userId: z.string().optional().describe("User ID"),
-      }),
-      async ({ username, userId }) => {
-        try {
-          if (!username && !userId) {
-            return {
-              success: false,
-              error: "Either username or userId must be provided",
-            };
-          }
-
-          const endpoint = username
-            ? `/2/users/by/username/${username}`
-            : `/2/users/${userId}`;
-
-          logger.info(`[TWITTER] Getting user info for ${username || userId}`);
-
-          const result = await this.executeTwitterRequest(
-            `${endpoint}?user.fields=created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type`
-          );
-
-          logger.info(`[TWITTER] Retrieved user info successfully`);
-
-          return {
-            success: true,
-            data: {
-              id: result.data.id,
-              name: result.data.name,
-              username: result.data.username,
-              description: result.data.description,
-              profileImageUrl: result.data.profile_image_url,
-              location: result.data.location,
-              url: result.data.url,
-              protected: result.data.protected,
-              verified: result.data.verified,
-              verifiedType: result.data.verified_type,
-              createdAt: result.data.created_at,
-              publicMetrics: result.data.public_metrics,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Get user info failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to get user info",
-          };
-        }
-      }
-    );
-  }
-
-  // Retweet tool
-  createRetweetTool() {
-    return this.createTool(
-      "twitter_retweet",
-      "Reshare content",
-      z.object({
-        tweetId: z.string().min(1, "Tweet ID is required"),
-      }),
-      async ({ tweetId }) => {
-        try {
-          logger.info(`[TWITTER] Retweeting tweet: ${tweetId}`);
-
-          const result = await this.executeTwitterRequest(
-            `/2/users/{userId}/retweets`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ tweet_id: tweetId }),
-            }
-          );
-
-          logger.info(`[TWITTER] Tweet retweeted successfully`);
-
-          return {
-            success: true,
-            data: {
-              retweetedTweet: tweetId,
-              retweet: result.data,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Retweet failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to retweet",
-          };
-        }
-      }
-    );
-  }
-
-  // Follow user tool
-  createFollowUserTool() {
-    return this.createTool(
-      "twitter_follow_user",
-      "Growth automation",
-      z.object({
-        targetUserId: z.string().min(1, "Target user ID is required"),
-      }),
-      async ({ targetUserId }) => {
-        try {
-          logger.info(`[TWITTER] Following user: ${targetUserId}`);
-
-          const result = await this.executeTwitterRequest(
-            `/2/users/{userId}/following`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ target_user_id: targetUserId }),
-            }
-          );
-
-          logger.info(`[TWITTER] User followed successfully`);
-
-          return {
-            success: true,
-            data: {
-              followedUserId: targetUserId,
-              following: result.data.following,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Follow user failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to follow user",
-          };
-        }
-      }
-    );
-  }
-
-  // Get mentions tool
   createGetMentionsTool() {
-    return this.createTool(
-      "twitter_get_mentions",
-      "Read recent interactions for the agent to reply to",
-      z.object({
-        maxResults: z
-          .number()
-          .min(10)
-          .max(100)
-          .default(20)
-          .describe("Maximum number of mentions to return"),
-        startTime: z
-          .string()
-          .optional()
-          .describe("Start time in ISO 8601 format"),
-        endTime: z.string().optional().describe("End time in ISO 8601 format"),
-      }),
-      async ({ maxResults, startTime, endTime }) => {
-        try {
-          logger.info(`[TWITTER] Getting mentions`);
-
-          const params = new URLSearchParams({
-            max_results: maxResults.toString(),
-            "tweet.fields": "created_at,author_id,text,public_metrics",
-            "user.fields": "username,name",
-            expansions: "author_id",
-            ...(startTime && { start_time: startTime }),
-            ...(endTime && { end_time: endTime }),
-          });
-
-          const result = await this.executeTwitterRequest(
-            `/2/users/{userId}/mentions?${params}`
-          );
-
-          const mentions = result.data || [];
-          logger.info(`[TWITTER] Found ${mentions.length} mentions`);
-
-          return {
-            success: true,
-            data: {
-              mentions: mentions.map((mention: any) => ({
-                id: mention.id,
-                text: mention.text,
-                createdAt: mention.created_at,
-                authorId: mention.author_id,
-                metrics: mention.public_metrics,
-                author: result.includes?.users?.find(
-                  (user: any) => user.id === mention.author_id
-                ),
-              })),
-              totalCount: mentions.length,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Get mentions failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to get mentions",
-          };
-        }
+    return this.createTool("twitter_get_mentions", "Get tweets mentioning the authenticated user", z.object({ maxResults: z.number().min(10).max(100).default(20) }), async ({ maxResults }) => {
+      try {
+        const params = new URLSearchParams({ max_results: maxResults.toString(), "tweet.fields": "created_at,author_id,text,public_metrics", expansions: "author_id" });
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/mentions?${params}`);
+        return { success: true, data: { mentions: result.data || [], totalCount: result.data?.length || 0 } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get mentions" };
       }
-    );
+    });
   }
 
-  // Get trending tool
-  createGetTrendingTool() {
-    return this.createTool(
-      "twitter_get_trending",
-      "Get trending topics by location (WOEID)",
-      z.object({
-        woeid: z
-          .string()
-          .default("1")
-          .describe("Where On Earth ID (1 = worldwide)"),
-      }),
-      async ({ woeid }) => {
-        try {
-          logger.info(`[TWITTER] Getting trending topics for WOEID: ${woeid}`);
-
-          const result = await this.executeTwitterRequest(
-            `/1.1/trends/place.json?id=${woeid}`
-          );
-
-          const trends = result[0]?.trends || [];
-          logger.info(`[TWITTER] Found ${trends.length} trending topics`);
-
-          return {
-            success: true,
-            data: {
-              woeid,
-              trends: trends.map((trend: any) => ({
-                name: trend.name,
-                url: trend.url,
-                promotedContent: trend.promoted_content,
-                query: trend.query,
-                tweetVolume: trend.tweet_volume,
-              })),
-              totalCount: trends.length,
-            },
-          };
-        } catch (error) {
-          logger.error("[TWITTER] Get trending failed:", error);
-          return {
-            success: false,
-            error: error.message || "Failed to get trending topics",
-          };
-        }
+  createGetHomeTimelineTool() {
+    return this.createTool("twitter_get_home_timeline", "Get the authenticated user's home timeline", z.object({ maxResults: z.number().min(5).max(100).default(10) }), async ({ maxResults }) => {
+      try {
+        const params = new URLSearchParams({ max_results: maxResults.toString(), "tweet.fields": "created_at,author_id,text,public_metrics" });
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/timelines/reverse_chronological?${params}`);
+        return { success: true, data: { tweets: result.data || [] } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get home timeline" };
       }
-    );
+    });
   }
 
-  // Get user info tool
-  createGetUserInfoToolLegacy() {
-    return this.createTool(
-      "twitter_get_user_info",
-      "Get profile data and follower counts for a user",
-      z.object({
-        username: z
-          .string()
-          .optional()
-          .describe("Twitter username (without @)"),
-        userId: z.string().optional().describe("Twitter user ID"),
-      }),
-      async ({ username, userId }) => {
-        if (!username && !userId) {
-          throw new Error("Either username or userId must be provided");
-        }
+  createGetLikesTool() {
+    return this.createTool("twitter_get_likes", "Get tweets liked by a user", z.object({ userId: z.string().min(1), maxResults: z.number().min(5).max(100).default(10) }), async ({ userId, maxResults }) => {
+      try {
+        const params = new URLSearchParams({ max_results: maxResults.toString(), "tweet.fields": "created_at,text,public_metrics" });
+        const result = await this.executeTwitterRequest(`/2/users/${userId}/liked_tweets?${params}`);
+        return { success: true, data: { tweets: result.data || [] } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get likes" };
+      }
+    });
+  }
 
-        const identifier = username || userId;
-        logger.info(`[TWITTER] Getting user info for: ${identifier}`);
+  createGetFollowersTool() {
+    return this.createTool("twitter_get_followers", "List followers of a user", z.object({ userId: z.string().min(1), maxResults: z.number().min(1).max(1000).default(100) }), async ({ userId, maxResults }) => {
+      try {
+        const params = new URLSearchParams({ max_results: maxResults.toString(), "user.fields": "username,name,profile_image_url" });
+        const result = await this.executeTwitterRequest(`/2/users/${userId}/followers?${params}`);
+        return { success: true, data: { followers: result.data || [], totalCount: result.meta?.result_count || 0 } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get followers" };
+      }
+    });
+  }
 
-        // Note: This is a placeholder implementation
-        const params = new URLSearchParams({
-          "user.fields":
-            "created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,verified_type,withheld",
-        });
+  createGetFollowingTool() {
+    return this.createTool("twitter_get_following", "List accounts a user follows", z.object({ userId: z.string().min(1), maxResults: z.number().min(1).max(1000).default(100) }), async ({ userId, maxResults }) => {
+      try {
+        const params = new URLSearchParams({ max_results: maxResults.toString(), "user.fields": "username,name,profile_image_url" });
+        const result = await this.executeTwitterRequest(`/2/users/${userId}/following?${params}`);
+        return { success: true, data: { following: result.data || [], totalCount: result.meta?.result_count || 0 } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get following" };
+      }
+    });
+  }
 
-        if (username) {
-          params.append("usernames", username);
-        } else if (userId) {
-          params.append("ids", userId);
-        }
-
+  createLookupUsersTool() {
+    return this.createTool("twitter_lookup_users", "Look up multiple users by IDs", z.object({ userIds: z.array(z.string()).min(1).max(100) }), async ({ userIds }) => {
+      try {
+        const params = new URLSearchParams({ ids: userIds.join(","), "user.fields": "username,name,profile_image_url,public_metrics" });
         const result = await this.executeTwitterRequest(`/2/users?${params}`);
-
-        const user = result.data?.[0];
-        logger.info(
-          `[TWITTER] Retrieved user info for ${user?.username || user?.id}`
-        );
-
-        return {
-          success: true,
-          user: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            description: user.description,
-            profileImageUrl: user.profile_image_url,
-            location: user.location,
-            url: user.url,
-            protected: user.protected,
-            verified: user.verified,
-            followersCount: user.public_metrics?.followers_count,
-            followingCount: user.public_metrics?.following_count,
-            tweetCount: user.public_metrics?.tweet_count,
-            createdAt: user.created_at,
-          },
-        };
+        return { success: true, data: { users: result.data || [] } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to lookup users" };
       }
-    );
+    });
   }
 
-  // Retweet tool
-  createRetweetToolLegacy() {
-    return this.createTool(
-      "twitter_retweet",
-      "Reshare content on X (Twitter)",
-      z.object({
-        tweetId: z.string().min(1, "Tweet ID is required"),
-      }),
-      async ({ tweetId }) => {
-        logger.info(`[TWITTER] Retweeting tweet: ${tweetId}`);
-
-        // Note: This is a placeholder implementation
-        const result = await this.executeTwitterRequest(
-          `/2/users/{userId}/retweets`,
-          {
-            method: "POST",
-            body: JSON.stringify({ tweet_id: tweetId }),
-          }
-        );
-
-        logger.info(`[TWITTER] Tweet retweeted successfully`);
-
-        return {
-          success: true,
-          message: "Tweet retweeted successfully",
-          tweetId,
-          retweeted: true,
-        };
+  createGetTrendsTool() {
+    return this.createTool("twitter_get_trends", "Get trending topics for a location (WOEID)", z.object({ woeid: z.string().default("1").describe("Where On Earth ID (1 = worldwide)") }), async ({ woeid }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/1.1/trends/place.json?id=${woeid}`);
+        const trends = result[0]?.trends || [];
+        return { success: true, data: { trends: trends.map((t: any) => ({ name: t.name, url: t.url, tweetVolume: t.tweet_volume })), totalCount: trends.length } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get trends" };
       }
-    );
+    });
   }
 
-  // Follow user tool
-  createFollowUserToolLegacy() {
-    return this.createTool(
-      "twitter_follow_user",
-      "Follow a user on X (Twitter) for growth automation",
-      z.object({
-        targetUserId: z.string().min(1, "Target user ID is required"),
-      }),
-      async ({ targetUserId }) => {
-        logger.info(`[TWITTER] Following user: ${targetUserId}`);
+  // ============================================
+  // WRITING (13 tools)
+  // ============================================
 
-        // Note: This is a placeholder implementation
-        const result = await this.executeTwitterRequest(
-          `/2/users/{userId}/following`,
-          {
-            method: "POST",
-            body: JSON.stringify({ target_user_id: targetUserId }),
-          }
-        );
-
-        logger.info(`[TWITTER] User followed successfully`);
-
-        return {
-          success: true,
-          message: "User followed successfully",
-          targetUserId,
-          following: true,
-        };
+  createPostTweetTool() {
+    return this.createTool("twitter_post_tweet", "Post a tweet with text, optional media, reply settings", z.object({ text: z.string().min(1).max(280), replySettings: z.enum(["everyone", "mentionedUsers", "following"]).optional() }), async ({ text, replySettings }) => {
+      try {
+        const body: any = { text };
+        if (replySettings) body.reply_settings = replySettings;
+        const result = await this.executeTwitterRequest("/2/tweets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        return { success: true, data: { id: result.data.id, text: result.data.text } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to post tweet" };
       }
-    );
+    });
+  }
+
+  createDeleteTweetTool() {
+    return this.createTool("twitter_delete_tweet", "Delete own tweet", z.object({ tweetId: z.string().min(1) }), async ({ tweetId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/tweets/${tweetId}`, { method: "DELETE" });
+        return { success: true, data: { tweetId, deleted: result.data.deleted } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to delete tweet" };
+      }
+    });
+  }
+
+  createReplyToTweetTool() {
+    return this.createTool("twitter_reply_to_tweet", "Reply to a specific tweet", z.object({ tweetId: z.string().min(1), text: z.string().min(1).max(280) }), async ({ tweetId, text }) => {
+      try {
+        const result = await this.executeTwitterRequest("/2/tweets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, reply: { in_reply_to_tweet_id: tweetId } }) });
+        return { success: true, data: { id: result.data.id, text: result.data.text, replyTo: tweetId } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to reply to tweet" };
+      }
+    });
+  }
+
+  createQuoteTweetTool() {
+    return this.createTool("twitter_quote_tweet", "Quote a tweet with additional text", z.object({ tweetId: z.string().min(1), text: z.string().min(1).max(280) }), async ({ tweetId, text }) => {
+      try {
+        const result = await this.executeTwitterRequest("/2/tweets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, quote_tweet_id: tweetId }) });
+        return { success: true, data: { id: result.data.id, text: result.data.text, quotedTweet: tweetId } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to quote tweet" };
+      }
+    });
+  }
+
+  createRetweetTool() {
+    return this.createTool("twitter_retweet", "Retweet a tweet", z.object({ tweetId: z.string().min(1) }), async ({ tweetId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/retweets`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tweet_id: tweetId }) });
+        return { success: true, data: { retweetedTweet: tweetId, retweeted: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to retweet" };
+      }
+    });
+  }
+
+  createUnretweetTool() {
+    return this.createTool("twitter_unretweet", "Remove a retweet", z.object({ tweetId: z.string().min(1) }), async ({ tweetId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/retweets/${tweetId}`, { method: "DELETE" });
+        return { success: true, data: { tweetId, unretweeted: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to unretweet" };
+      }
+    });
+  }
+
+  createLikeTweetTool() {
+    return this.createTool("twitter_like_tweet", "Like a tweet", z.object({ tweetId: z.string().min(1) }), async ({ tweetId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/likes`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tweet_id: tweetId }) });
+        return { success: true, data: { tweetId, liked: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to like tweet" };
+      }
+    });
+  }
+
+  createUnlikeTweetTool() {
+    return this.createTool("twitter_unlike_tweet", "Remove a like", z.object({ tweetId: z.string().min(1) }), async ({ tweetId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/likes/${tweetId}`, { method: "DELETE" });
+        return { success: true, data: { tweetId, unliked: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to unlike tweet" };
+      }
+    });
+  }
+
+  createFollowUserTool() {
+    return this.createTool("twitter_follow_user", "Follow a user", z.object({ targetUserId: z.string().min(1) }), async ({ targetUserId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/following`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_user_id: targetUserId }) });
+        return { success: true, data: { followedUserId: targetUserId, following: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to follow user" };
+      }
+    });
+  }
+
+  createUnfollowUserTool() {
+    return this.createTool("twitter_unfollow_user", "Unfollow a user", z.object({ targetUserId: z.string().min(1) }), async ({ targetUserId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/following/${targetUserId}`, { method: "DELETE" });
+        return { success: true, data: { unfollowedUserId: targetUserId, unfollowed: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to unfollow user" };
+      }
+    });
+  }
+
+  createMuteUserTool() {
+    return this.createTool("twitter_mute_user", "Mute a user", z.object({ targetUserId: z.string().min(1) }), async ({ targetUserId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/muting`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_user_id: targetUserId }) });
+        return { success: true, data: { mutedUserId: targetUserId, muted: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to mute user" };
+      }
+    });
+  }
+
+  createUnmuteUserTool() {
+    return this.createTool("twitter_unmute_user", "Unmute a user", z.object({ targetUserId: z.string().min(1) }), async ({ targetUserId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/muting/${targetUserId}`, { method: "DELETE" });
+        return { success: true, data: { unmutedUserId: targetUserId, unmuted: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to unmute user" };
+      }
+    });
+  }
+
+  createBlockUserTool() {
+    return this.createTool("twitter_block_user", "Block a user", z.object({ targetUserId: z.string().min(1) }), async ({ targetUserId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/{userId}/blocking`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_user_id: targetUserId }) });
+        return { success: true, data: { blockedUserId: targetUserId, blocked: true } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to block user" };
+      }
+    });
+  }
+
+  // ============================================
+  // LISTS (2 tools)
+  // ============================================
+
+  createGetListsTool() {
+    return this.createTool("twitter_get_lists", "Get lists owned by a user", z.object({ userId: z.string().min(1) }), async ({ userId }) => {
+      try {
+        const result = await this.executeTwitterRequest(`/2/users/${userId}/owned_lists`);
+        return { success: true, data: { lists: result.data || [] } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get lists" };
+      }
+    });
+  }
+
+  createGetListTweetsTool() {
+    return this.createTool("twitter_get_list_tweets", "Get tweets from a list", z.object({ listId: z.string().min(1), maxResults: z.number().min(5).max(100).default(10) }), async ({ listId, maxResults }) => {
+      try {
+        const params = new URLSearchParams({ max_results: maxResults.toString(), "tweet.fields": "created_at,author_id,text,public_metrics" });
+        const result = await this.executeTwitterRequest(`/2/lists/${listId}/tweets?${params}`);
+        return { success: true, data: { tweets: result.data || [] } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get list tweets" };
+      }
+    });
+  }
+
+  // Legacy methods for backward compatibility
+  createPostThreadTool() {
+    return this.createTool("twitter_post_thread", "Post a thread (multiple connected tweets)", z.object({ tweets: z.array(z.string().min(1).max(280)).min(2).max(25) }), async ({ tweets }) => {
+      try {
+        const postedTweets = [];
+        for (let i = 0; i < tweets.length; i++) {
+          const body: any = { text: tweets[i] };
+          if (i > 0 && postedTweets.length > 0) {
+            body.reply = { in_reply_to_tweet_id: postedTweets[postedTweets.length - 1].id };
+          }
+          const result = await this.executeTwitterRequest("/2/tweets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+          postedTweets.push({ id: result.data.id, text: result.data.text, position: i + 1 });
+        }
+        return { success: true, data: { thread: postedTweets, totalTweets: postedTweets.length } };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to post thread" };
+      }
+    });
+  }
+
+  createSearchRecentTweetsTool() {
+    return this.createTool("twitter_search_recent", "Search for recent tweets (alias)", z.object({ query: z.string().min(1), maxResults: z.number().min(10).max(100).default(20) }), async (params) => {
+      return this.createSearchTweetsTool().execute(params);
+    });
+  }
+
+  createGetUserInfoTool() {
+    return this.createTool("twitter_get_user_info", "Get user profile (alias)", z.object({ username: z.string().optional(), userId: z.string().optional() }), async (params) => {
+      return this.createGetUserTool().execute(params);
+    });
+  }
+
+  createGetTrendingTool() {
+    return this.createTool("twitter_get_trending", "Get trending topics (alias)", z.object({ woeid: z.string().default("1") }), async (params) => {
+      return this.createGetTrendsTool().execute(params);
+    });
   }
 }
 
-// Factory functions for registry
-export const createPostTweetTool = (userId: string) =>
-  new XToolSuite(userId).createPostTweetTool();
+// ============================================
+// FACTORY FUNCTIONS - Individual Tool Exports
+// ============================================
 
-export const createPostThreadTool = (userId: string) =>
-  new XToolSuite(userId).createPostThreadTool();
+// Reading (11 tools)
+export const createTwitterGetTweetTool = (userId: string) => new XToolSuite(userId).createGetTweetTool();
+export const createTwitterSearchTweetsTool = (userId: string) => new XToolSuite(userId).createSearchTweetsTool();
+export const createTwitterGetUserTool = (userId: string) => new XToolSuite(userId).createGetUserTool();
+export const createTwitterGetUserTweetsTool = (userId: string) => new XToolSuite(userId).createGetUserTweetsTool();
+export const createTwitterGetMentionsTool = (userId: string) => new XToolSuite(userId).createGetMentionsTool();
+export const createTwitterGetHomeTimelineTool = (userId: string) => new XToolSuite(userId).createGetHomeTimelineTool();
+export const createTwitterGetLikesTool = (userId: string) => new XToolSuite(userId).createGetLikesTool();
+export const createTwitterGetFollowersTool = (userId: string) => new XToolSuite(userId).createGetFollowersTool();
+export const createTwitterGetFollowingTool = (userId: string) => new XToolSuite(userId).createGetFollowingTool();
+export const createTwitterLookupUsersTool = (userId: string) => new XToolSuite(userId).createLookupUsersTool();
+export const createTwitterGetTrendsTool = (userId: string) => new XToolSuite(userId).createGetTrendsTool();
 
-export const createLikeTweetTool = (userId: string) =>
-  new XToolSuite(userId).createLikeTweetTool();
+// Writing (13 tools)
+export const createTwitterPostTweetTool = (userId: string) => new XToolSuite(userId).createPostTweetTool();
+export const createTwitterDeleteTweetTool = (userId: string) => new XToolSuite(userId).createDeleteTweetTool();
+export const createTwitterReplyToTweetTool = (userId: string) => new XToolSuite(userId).createReplyToTweetTool();
+export const createTwitterQuoteTweetTool = (userId: string) => new XToolSuite(userId).createQuoteTweetTool();
+export const createTwitterRetweetTool = (userId: string) => new XToolSuite(userId).createRetweetTool();
+export const createTwitterUnretweetTool = (userId: string) => new XToolSuite(userId).createUnretweetTool();
+export const createTwitterLikeTweetTool = (userId: string) => new XToolSuite(userId).createLikeTweetTool();
+export const createTwitterUnlikeTweetTool = (userId: string) => new XToolSuite(userId).createUnlikeTweetTool();
+export const createTwitterFollowUserTool = (userId: string) => new XToolSuite(userId).createFollowUserTool();
+export const createTwitterUnfollowUserTool = (userId: string) => new XToolSuite(userId).createUnfollowUserTool();
+export const createTwitterMuteUserTool = (userId: string) => new XToolSuite(userId).createMuteUserTool();
+export const createTwitterUnmuteUserTool = (userId: string) => new XToolSuite(userId).createUnmuteUserTool();
+export const createTwitterBlockUserTool = (userId: string) => new XToolSuite(userId).createBlockUserTool();
 
-export const createSearchRecentTweetsTool = (userId: string) =>
-  new XToolSuite(userId).createSearchRecentTweetsTool();
+// Lists (2 tools)
+export const createTwitterGetListsTool = (userId: string) => new XToolSuite(userId).createGetListsTool();
+export const createTwitterGetListTweetsTool = (userId: string) => new XToolSuite(userId).createGetListTweetsTool();
 
-export const createDeleteTweetTool = (userId: string) =>
-  new XToolSuite(userId).createDeleteTweetTool();
+// Legacy aliases for backward compatibility
+export const createPostTweetTool = (userId: string) => new XToolSuite(userId).createPostTweetTool();
+export const createPostThreadTool = (userId: string) => new XToolSuite(userId).createPostThreadTool();
+export const createLikeTweetTool = (userId: string) => new XToolSuite(userId).createLikeTweetTool();
+export const createSearchRecentTweetsTool = (userId: string) => new XToolSuite(userId).createSearchRecentTweetsTool();
+export const createDeleteTweetTool = (userId: string) => new XToolSuite(userId).createDeleteTweetTool();
+export const createGetUserInfoTool = (userId: string) => new XToolSuite(userId).createGetUserInfoTool();
+export const createRetweetTool = (userId: string) => new XToolSuite(userId).createRetweetTool();
+export const createFollowUserTool = (userId: string) => new XToolSuite(userId).createFollowUserTool();
+export const createGetMentionsTool = (userId: string) => new XToolSuite(userId).createGetMentionsTool();
+export const createGetTrendingTool = (userId: string) => new XToolSuite(userId).createGetTrendingTool();
 
-export const createGetUserInfoTool = (userId: string) =>
-  new XToolSuite(userId).createGetUserInfoTool();
-
-export const createRetweetTool = (userId: string) =>
-  new XToolSuite(userId).createRetweetTool();
-
-export const createFollowUserTool = (userId: string) =>
-  new XToolSuite(userId).createFollowUserTool();
-
-export const createGetMentionsTool = (userId: string) =>
-  new XToolSuite(userId).createGetMentionsTool();
-
-export const createGetTrendingTool = (userId: string) =>
-  new XToolSuite(userId).createGetTrendingTool();
+// ============================================
+// MAIN EXPORT FUNCTION
+// ============================================
+export const createTwitterTools = (userId: string) => {
+  const suite = new XToolSuite(userId);
+  return [
+    suite.createGetTweetTool(), suite.createSearchTweetsTool(), suite.createGetUserTool(), suite.createGetUserTweetsTool(),
+    suite.createGetMentionsTool(), suite.createGetHomeTimelineTool(), suite.createGetLikesTool(), suite.createGetFollowersTool(),
+    suite.createGetFollowingTool(), suite.createLookupUsersTool(), suite.createGetTrendsTool(),
+    suite.createPostTweetTool(), suite.createDeleteTweetTool(), suite.createReplyToTweetTool(), suite.createQuoteTweetTool(),
+    suite.createRetweetTool(), suite.createUnretweetTool(), suite.createLikeTweetTool(), suite.createUnlikeTweetTool(),
+    suite.createFollowUserTool(), suite.createUnfollowUserTool(), suite.createMuteUserTool(), suite.createUnmuteUserTool(), suite.createBlockUserTool(),
+    suite.createGetListsTool(), suite.createGetListTweetsTool(),
+    suite.createPostThreadTool(), suite.createSearchRecentTweetsTool(),
+  ];
+};

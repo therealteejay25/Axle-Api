@@ -17,6 +17,7 @@ import threadsRoutes from "./threads";
 import newsletterRoutes from "./newsletter.routes";
 import approvalsRoutes from "./approvals";
 import feedbackRoutes from "./feedback";
+import templatesRoutes from "./templates";
 import { handleCallback } from "../controllers/oauth";
 import polarWebhooksRoutes from "./polarWebhooks";
 import couponsRoutes from "./coupons";
@@ -52,6 +53,7 @@ router.use("/threads", threadsRoutes);
 router.use("/newsletter", newsletterRoutes);
 router.use("/approvals", approvalsRoutes);
 router.use("/feedback", feedbackRoutes);
+router.use("/templates", templatesRoutes);
 
 // OAuth callbacks (public - provider redirects here)
 router.get("/oauth/:provider/callback", handleCallback);

@@ -93,11 +93,12 @@ export class AgentMemoryService {
     }) {
         const agentObjectId = new Types.ObjectId(params.agentId);
 
-        // For now, we'll use text-based similarity (no embeddings yet)
-        // TODO: Add embedding generation using Gemini or other service
-        const embedding: number[] | undefined = undefined;
+        // Generate embedding using Google text-embedding-004
+        const { EmbeddingService } = await import("./EmbeddingService");
+        const embedding = await EmbeddingService.embed(params.content);
 
-        return MemoryItem.findOneAndUpdate(
+        // Save to MongoDB
+        const memory = await MemoryItem.findOneAndUpdate(
             {
                 agentId: agentObjectId,
                 key: params.key,
@@ -113,81 +114,99 @@ export class AgentMemoryService {
             },
             { upsert: true, new: true }
         ).lean();
+
+        // Also upsert to Pinecone axle-memory index
+        try {
+            await EmbeddingService.upsert({
+                indexName: "axle-memory",
+                id: `memory:${params.agentId}:${Date.now()}`,
+                text: params.content,
+                metadata: {
+                    agentId: params.agentId,
+                    key: params.key,
+                    category: params.category,
+                    importance: params.importance || "medium",
+                    timestamp: Date.now(),
+                },
+            });
+        } catch (error) {
+            // Log but don't fail if Pinecone upsert fails
+            console.error("Failed to upsert memory to Pinecone:", error);
+        }
+
+        return memory;
     }
 
     /**
-     * Find memories relevant to a query using semantic search
-     * For now, uses text-based keyword matching
-     * TODO: Enhance with actual vector similarity search when embeddings are available
+     * Find memories relevant to a query using semantic search via Pinecone
      */
     static async findRelevantMemories(params: {
         agentId: string;
         query: string;
         limit?: number;
     }): Promise<Array<{ key: string; content: string; category: string; lastAccessedAt: Date }>> {
-        const agentObjectId = new Types.ObjectId(params.agentId);
         const limit = params.limit || 5;
 
-        // Simple text-based search for now (keyword matching)
-        // Split query into keywords
-        const keywords = params.query
-            .toLowerCase()
-            .split(/\s+/)
-            .filter(word => word.length > 2); // Filter out very short words
+        try {
+            // Use Pinecone semantic search
+            const { EmbeddingService } = await import("./EmbeddingService");
+            
+            const results = await EmbeddingService.query({
+                indexName: "axle-memory",
+                queryText: params.query,
+                filter: { agentId: params.agentId },
+                topK: limit,
+            });
 
-        // Build a text search query
-        const queryConditions: any = { agentId: agentObjectId };
+            // Return the text from metadata
+            return results.map(r => ({
+                key: (r.metadata.key as string) || "",
+                content: r.text,
+                category: (r.metadata.category as string) || "general_fact",
+                lastAccessedAt: new Date(r.metadata.timestamp as number || Date.now()),
+            }));
+        } catch (error) {
+            console.error("Pinecone query failed, falling back to MongoDB:", error);
+            
+            // Fallback to MongoDB text search if Pinecone fails
+            const agentObjectId = new Types.ObjectId(params.agentId);
+            const keywords = params.query
+                .toLowerCase()
+                .split(/\s+/)
+                .filter(word => word.length > 2);
 
-        if (keywords.length > 0) {
-            // Use MongoDB text search on content
-            queryConditions.$or = [
-                ...keywords.map(keyword => ({
-                    content: { $regex: keyword, $options: "i" },
-                })),
-                ...keywords.map(keyword => ({
-                    key: { $regex: keyword, $options: "i" },
-                })),
-            ];
+            const queryConditions: any = { agentId: agentObjectId };
+
+            if (keywords.length > 0) {
+                queryConditions.$or = [
+                    ...keywords.map(keyword => ({
+                        content: { $regex: keyword, $options: "i" },
+                    })),
+                    ...keywords.map(keyword => ({
+                        key: { $regex: keyword, $options: "i" },
+                    })),
+                ];
+            }
+
+            const memories = await MemoryItem.find(queryConditions)
+                .sort({ importance: -1, lastAccessedAt: -1 })
+                .limit(limit)
+                .lean();
+
+            if (memories.length > 0) {
+                const ids = memories.map(m => m._id);
+                await MemoryItem.updateMany(
+                    { _id: { $in: ids } },
+                    { lastAccessedAt: new Date() }
+                );
+            }
+
+            return memories.map(m => ({
+                key: m.key,
+                content: m.content,
+                category: m.category,
+                lastAccessedAt: m.lastAccessedAt || m.createdAt,
+            }));
         }
-
-        // Find memories matching the query, sorted by importance and recency
-        const memories = await MemoryItem.find(queryConditions)
-            .sort({ importance: -1, lastAccessedAt: -1 })
-            .limit(limit)
-            .lean();
-
-        // Update lastAccessedAt for retrieved memories
-        if (memories.length > 0) {
-            const ids = memories.map(m => m._id);
-            await MemoryItem.updateMany(
-                { _id: { $in: ids } },
-                { lastAccessedAt: new Date() }
-            );
-        }
-
-        return memories.map(m => ({
-            key: m.key,
-            content: m.content,
-            category: m.category,
-            lastAccessedAt: m.lastAccessedAt || m.createdAt,
-        }));
-    }
-
-    /**
-     * Simple text similarity score (0-1)
-     * TODO: Replace with cosine similarity when embeddings are available
-     */
-    private static calculateTextSimilarity(query: string, text: string): number {
-        const queryLower = query.toLowerCase();
-        const textLower = text.toLowerCase();
-
-        // Simple word overlap score
-        const queryWords = new Set(queryLower.split(/\s+/).filter(w => w.length > 2));
-        const textWords = new Set(textLower.split(/\s+/).filter(w => w.length > 2));
-
-        if (queryWords.size === 0) return 0;
-
-        const intersection = new Set([...queryWords].filter(w => textWords.has(w)));
-        return intersection.size / queryWords.size;
     }
 }

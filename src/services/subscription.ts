@@ -1,4 +1,4 @@
-import { polar, PLAN_TO_PRICE } from "../lib/polar";
+import { polar, PLAN_TO_PRICE, polarConfigManager } from "../lib/polar";
 import { User, PlanType, PLAN_LIMITS } from "../models/User";
 import { logger } from "./logger";
 import { getCoupon } from "./coupon";
@@ -6,7 +6,7 @@ import { getCoupon } from "./coupon";
 // ============================================
 // SUBSCRIPTION SERVICE (POLAR)
 // ============================================
-// Manages Polar subscriptions
+// Manages Polar subscriptions with graceful degradation
 // ============================================
 
 /**
@@ -19,6 +19,16 @@ export const createCheckoutSession = async (
   _cancelUrl: string, // Polar checkout might not support cancel URL in the same way or it's configured in dashboard
   discountCode?: string
 ): Promise<string> => {
+
+  // Check if checkout feature is enabled
+  if (!polarConfigManager.isFeatureEnabled('checkout')) {
+    const validation = polarConfigManager.getValidationResult();
+    throw new Error(`Checkout feature is disabled. Missing configuration: ${validation?.missingVariables.join(', ')}`);
+  }
+
+  if (!polar) {
+    throw new Error("Polar client is not initialized. Check environment configuration.");
+  }
 
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
@@ -160,6 +170,16 @@ export const createPortalSession = async (
   userId: string,
   _returnUrl: string
 ): Promise<string> => {
+
+  // Check if customer portal feature is enabled
+  if (!polarConfigManager.isFeatureEnabled('customerPortal')) {
+    const validation = polarConfigManager.getValidationResult();
+    throw new Error(`Customer portal feature is disabled. Missing configuration: ${validation?.missingVariables.join(', ')}`);
+  }
+
+  if (!polar) {
+    throw new Error("Polar client is not initialized. Check environment configuration.");
+  }
 
   const user = await User.findById(userId);
   if (!user || !user.polarUserId) {

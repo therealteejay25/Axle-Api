@@ -14,13 +14,15 @@ export type PlanType = "free" | "pro" | "premium" | "custom";
 export interface IPlanLimits {
   agentLimit: number;
   monthlyCredits: number;
+  webhooksAllowed: boolean;
+  schedulesPerAgent: number;
 }
 
 export const PLAN_LIMITS: Record<PlanType, IPlanLimits> = {
-  free: { agentLimit: 2, monthlyCredits: 100 },
-  pro: { agentLimit: 10, monthlyCredits: 1000 },
-  premium: { agentLimit: 50, monthlyCredits: 5000 },
-  custom: { agentLimit: Number.POSITIVE_INFINITY, monthlyCredits: 20000 }
+  free: { agentLimit: 2, monthlyCredits: 100, webhooksAllowed: false, schedulesPerAgent: 1 },
+  pro: { agentLimit: 10, monthlyCredits: 1000, webhooksAllowed: true, schedulesPerAgent: 5 },
+  premium: { agentLimit: 50, monthlyCredits: 5000, webhooksAllowed: true, schedulesPerAgent: 10 },
+  custom: { agentLimit: Number.POSITIVE_INFINITY, monthlyCredits: 20000, webhooksAllowed: true, schedulesPerAgent: Number.POSITIVE_INFINITY }
 };
 
 export interface IUser extends Document {
@@ -40,7 +42,7 @@ export interface IUser extends Document {
   credits: number;
   creditsResetAt: Date;
   // Polar billing
-  polarUserId?: string;
+  polarCustomerId?: string;
   polarSubscriptionId?: string;
   subscriptionStatus?: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete';
 
@@ -99,7 +101,7 @@ const UserSchema = new Schema<IUser>(
       }
     },
     // Polar
-    polarUserId: { type: String },
+    polarCustomerId: { type: String },
     polarSubscriptionId: { type: String },
     subscriptionStatus: {
       type: String,

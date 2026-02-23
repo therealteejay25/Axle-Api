@@ -61,6 +61,64 @@ export const deductCredits = async (
 };
 
 /**
+ * Check if user can create a webhook trigger
+ */
+export const canCreateWebhookTrigger = async (userId: string): Promise<{
+    allowed: boolean;
+    reason?: string;
+}> => {
+    const user = await User.findById(userId);
+    if (!user) {
+        return { allowed: false, reason: "User not found" };
+    }
+
+    const limits = PLAN_LIMITS[user.plan as PlanType];
+    
+    if (!limits.webhooksAllowed) {
+        return {
+            allowed: false,
+            reason: `Webhook triggers require Pro plan or higher (current plan: ${user.plan})`
+        };
+    }
+
+    return { allowed: true };
+};
+
+/**
+ * Check if user can create a schedule trigger for an agent
+ */
+export const canCreateScheduleTrigger = async (userId: string, agentId: string): Promise<{
+    allowed: boolean;
+    reason?: string;
+    limit: number;
+    current: number;
+}> => {
+    const user = await User.findById(userId);
+    if (!user) {
+        return { allowed: false, reason: "User not found", limit: 0, current: 0 };
+    }
+
+    const { Trigger } = await import("../models/Trigger");
+    const scheduleCount = await Trigger.countDocuments({ 
+        agentId, 
+        type: "schedule" 
+    });
+    
+    const limit = PLAN_LIMITS[user.plan as PlanType].schedulesPerAgent;
+
+    if (scheduleCount >= limit) {
+        return {
+            allowed: false,
+            reason: `Schedule limit reached (${limit} schedule${limit > 1 ? 's' : ''} per agent on ${user.plan} plan)`,
+            limit,
+            current: scheduleCount
+        };
+    }
+
+    return { allowed: true, limit, current: scheduleCount };
+};
+
+/**
  * Check if user can create a new agent
  */
 export const canCreateAgent = async (userId: string): Promise<{
@@ -171,6 +229,8 @@ export default {
     calculateCredits,
     deductCredits,
     canCreateAgent,
+    canCreateWebhookTrigger,
+    canCreateScheduleTrigger,
     hasCredits,
     addCredits,
     resetMonthlyCredits,

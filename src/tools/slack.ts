@@ -726,6 +726,202 @@ export class SlackToolSuite extends BaseSlackTool {
       }
     );
   }
+
+  // Additional message tools
+  createSendDmTool() {
+    return this.createTool("slack_send_dm", "Send direct message to a user by email or ID", z.object({ userEmail: z.string().optional(), userId: z.string().optional(), message: z.string().min(1) }), async ({ userEmail, userId, message }) => {
+      try {
+        let targetUserId = userId;
+        if (userEmail && !userId) {
+          const userResult = await this.executeSlackRequest(async (client) => client.users.lookupByEmail({ email: userEmail }));
+          targetUserId = (userResult as any)?.user?.id;
+        }
+        if (!targetUserId) throw new Error("User not found");
+        const dmResult = await this.executeSlackRequest(async (client) => client.conversations.open({ users: targetUserId }));
+        const channelId = (dmResult as any)?.channel?.id;
+        const result = await this.executeSlackRequest(async (client) => client.chat.postMessage({ channel: channelId, text: message }));
+        return { success: result.ok, channelId, messageId: (result as any)?.ts };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to send DM" };
+      }
+    });
+  }
+
+  createScheduleMessageTool() {
+    return this.createTool("slack_schedule_message", "Schedule a message to send at a future time", z.object({ channel: z.string().min(1), text: z.string().min(1), postAt: z.number().describe("Unix timestamp") }), async ({ channel, text, postAt }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.chat.scheduleMessage({ channel, text, post_at: postAt }));
+        return { success: result.ok, scheduledMessageId: (result as any)?.scheduled_message_id };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to schedule message" };
+      }
+    });
+  }
+
+  createReplyToThreadTool() {
+    return this.createTool("slack_reply_to_thread", "Reply to a message thread", z.object({ channel: z.string().min(1), threadTs: z.string().min(1), text: z.string().min(1) }), async ({ channel, threadTs, text }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.chat.postMessage({ channel, text, thread_ts: threadTs }));
+        return { success: result.ok, messageId: (result as any)?.ts };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to reply to thread" };
+      }
+    });
+  }
+
+  createReactMessageTool() {
+    return this.createTool("slack_react_message", "Add emoji reaction to a message", z.object({ channel: z.string().min(1), timestamp: z.string().min(1), name: z.string().min(1) }), async ({ channel, timestamp, name }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.reactions.add({ channel, timestamp, name }));
+        return { success: result.ok };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to add reaction" };
+      }
+    });
+  }
+
+  createSearchMessagesTool() {
+    return this.createTool("slack_search_messages", "Search messages across all channels", z.object({ query: z.string().min(1), count: z.number().min(1).max(100).default(20) }), async ({ query, count }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.search.messages({ query, count }));
+        const messages = (result as any)?.messages?.matches || [];
+        return { success: result.ok, messages: messages.map((m: any) => ({ text: m.text, user: m.username, channel: m.channel?.name, ts: m.ts })), totalCount: messages.length };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to search messages" };
+      }
+    });
+  }
+
+  createGetChannelTool() {
+    return this.createTool("slack_get_channel", "Get channel info by ID or name", z.object({ channel: z.string().min(1) }), async ({ channel }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.conversations.info({ channel }));
+        const c: any = (result as any)?.channel;
+        return { success: result.ok, channel: c ? { id: c.id, name: c.name, is_private: c.is_private, topic: c.topic?.value, purpose: c.purpose?.value } : null };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get channel" };
+      }
+    });
+  }
+
+  createGetUserTool() {
+    return this.createTool("slack_get_user", "Get user info by ID", z.object({ userId: z.string().min(1) }), async ({ userId }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.users.info({ user: userId }));
+        const u: any = (result as any)?.user;
+        return { success: result.ok, user: u ? { id: u.id, name: u.name, real_name: u.real_name, email: u.profile?.email, is_bot: u.is_bot } : null };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get user" };
+      }
+    });
+  }
+
+  createLookupUserByEmailTool() {
+    return this.createTool("slack_lookup_user_by_email", "Find user by email address", z.object({ email: z.string().email() }), async ({ email }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.users.lookupByEmail({ email }));
+        const u: any = (result as any)?.user;
+        return { success: result.ok, user: u ? { id: u.id, name: u.name, real_name: u.real_name, email: u.profile?.email } : null };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to lookup user" };
+      }
+    });
+  }
+
+  createListUsersTool() {
+    return this.createTool("slack_list_users", "List all users in workspace", z.object({ limit: z.number().min(1).max(1000).optional() }), async ({ limit }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.users.list({ limit }));
+        const users = Array.isArray((result as any)?.members) ? (result as any).members.map((u: any) => ({ id: u.id, name: u.name, real_name: u.real_name, email: u.profile?.email, is_bot: u.is_bot })) : [];
+        return { success: result.ok, users, totalCount: users.length };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to list users" };
+      }
+    });
+  }
+
+  createGetUserPresenceTool() {
+    return this.createTool("slack_get_user_presence", "Get online/away status of a user", z.object({ userId: z.string().min(1) }), async ({ userId }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.users.getPresence({ user: userId }));
+        return { success: result.ok, presence: (result as any)?.presence };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get user presence" };
+      }
+    });
+  }
+
+  createSetStatusTool() {
+    return this.createTool("slack_set_status", "Set own status with text and emoji", z.object({ statusText: z.string().min(1), statusEmoji: z.string().optional(), statusExpiration: z.number().optional() }), async ({ statusText, statusEmoji, statusExpiration }) => {
+      try {
+        const profile: any = { status_text: statusText };
+        if (statusEmoji) profile.status_emoji = statusEmoji;
+        if (statusExpiration) profile.status_expiration = statusExpiration;
+        const result = await this.executeSlackRequest(async (client) => client.users.profile.set({ profile: JSON.stringify(profile) }));
+        return { success: result.ok };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to set status" };
+      }
+    });
+  }
+
+  createListUserGroupsTool() {
+    return this.createTool("slack_list_user_groups", "List user groups", z.object({}), async () => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.usergroups.list({}));
+        const groups = Array.isArray((result as any)?.usergroups) ? (result as any).usergroups.map((g: any) => ({ id: g.id, name: g.name, handle: g.handle, description: g.description })) : [];
+        return { success: result.ok, userGroups: groups, totalCount: groups.length };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to list user groups" };
+      }
+    });
+  }
+
+  createUploadFileTool() {
+    return this.createTool("slack_upload_file", "Upload a file to a channel", z.object({ channels: z.string().min(1), content: z.string().min(1), filename: z.string().min(1), title: z.string().optional() }), async ({ channels, content, filename, title }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.files.upload({ channels, content, filename, title }));
+        return { success: result.ok, file: (result as any)?.file };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to upload file" };
+      }
+    });
+  }
+
+  createListFilesTool() {
+    return this.createTool("slack_list_files", "List files in a channel", z.object({ channel: z.string().optional(), count: z.number().min(1).max(1000).default(100) }), async ({ channel, count }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.files.list({ channel, count }));
+        const files = Array.isArray((result as any)?.files) ? (result as any).files.map((f: any) => ({ id: f.id, name: f.name, title: f.title, url_private: f.url_private, size: f.size })) : [];
+        return { success: result.ok, files, totalCount: files.length };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to list files" };
+      }
+    });
+  }
+
+  createGetFileTool() {
+    return this.createTool("slack_get_file", "Get file info and download URL", z.object({ fileId: z.string().min(1) }), async ({ fileId }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.files.info({ file: fileId }));
+        const f: any = (result as any)?.file;
+        return { success: result.ok, file: f ? { id: f.id, name: f.name, title: f.title, url_private: f.url_private, url_private_download: f.url_private_download, size: f.size } : null };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to get file" };
+      }
+    });
+  }
+
+  createDeleteFileTool() {
+    return this.createTool("slack_delete_file", "Delete a file", z.object({ fileId: z.string().min(1) }), async ({ fileId }) => {
+      try {
+        const result = await this.executeSlackRequest(async (client) => client.files.delete({ file: fileId }));
+        return { success: result.ok };
+      } catch (error: any) {
+        return { success: false, error: error.message || "Failed to delete file" };
+      }
+    });
+  }
 };
 
 export const createSendMessageTool = (userId: string) => {
@@ -856,5 +1052,39 @@ export const createSlackTools = (userId: string) => {
     suite.createPinMessageTool(),
     suite.createUnpinMessageTool(),
     suite.createListPinsTool(),
+    suite.createSendDmTool(),
+    suite.createScheduleMessageTool(),
+    suite.createReplyToThreadTool(),
+    suite.createReactMessageTool(),
+    suite.createSearchMessagesTool(),
+    suite.createGetChannelTool(),
+    suite.createGetUserTool(),
+    suite.createLookupUserByEmailTool(),
+    suite.createListUsersTool(),
+    suite.createGetUserPresenceTool(),
+    suite.createSetStatusTool(),
+    suite.createListUserGroupsTool(),
+    suite.createUploadFileTool(),
+    suite.createListFilesTool(),
+    suite.createGetFileTool(),
+    suite.createDeleteFileTool(),
   ];
 };
+
+// Additional factory functions
+export const createSendDmTool = (userId: string) => new SlackToolSuite(userId).createSendDmTool();
+export const createScheduleMessageTool = (userId: string) => new SlackToolSuite(userId).createScheduleMessageTool();
+export const createReplyToThreadTool = (userId: string) => new SlackToolSuite(userId).createReplyToThreadTool();
+export const createReactMessageTool = (userId: string) => new SlackToolSuite(userId).createReactMessageTool();
+export const createSearchMessagesTool = (userId: string) => new SlackToolSuite(userId).createSearchMessagesTool();
+export const createGetChannelTool = (userId: string) => new SlackToolSuite(userId).createGetChannelTool();
+export const createGetUserTool = (userId: string) => new SlackToolSuite(userId).createGetUserTool();
+export const createLookupUserByEmailTool = (userId: string) => new SlackToolSuite(userId).createLookupUserByEmailTool();
+export const createListUsersTool = (userId: string) => new SlackToolSuite(userId).createListUsersTool();
+export const createGetUserPresenceTool = (userId: string) => new SlackToolSuite(userId).createGetUserPresenceTool();
+export const createSetStatusTool = (userId: string) => new SlackToolSuite(userId).createSetStatusTool();
+export const createListUserGroupsTool = (userId: string) => new SlackToolSuite(userId).createListUserGroupsTool();
+export const createUploadFileTool = (userId: string) => new SlackToolSuite(userId).createUploadFileTool();
+export const createListFilesTool = (userId: string) => new SlackToolSuite(userId).createListFilesTool();
+export const createGetFileTool = (userId: string) => new SlackToolSuite(userId).createGetFileTool();
+export const createDeleteFileTool = (userId: string) => new SlackToolSuite(userId).createDeleteFileTool();

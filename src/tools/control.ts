@@ -62,6 +62,7 @@ export const createRememberTool = (userId: string, agentId: string) => {
 
       const { AgentMemoryService } = await import("../services/AgentMemoryService");
       
+      // Store in MongoDB and Pinecone
       await AgentMemoryService.storeMemory({
         agentId,
         key,

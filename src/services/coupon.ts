@@ -1,10 +1,10 @@
 import { logger } from "./logger";
-import { POLAR_ORGANIZATION_ID } from "../lib/polar";
+import { polarConfigManager } from "./PolarConfigManager";
 
 // ============================================
 // COUPON SERVICE
 // ============================================
-// Manage discount codes via Polar API
+// Manage discount codes via Polar API with graceful degradation
 // ============================================
 
 interface CreateCouponParams {
@@ -28,23 +28,26 @@ interface PolarDiscount {
     ends_at?: string | null;
 }
 
-const POLAR_API_URL = process.env.POLAR_API_URL || "https://api.polar.sh/v1";
-
 /**
  * Create a discount coupon in Polar
  */
 export const createCoupon = async (params: CreateCouponParams): Promise<PolarDiscount> => {
     const { code, type, amount, duration, duration_in_months, expiration } = params;
 
-    if (!process.env.POLAR_ACCESS_TOKEN) {
-        throw new Error("POLAR_ACCESS_TOKEN is not configured");
+    // Check if coupons feature is enabled
+    if (!polarConfigManager.isFeatureEnabled('coupons')) {
+        const validation = polarConfigManager.getValidationResult();
+        throw new Error(`Coupon feature is disabled. Missing configuration: ${validation?.missingVariables.join(', ')}`);
     }
+
+    const config = polarConfigManager.getConfig();
+    const apiUrl = polarConfigManager.getApiUrl();
 
     // Map our internal types to Polar API format
     // Assuming Polar API structure based on documentation/standards
     // POST /v1/discounts
     const body: any = {
-        organization_id: POLAR_ORGANIZATION_ID,
+        organization_id: config.organizationId,
         code: code.toUpperCase(),
         type: type, // 'fixed' or 'percentage'
         amount: amount, // For fixed: amount in cents usually, check docs. For percentage: 0-100
@@ -58,25 +61,32 @@ export const createCoupon = async (params: CreateCouponParams): Promise<PolarDis
     // Let's assume generic structure and refine if we get errors.
 
     try {
-        const response = await fetch(`${POLAR_API_URL}/discounts`, {
+        const response = await fetch(`${apiUrl}/discounts`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.POLAR_ACCESS_TOKEN}`,
+                "Authorization": `Bearer ${config.accessToken}`,
             },
             body: JSON.stringify(body),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            logger.error("Failed to create coupon in Polar", { status: response.status, error: errorText });
+            logger.error("Failed to create coupon in Polar", { 
+                status: response.status, 
+                error: errorText,
+                environment: config.serverEnvironment 
+            });
             throw new Error(`Polar API Error: ${errorText}`);
         }
 
         const data = await response.json();
         return data as PolarDiscount;
     } catch (error: any) {
-        logger.error("Error creating coupon service", error);
+        logger.error("Error creating coupon service", { 
+            error: error.message,
+            environment: config.serverEnvironment 
+        });
         throw error;
     }
 };
@@ -85,22 +95,31 @@ export const createCoupon = async (params: CreateCouponParams): Promise<PolarDis
  * Get coupon details by code
  */
 export const getCoupon = async (code: string): Promise<PolarDiscount | null> => {
-    if (!process.env.POLAR_ACCESS_TOKEN) {
-        throw new Error("POLAR_ACCESS_TOKEN is not configured");
+    // Check if coupons feature is enabled
+    if (!polarConfigManager.isFeatureEnabled('coupons')) {
+        logger.warn("Coupon lookup attempted but feature is disabled", { code });
+        return null;
     }
+
+    const config = polarConfigManager.getConfig();
+    const apiUrl = polarConfigManager.getApiUrl();
 
     try {
         // Search/Filter discounts
-        const response = await fetch(`${POLAR_API_URL}/discounts?organization_id=${POLAR_ORGANIZATION_ID}&query=${code}`, {
+        const response = await fetch(`${apiUrl}/discounts?organization_id=${config.organizationId}&query=${code}`, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer ${process.env.POLAR_ACCESS_TOKEN}`,
+                "Authorization": `Bearer ${config.accessToken}`,
             },
         });
 
         if (!response.ok) {
             const errorText = await response.text();
-            logger.error("Failed to fetch coupons from Polar", { status: response.status, error: errorText });
+            logger.error("Failed to fetch coupons from Polar", { 
+                status: response.status, 
+                error: errorText,
+                environment: config.serverEnvironment 
+            });
             return null;
         }
 
@@ -111,7 +130,10 @@ export const getCoupon = async (code: string): Promise<PolarDiscount | null> => 
 
         return coupon || null;
     } catch (error) {
-        logger.error("Error fetching coupon", error);
+        logger.error("Error fetching coupon", { 
+            error: error instanceof Error ? error.message : error,
+            environment: config.serverEnvironment 
+        });
         return null; // Return null on error to handle gracefully
     }
 };

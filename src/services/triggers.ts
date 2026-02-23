@@ -26,32 +26,32 @@ export const getNextScheduledRuns = async (
 
   // 2. Get active schedule triggers
   const triggers = await Trigger.find({
-    agentId: { $in: agentIds },
+    agent: { $in: agentIds },
     type: 'schedule',
-    enabled: true
+    active: true
   }).lean();
 
   const scheduledRuns: ScheduledRun[] = [];
 
   // 3. Calculate next run for each
   for (const trigger of triggers) {
-    if (trigger.config?.cron) {
+    if (trigger.cronExpression) {
       try {
-        const interval = parser.parseExpression(trigger.config.cron, { currentDate: new Date() });
+        const interval = parser.parseExpression(trigger.cronExpression, { currentDate: new Date() });
         const nextRun = interval.next().toDate();
         
         // Skip if date is in the past (shouldn't happen with .next(), but safety first)
         if (nextRun > new Date()) {
             scheduledRuns.push({
                 triggerId: trigger._id.toString(),
-                agentId: trigger.agentId.toString(),
-                agentName: agentMap.get(trigger.agentId.toString()) || 'Unknown Agent',
+                agentId: trigger.agent.toString(),
+                agentName: agentMap.get(trigger.agent.toString()) || 'Unknown Agent',
                 nextRun,
-                cronExpression: trigger.config.cron
+                cronExpression: trigger.cronExpression
             });
         }
       } catch (err) {
-        console.warn(`Invalid cron expression for trigger ${trigger._id}: ${trigger.config.cron}`);
+        console.warn(`Invalid cron expression for trigger ${trigger._id}: ${trigger.cronExpression}`);
       }
     }
   }
