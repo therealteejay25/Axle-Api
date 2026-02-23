@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import { redis } from "../config/redis";
+import { redis } from "../lib/redis";
 import { Trigger } from "../models/Trigger";
 import { User } from "../models/User";
 import { logger } from "./logger";

@@ -186,6 +186,7 @@ const ExecutionSchema = new Schema<IExecution>(
 ExecutionSchema.index({ agentId: 1, createdAt: -1 });
 ExecutionSchema.index({ agentId: 1, status: 1 });
 ExecutionSchema.index({ status: 1, createdAt: -1 });
+ExecutionSchema.index({ ownerId: 1, createdAt: -1 }); // OPTIMIZATION 8: Added for user queries
 
 // TTL index to auto-delete old executions (optional, 90 days)
 // ExecutionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 });

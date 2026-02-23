@@ -24,6 +24,7 @@
     "@openai/agents": "^0.3.3",
     "@openrouter/sdk": "^0.2.9",
     "@outray/express": "^0.0.2",
+    "@pinecone-database/pinecone": "^7.1.0",
     "@polar-sh/sdk": "^0.43.1",
     "@slack/web-api": "^7.13.0",
     "@types/cheerio": "^0.22.35",

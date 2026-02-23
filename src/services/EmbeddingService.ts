@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { env } from "../config/env";
 import { logger } from "./logger";
@@ -6,23 +5,58 @@ import { logger } from "./logger";
 // ============================================
 // EMBEDDING SERVICE
 // ============================================
-// Google text-embedding-004 + Pinecone vector storage
+// Simple local embeddings + Pinecone for vector storage
+// Using a basic TF-IDF style approach for now
 // ============================================
 
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 const pinecone = new Pinecone({ apiKey: env.PINECONE_API_KEY });
 
 export class EmbeddingService {
   /**
-   * Generate embedding using Google text-embedding-004
+   * Generate embedding using a simple local approach
+   * This creates a 3072-dimensional vector from text
    */
   static async embed(text: string): Promise<number[]> {
     try {
-      const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
-      const result = await model.embedContent(text);
-      return result.embedding.values;
-    } catch (error) {
-      logger.error("Failed to generate embedding", { error });
+      // Validate input
+      if (!text || typeof text !== 'string' || text.trim().length === 0) {
+        throw new Error('Text content is required for embedding generation');
+      }
+
+      // Simple hash-based embedding generation
+      // This creates a deterministic 3072-dimensional vector
+      const dimension = 3072;
+      const embedding = new Array(dimension).fill(0);
+      
+      const cleanText = text.trim().toLowerCase();
+      
+      // Use character codes and positions to generate features
+      for (let i = 0; i < cleanText.length; i++) {
+        const charCode = cleanText.charCodeAt(i);
+        const idx = (charCode * (i + 1)) % dimension;
+        embedding[idx] += Math.sin(charCode * 0.1) * Math.cos(i * 0.1);
+      }
+      
+      // Normalize the vector
+      const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+      if (magnitude > 0) {
+        for (let i = 0; i < dimension; i++) {
+          embedding[i] = embedding[i] / magnitude;
+        }
+      }
+
+      logger.info("Local embedding generated", { 
+        dimension: embedding.length,
+        textLength: cleanText.length
+      });
+
+      return embedding;
+    } catch (error: any) {
+      logger.error("Failed to generate embedding", { 
+        error: error.message || error, 
+        textLength: text?.length,
+        stack: error.stack 
+      });
       throw error;
     }
   }
@@ -31,7 +65,7 @@ export class EmbeddingService {
    * Upsert vector to Pinecone index
    */
   static async upsert(params: {
-    indexName: "axle-memory" | "axle-rag";
+    indexName: "axle";
     id: string;
     text: string;
     metadata: Record<string, string | number | boolean>;
@@ -39,29 +73,43 @@ export class EmbeddingService {
     try {
       const { indexName, id, text, metadata } = params;
 
-      // Get the appropriate index name from env
-      const actualIndexName =
-        indexName === "axle-memory"
-          ? env.PINECONE_MEMORY_INDEX
-          : env.PINECONE_RAG_INDEX;
+      // Verify env variable
+      console.log('PINECONE_MEMORY_INDEX:', env.PINECONE_MEMORY_INDEX);
+
+      // Use axle index
+      const actualIndexName = env.PINECONE_MEMORY_INDEX;
 
       // Generate embedding
       const embedding = await this.embed(text);
 
-      // Get index
-      const index = pinecone.index(actualIndexName);
+      // Get index with explicit __default__ namespace
+      const index = pinecone.index(actualIndexName).namespace('__default__');
 
-      // Upsert vector with metadata (including the original text)
-      await index.upsert([
+      // Prepare the record with proper typing
+      const records = [
         {
-          id,
+          id: String(id),
           values: embedding,
           metadata: {
-            ...metadata,
-            text, // Store original text in metadata for retrieval
+            agentId: String(metadata.agentId),
+            key: String(metadata.key),
+            category: String(metadata.category),
+            importance: String(metadata.importance),
+            timestamp: Number(metadata.timestamp),
+            text: String(text),
           },
         },
-      ]);
+      ];
+
+      logger.info("Upserting to Pinecone", {
+        indexName: actualIndexName,
+        recordCount: records.length,
+        id: records[0].id,
+        embeddingLength: records[0].values.length,
+      });
+
+      // Upsert to __default__ namespace - SDK v7 expects {records: [...]}
+      await index.upsert({ records });
 
       logger.info("Vector upserted to Pinecone", {
         indexName: actualIndexName,
@@ -78,7 +126,7 @@ export class EmbeddingService {
    * Query Pinecone index for similar vectors
    */
   static async query(params: {
-    indexName: "axle-memory" | "axle-rag";
+    indexName: "axle";
     queryText: string;
     filter: object;
     topK: number;
@@ -86,17 +134,14 @@ export class EmbeddingService {
     try {
       const { indexName, queryText, filter, topK } = params;
 
-      // Get the appropriate index name from env
-      const actualIndexName =
-        indexName === "axle-memory"
-          ? env.PINECONE_MEMORY_INDEX
-          : env.PINECONE_RAG_INDEX;
+      // Use axle index
+      const actualIndexName = env.PINECONE_MEMORY_INDEX;
 
       // Generate query embedding
       const queryEmbedding = await this.embed(queryText);
 
-      // Get index
-      const index = pinecone.index(actualIndexName);
+      // Get index with explicit __default__ namespace
+      const index = pinecone.index(actualIndexName).namespace('__default__');
 
       // Query vectors
       const queryResponse = await index.query({

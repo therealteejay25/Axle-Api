@@ -26052,3 +26052,392 @@
 {"timestamp":"2026-02-23 16:24:20","level":"info","message":"[Redis] Client is ready"}
 {"timestamp":"2026-02-23 16:30:15","level":"info","message":"[Redis] Connected successfully"}
 {"timestamp":"2026-02-23 16:30:15","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 17:01:08","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:08","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-23 17:01:08","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:08","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:08","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
+{"timestamp":"2026-02-23 17:01:08","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:08","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:08","level":"warn","message":"[Redis] Retrying connection in 300ms... (Attempt 3)"}
+{"timestamp":"2026-02-23 17:01:08","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:09","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:09","level":"warn","message":"[Redis] Retrying connection in 400ms... (Attempt 4)"}
+{"timestamp":"2026-02-23 17:01:09","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:09","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:09","level":"warn","message":"[Redis] Retrying connection in 500ms... (Attempt 5)"}
+{"timestamp":"2026-02-23 17:01:09","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:10","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:10","level":"warn","message":"[Redis] Retrying connection in 600ms... (Attempt 6)"}
+{"timestamp":"2026-02-23 17:01:10","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:10","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:10","level":"warn","message":"[Redis] Retrying connection in 700ms... (Attempt 7)"}
+{"timestamp":"2026-02-23 17:01:10","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:11","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:11","level":"warn","message":"[Redis] Retrying connection in 800ms... (Attempt 8)"}
+{"timestamp":"2026-02-23 17:01:11","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:12","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:12","level":"warn","message":"[Redis] Retrying connection in 900ms... (Attempt 9)"}
+{"timestamp":"2026-02-23 17:01:12","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:13","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:13","level":"warn","message":"[Redis] Retrying connection in 1000ms... (Attempt 10)"}
+{"timestamp":"2026-02-23 17:01:13","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:14","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:14","level":"warn","message":"[Redis] Retrying connection in 1100ms... (Attempt 11)"}
+{"timestamp":"2026-02-23 17:01:14","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:15","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:15","level":"warn","message":"[Redis] Retrying connection in 1200ms... (Attempt 12)"}
+{"timestamp":"2026-02-23 17:01:15","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:16","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:16","level":"warn","message":"[Redis] Retrying connection in 1300ms... (Attempt 13)"}
+{"timestamp":"2026-02-23 17:01:16","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:17","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:17","level":"warn","message":"[Redis] Retrying connection in 1400ms... (Attempt 14)"}
+{"timestamp":"2026-02-23 17:01:17","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:19","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:19","level":"warn","message":"[Redis] Retrying connection in 1500ms... (Attempt 15)"}
+{"timestamp":"2026-02-23 17:01:19","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:20","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:20","level":"warn","message":"[Redis] Retrying connection in 1600ms... (Attempt 16)"}
+{"timestamp":"2026-02-23 17:01:20","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:22","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:22","level":"warn","message":"[Redis] Retrying connection in 1700ms... (Attempt 17)"}
+{"timestamp":"2026-02-23 17:01:22","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:24","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:24","level":"warn","message":"[Redis] Retrying connection in 1800ms... (Attempt 18)"}
+{"timestamp":"2026-02-23 17:01:24","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:25","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:25","level":"warn","message":"[Redis] Retrying connection in 1900ms... (Attempt 19)"}
+{"timestamp":"2026-02-23 17:01:25","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:27","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:27","level":"warn","message":"[Redis] Retrying connection in 2000ms... (Attempt 20)"}
+{"timestamp":"2026-02-23 17:01:27","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:29","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:29","level":"warn","message":"[Redis] Retrying connection in 2100ms... (Attempt 21)"}
+{"timestamp":"2026-02-23 17:01:29","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:32","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:32","level":"warn","message":"[Redis] Retrying connection in 2200ms... (Attempt 22)"}
+{"timestamp":"2026-02-23 17:01:32","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:34","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:34","level":"warn","message":"[Redis] Retrying connection in 2300ms... (Attempt 23)"}
+{"timestamp":"2026-02-23 17:01:34","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:36","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:36","level":"warn","message":"[Redis] Retrying connection in 2400ms... (Attempt 24)"}
+{"timestamp":"2026-02-23 17:01:36","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:39","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:39","level":"warn","message":"[Redis] Retrying connection in 2500ms... (Attempt 25)"}
+{"timestamp":"2026-02-23 17:01:39","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:41","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:41","level":"warn","message":"[Redis] Retrying connection in 2600ms... (Attempt 26)"}
+{"timestamp":"2026-02-23 17:01:41","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:44","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:44","level":"warn","message":"[Redis] Retrying connection in 2700ms... (Attempt 27)"}
+{"timestamp":"2026-02-23 17:01:44","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:47","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:47","level":"warn","message":"[Redis] Retrying connection in 2800ms... (Attempt 28)"}
+{"timestamp":"2026-02-23 17:01:47","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:49","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:49","level":"warn","message":"[Redis] Retrying connection in 2900ms... (Attempt 29)"}
+{"timestamp":"2026-02-23 17:01:49","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:52","level":"error","message":"[Redis] Connection error:"}
+{"timestamp":"2026-02-23 17:01:52","level":"warn","message":"[Redis] Retrying connection in 3000ms... (Attempt 30)"}
+{"timestamp":"2026-02-23 17:01:52","level":"info","message":"[Redis] Reconnecting..."}
+{"timestamp":"2026-02-23 17:01:59","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 17:01:59","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 17:08:48","level":"error","message":"Failed to generate embedding","error":{"status":400,"statusText":"Bad Request"}}
+{"timestamp":"2026-02-23 18:07:13","level":"error","message":"Failed to generate embedding","error":{"status":400,"statusText":"Bad Request"}}
+{"timestamp":"2026-02-23 18:09:06","level":"error","message":"Failed to generate embedding","error":{}}
+{"timestamp":"2026-02-23 18:09:20","level":"error","message":"Failed to generate embedding","error":{}}
+{"timestamp":"2026-02-23 18:10:04","level":"error","message":"Failed to generate embedding","error":{"status":404,"statusText":"Not Found"},"textLength":53}
+{"timestamp":"2026-02-23 18:10:32","level":"error","message":"Failed to generate embedding","error":{"status":404,"statusText":"Not Found"},"textLength":53}
+{"timestamp":"2026-02-23 18:11:09","level":"error","message":"Failed to generate embedding","error":{"status":404,"statusText":"Not Found"},"textLength":53}
+{"timestamp":"2026-02-23 18:11:55","level":"error","message":"Failed to generate embedding","error":{"status":404,"statusText":"Not Found"},"textLength":53}
+{"timestamp":"2026-02-23 18:12:31","level":"info","message":"Falling back to models/text-embedding-004"}
+{"timestamp":"2026-02-23 18:12:32","level":"error","message":"Fallback embedding also failed","error":{}}
+{"timestamp":"2026-02-23 18:13:05","level":"error","message":"Embedding API error","status":404,"statusText":"Not Found","error":"{\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/text-embedding-004 is not found for API version v1, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"}
+{"timestamp":"2026-02-23 18:13:05","level":"error","message":"Failed to generate embedding","error":{},"textLength":53}
+{"timestamp":"2026-02-23 18:13:42","level":"error","message":"Embedding API error","status":404,"statusText":"Not Found","error":"{\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"}
+{"timestamp":"2026-02-23 18:13:42","level":"error","message":"Failed to generate embedding","error":{},"textLength":53}
+{"timestamp":"2026-02-23 18:14:27","level":"error","message":"Embedding API error","status":404,"statusText":"Not Found","error":"{\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"}
+{"timestamp":"2026-02-23 18:14:27","level":"error","message":"Failed to generate embedding","error":{},"textLength":53}
+{"timestamp":"2026-02-23 18:30:07","level":"error","message":"Failed to generate embedding","error":{},"textLength":53}
+{"timestamp":"2026-02-23 18:30:39","level":"error","message":"Failed to generate embedding","error":"Cannot read properties of undefined (reading 'map')","textLength":53,"stack":"TypeError: Cannot read properties of undefined (reading 'map')\n    at Inference._embed (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@pinecone-database+pinecone@7.1.0\\node_modules\\@pinecone-database\\pinecone\\src\\inference\\embed.ts:31:22)\n    at Inference.embed (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@pinecone-database+pinecone@7.1.0\\node_modules\\@pinecone-database\\pinecone\\src\\inference\\inference.ts:66:17)\n    at EmbeddingService.embed (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\EmbeddingService.ts:26:51)\n    at AgentMemoryService.storeMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\AgentMemoryService.ts:98:50)\n    at async B.execute (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\tools\\control.ts:66:7)\n    at async testMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\test-memory.ts:26:26)"}
+{"timestamp":"2026-02-23 18:32:43","level":"error","message":"Failed to generate embedding","error":"[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent: [404 Not Found] models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.","textLength":53,"stack":"Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent: [404 Not Found] models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\n    at handleResponseNotOk (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@google+generative-ai@0.24.1\\node_modules\\@google\\generative-ai\\dist\\index.js:434:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async makeRequest (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@google+generative-ai@0.24.1\\node_modules\\@google\\generative-ai\\dist\\index.js:403:9)\n    at async embedContent (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@google+generative-ai@0.24.1\\node_modules\\@google\\generative-ai\\dist\\index.js:1315:22)\n    at async EmbeddingService.embed (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\EmbeddingService.ts:29:22)\n    at async AgentMemoryService.storeMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\AgentMemoryService.ts:98:27)\n    at async B.execute (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\tools\\control.ts:66:7)\n    at async testMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\test-memory.ts:26:26)"}
+{"timestamp":"2026-02-23 18:33:03","level":"error","message":"Failed to generate embedding","error":"[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent: [404 Not Found] models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.","textLength":53,"stack":"Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent: [404 Not Found] models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\n    at handleResponseNotOk (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@google+generative-ai@0.24.1\\node_modules\\@google\\generative-ai\\dist\\index.js:434:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async makeRequest (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@google+generative-ai@0.24.1\\node_modules\\@google\\generative-ai\\dist\\index.js:403:9)\n    at async embedContent (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\node_modules\\.pnpm\\@google+generative-ai@0.24.1\\node_modules\\@google\\generative-ai\\dist\\index.js:1315:22)\n    at async EmbeddingService.embed (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\EmbeddingService.ts:29:22)\n    at async AgentMemoryService.storeMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\AgentMemoryService.ts:98:27)\n    at async B.execute (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\tools\\control.ts:66:7)\n    at async testMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\test-memory.ts:26:26)"}
+{"timestamp":"2026-02-23 18:33:35","level":"error","message":"Failed to generate embedding","error":"Google API error (404): {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/text-embedding-004 is not found for API version v1, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n","textLength":53,"stack":"Error: Google API error (404): {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/text-embedding-004 is not found for API version v1, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n\n    at EmbeddingService.embed (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\EmbeddingService.ts:42:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async AgentMemoryService.storeMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\AgentMemoryService.ts:98:27)\n    at async B.execute (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\tools\\control.ts:66:7)\n    at async testMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\test-memory.ts:26:26)"}
+{"timestamp":"2026-02-23 18:33:56","level":"error","message":"Failed to generate embedding","error":"Google API error (404): {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n","textLength":53,"stack":"Error: Google API error (404): {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"models/embedding-001 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n\n    at EmbeddingService.embed (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\EmbeddingService.ts:42:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async AgentMemoryService.storeMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\services\\AgentMemoryService.ts:98:27)\n    at async B.execute (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\tools\\control.ts:66:7)\n    at async testMemory (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\test-memory.ts:26:26)"}
+{"timestamp":"2026-02-23 18:34:26","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:35:31","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:35:32","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:35:32","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c8fdfb1a4a3a8c3c46842:1771868132802","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c8fdfb1a4a3a8c3c46842","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771868132802}}}
+{"timestamp":"2026-02-23 18:35:32","level":"info","message":"Local embedding generated","dimension":768,"textLength":16}
+{"timestamp":"2026-02-23 18:35:35","level":"info","message":"Pinecone query completed","indexName":"axle","resultsCount":0,"topScore":0}
+{"timestamp":"2026-02-23 18:36:14","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:36:16","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:36:16","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c900b51c6edd9e095e010:1771868176305","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c900b51c6edd9e095e010","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771868176305}}}
+{"timestamp":"2026-02-23 18:36:16","level":"info","message":"Local embedding generated","dimension":768,"textLength":16}
+{"timestamp":"2026-02-23 18:36:18","level":"info","message":"Pinecone query completed","indexName":"axle","resultsCount":0,"topScore":0}
+{"timestamp":"2026-02-23 18:37:12","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:46:03","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:46:06","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:46:06","level":"info","message":"Upserting to Pinecone","indexName":"axle","id":"memory:699c92541e56368e4d4bf500:1771868766025","embeddingLength":768,"recordValid":true,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:46:06","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c92541e56368e4d4bf500:1771868766025","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c92541e56368e4d4bf500","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771868766025}}}
+{"timestamp":"2026-02-23 18:46:42","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:46:44","level":"info","message":"Local embedding generated","dimension":768,"textLength":53}
+{"timestamp":"2026-02-23 18:46:44","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c927e6787c9f4bf750f73:1771868804085","embeddingLength":768,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:46:44","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c927e6787c9f4bf750f73:1771868804085","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c927e6787c9f4bf750f73","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771868804085}}}
+{"timestamp":"2026-02-23 18:47:54","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:47:56","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:47:56","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c92c3802d3135913a242d:1771868876393","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:47:56","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c92c3802d3135913a242d:1771868876393","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c92c3802d3135913a242d","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771868876393}}}
+{"timestamp":"2026-02-23 18:51:59","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:52:00","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:52:00","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c93bbf3885c0e6a454e0f:1771869120960","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:52:00","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c93bbf3885c0e6a454e0f:1771869120960","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c93bbf3885c0e6a454e0f","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771869120961}}}
+{"timestamp":"2026-02-23 18:52:37","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:52:38","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:52:38","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c93e195f34d256893cf73:1771869158862","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:52:38","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c93e195f34d256893cf73:1771869158862","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c93e195f34d256893cf73","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771869158862}}}
+{"timestamp":"2026-02-23 18:53:24","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:53:26","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:53:26","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c941088db23c0081ea861:1771869206399","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:53:26","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c941088db23c0081ea861:1771869206399","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c941088db23c0081ea861","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771869206399}}}
+{"timestamp":"2026-02-23 18:55:11","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:55:16","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:55:16","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c947915bf6bb8fdc6b36b:1771869316110","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:55:16","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c947915bf6bb8fdc6b36b:1771869316110","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c947915bf6bb8fdc6b36b","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771869316110}}}
+{"timestamp":"2026-02-23 18:55:53","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:55:55","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:55:55","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c94a537f47d05d637b066:1771869355319","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:55:55","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c94a537f47d05d637b066:1771869355319","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c94a537f47d05d637b066","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771869355319}}}
+{"timestamp":"2026-02-23 18:56:33","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:56:34","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 18:56:34","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c94cc0b5f8f0a03b58cb9:1771869394636","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 18:56:34","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle-memory","id":"memory:699c94cc0b5f8f0a03b58cb9:1771869394636","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c94cc0b5f8f0a03b58cb9","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771869394636}}}
+{"timestamp":"2026-02-23 18:57:10","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 19:03:28","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 19:03:28","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c966a413895416b19ec1c:user_preference","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 19:03:28","level":"error","message":"Failed to upsert to Pinecone","error":{"name":"PineconeArgumentError"},"params":{"indexName":"axle","id":"memory:699c966a413895416b19ec1c:user_preference","text":"User prefers concise responses and technical language","metadata":{"agentId":"699c966a413895416b19ec1c","key":"user_preference","category":"user_preference","importance":"high","timestamp":1771869808726}}}
+{"timestamp":"2026-02-23 19:05:13","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 19:05:13","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c96d46770c984c435ac20:user_preference","embeddingLength":3072,"metadataKeys":["agentId","key","category","importance","timestamp","text"]}
+{"timestamp":"2026-02-23 19:05:19","level":"info","message":"Vector upserted to Pinecone","indexName":"axle","id":"memory:699c96d46770c984c435ac20:user_preference","metadataKeys":["agentId","key","category","importance","timestamp"]}
+{"timestamp":"2026-02-23 19:05:19","level":"info","message":"Local embedding generated","dimension":3072,"textLength":16}
+{"timestamp":"2026-02-23 19:05:19","level":"info","message":"Pinecone query completed","indexName":"axle","resultsCount":1,"topScore":0.574768066}
+{"timestamp":"2026-02-23 19:06:06","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 19:06:06","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c97091680f89c038f5932:user_preference","embeddingLength":3072}
+{"timestamp":"2026-02-23 19:06:08","level":"info","message":"Vector upserted to Pinecone","indexName":"axle","id":"memory:699c97091680f89c038f5932:user_preference","metadataKeys":["agentId","key","category","importance","timestamp"]}
+{"timestamp":"2026-02-23 19:06:08","level":"info","message":"Local embedding generated","dimension":3072,"textLength":16}
+{"timestamp":"2026-02-23 19:06:09","level":"info","message":"Pinecone query completed","indexName":"axle","resultsCount":1,"topScore":0.574768066}
+{"timestamp":"2026-02-23 19:28:05","level":"info","message":"Local embedding generated","dimension":3072,"textLength":53}
+{"timestamp":"2026-02-23 19:28:05","level":"info","message":"Upserting to Pinecone","indexName":"axle","recordCount":1,"id":"memory:699c9c30dd79b04c191449b2:user_preference","embeddingLength":3072}
+{"timestamp":"2026-02-23 19:28:07","level":"info","message":"Vector upserted to Pinecone","indexName":"axle","id":"memory:699c9c30dd79b04c191449b2:user_preference","metadataKeys":["agentId","key","category","importance","timestamp"]}
+{"timestamp":"2026-02-23 19:28:07","level":"info","message":"Local embedding generated","dimension":3072,"textLength":16}
+{"timestamp":"2026-02-23 19:28:07","level":"info","message":"Pinecone query completed","indexName":"axle","resultsCount":1,"topScore":0.574768066}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:48:35","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:48:43","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-23 20:48:43","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 20:48:43","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 20:48:45","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-23 20:48:45","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-23 20:48:45","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-23 20:48:45","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:48:46","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:48:46","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:48:46","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:48:46","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:48:46","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-23 20:48:48","level":"info","message":"Clearing 20 existing repeatable jobs"}
+{"timestamp":"2026-02-23 20:48:56","level":"info","message":"Found 0 enabled schedule triggers"}
+{"timestamp":"2026-02-23 20:48:56","level":"info","message":"Scheduler initialized: 0 triggers scheduled"}
+{"timestamp":"2026-02-23 20:48:56","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-23 20:48:56","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-23 20:48:56","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-23 20:48:56","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:48:56","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:51:25","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:51:33","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 20:51:33","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-23 20:51:33","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 20:51:42","level":"info","message":"Warming up singleton clients..."}
+{"timestamp":"2026-02-23 20:51:43","level":"info","message":"[Clients] Gemini client initialized"}
+{"timestamp":"2026-02-23 20:51:43","level":"info","message":"[Clients] Pinecone client initialized"}
+{"timestamp":"2026-02-23 20:51:47","level":"info","message":"[Clients] Pinecone connection warmed up"}
+{"timestamp":"2026-02-23 20:51:47","level":"info","message":"[Clients] All clients warmed up successfully"}
+{"timestamp":"2026-02-23 20:51:47","level":"info","message":"Clients warmed up successfully"}
+{"timestamp":"2026-02-23 20:51:47","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-23 20:51:47","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-23 20:51:47","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-23 20:51:47","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:51:48","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:51:48","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:51:49","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:51:49","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:51:49","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-23 20:51:49","level":"info","message":"Clearing 0 existing repeatable jobs"}
+{"timestamp":"2026-02-23 20:51:50","level":"info","message":"Found 0 enabled schedule triggers"}
+{"timestamp":"2026-02-23 20:51:50","level":"info","message":"Scheduler initialized: 0 triggers scheduled"}
+{"timestamp":"2026-02-23 20:51:50","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-23 20:51:50","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-23 20:51:50","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-23 20:51:50","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:51:50","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:53:47","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:54:06","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:54:35","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:54:53","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:54:53","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 20:54:53","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-23 20:54:54","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 20:55:02","level":"info","message":"Warming up singleton clients..."}
+{"timestamp":"2026-02-23 20:55:02","level":"info","message":"[Clients] Gemini client initialized"}
+{"timestamp":"2026-02-23 20:55:02","level":"info","message":"[Clients] Pinecone client initialized"}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:55:24","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:55:31","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-23 20:55:31","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 20:55:31","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 20:55:35","level":"info","message":"Warming up singleton clients..."}
+{"timestamp":"2026-02-23 20:55:35","level":"info","message":"[Clients] Gemini client initialized"}
+{"timestamp":"2026-02-23 20:55:35","level":"info","message":"[Clients] Pinecone client initialized"}
+{"timestamp":"2026-02-23 20:55:38","level":"info","message":"[Clients] Pinecone connection warmed up"}
+{"timestamp":"2026-02-23 20:55:38","level":"info","message":"[Clients] All clients warmed up successfully"}
+{"timestamp":"2026-02-23 20:55:38","level":"info","message":"Clients warmed up successfully"}
+{"timestamp":"2026-02-23 20:55:38","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-23 20:55:38","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-23 20:55:38","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-23 20:55:38","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:55:46","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:55:46","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:55:47","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:55:47","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:55:47","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-23 20:55:47","level":"info","message":"Clearing 0 existing repeatable jobs"}
+{"timestamp":"2026-02-23 20:55:48","level":"info","message":"Found 0 enabled schedule triggers"}
+{"timestamp":"2026-02-23 20:55:48","level":"info","message":"Scheduler initialized: 0 triggers scheduled"}
+{"timestamp":"2026-02-23 20:55:48","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-23 20:55:48","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-23 20:55:48","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-23 20:55:48","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:55:48","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 20:56:02","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 20:56:10","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-23 20:56:10","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-23 20:56:11","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-02-23 20:56:30","level":"info","message":"Warming up singleton clients..."}
+{"timestamp":"2026-02-23 20:56:30","level":"info","message":"[Clients] Gemini client initialized"}
+{"timestamp":"2026-02-23 20:56:30","level":"info","message":"[Clients] Pinecone client initialized"}
+{"timestamp":"2026-02-23 20:56:37","level":"info","message":"[Clients] Pinecone connection warmed up"}
+{"timestamp":"2026-02-23 20:56:37","level":"info","message":"[Clients] All clients warmed up successfully"}
+{"timestamp":"2026-02-23 20:56:38","level":"info","message":"Clients warmed up successfully"}
+{"timestamp":"2026-02-23 20:56:38","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-02-23 20:56:38","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-02-23 20:56:38","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-02-23 20:56:38","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:56:48","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
+{"timestamp":"2026-02-23 20:56:49","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
+{"timestamp":"2026-02-23 20:56:56","level":"warn","message":"[Redis] Retrying connection in 300ms... (Attempt 3)"}
+{"timestamp":"2026-02-23 20:56:57","level":"warn","message":"[Redis] Retrying connection in 400ms... (Attempt 4)"}
+{"timestamp":"2026-02-23 20:56:57","level":"warn","message":"[Redis] Retrying connection in 500ms... (Attempt 5)"}
+{"timestamp":"2026-02-23 20:56:57","level":"warn","message":"[Redis] Retrying connection in 600ms... (Attempt 6)"}
+{"timestamp":"2026-02-23 20:56:58","level":"warn","message":"[Redis] Retrying connection in 700ms... (Attempt 7)"}
+{"timestamp":"2026-02-23 20:56:59","level":"warn","message":"[Redis] Retrying connection in 800ms... (Attempt 8)"}
+{"timestamp":"2026-02-23 20:57:00","level":"warn","message":"[Redis] Retrying connection in 900ms... (Attempt 9)"}
+{"timestamp":"2026-02-23 20:57:09","level":"warn","message":"[Redis] Retrying connection in 1000ms... (Attempt 10)"}
+{"timestamp":"2026-02-23 20:57:10","level":"warn","message":"[Redis] Retrying connection in 1100ms... (Attempt 11)"}
+{"timestamp":"2026-02-23 20:57:11","level":"warn","message":"[Redis] Retrying connection in 1200ms... (Attempt 12)"}
+{"timestamp":"2026-02-23 20:57:12","level":"warn","message":"[Redis] Retrying connection in 1300ms... (Attempt 13)"}
+{"timestamp":"2026-02-23 20:57:13","level":"warn","message":"[Redis] Retrying connection in 1400ms... (Attempt 14)"}
+{"timestamp":"2026-02-23 20:57:21","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:57:21","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-02-23 20:57:21","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:57:21","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-23 20:57:21","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-23 20:57:21","level":"info","message":"Clearing 0 existing repeatable jobs"}
+{"timestamp":"2026-02-23 20:57:22","level":"info","message":"Found 0 enabled schedule triggers"}
+{"timestamp":"2026-02-23 20:57:22","level":"info","message":"Scheduler initialized: 0 triggers scheduled"}
+{"timestamp":"2026-02-23 20:57:22","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-23 20:57:22","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-23 20:57:22","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-02-23 20:57:22","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-02-23 20:57:22","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 21:02:25","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-02-23 21:02:47","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}

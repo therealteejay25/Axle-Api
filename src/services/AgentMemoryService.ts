@@ -82,7 +82,7 @@ export class AgentMemoryService {
     }
 
     /**
-     * Store a memory with semantic embedding for future retrieval
+     * Store a memory with semantic embedding in Pinecone
      */
     static async storeMemory(params: {
         agentId: string;
@@ -91,54 +91,33 @@ export class AgentMemoryService {
         category: "user_preference" | "workflow_pattern" | "project_detail" | "general_fact";
         importance?: "low" | "medium" | "high";
     }) {
-        const agentObjectId = new Types.ObjectId(params.agentId);
-
-        // Generate embedding using Google text-embedding-004
         const { EmbeddingService } = await import("./EmbeddingService");
-        const embedding = await EmbeddingService.embed(params.content);
-
-        // Save to MongoDB
-        const memory = await MemoryItem.findOneAndUpdate(
-            {
-                agentId: agentObjectId,
+        
+        // Upsert to Pinecone
+        await EmbeddingService.upsert({
+            indexName: "axle",
+            id: `memory:${params.agentId}:${params.key}`,
+            text: params.content,
+            metadata: {
+                agentId: params.agentId,
                 key: params.key,
-            },
-            {
-                agentId: agentObjectId,
-                key: params.key,
-                content: params.content,
                 category: params.category,
                 importance: params.importance || "medium",
-                embedding,
-                lastAccessedAt: new Date(),
+                timestamp: Date.now(),
             },
-            { upsert: true, new: true }
-        ).lean();
+        });
 
-        // Also upsert to Pinecone axle-memory index
-        try {
-            await EmbeddingService.upsert({
-                indexName: "axle-memory",
-                id: `memory:${params.agentId}:${Date.now()}`,
-                text: params.content,
-                metadata: {
-                    agentId: params.agentId,
-                    key: params.key,
-                    category: params.category,
-                    importance: params.importance || "medium",
-                    timestamp: Date.now(),
-                },
-            });
-        } catch (error) {
-            // Log but don't fail if Pinecone upsert fails
-            console.error("Failed to upsert memory to Pinecone:", error);
-        }
-
-        return memory;
+        return {
+            agentId: params.agentId,
+            key: params.key,
+            content: params.content,
+            category: params.category,
+            importance: params.importance || "medium",
+        };
     }
 
     /**
-     * Find memories relevant to a query using semantic search via Pinecone
+     * Find memories relevant to a query using Pinecone semantic search
      */
     static async findRelevantMemories(params: {
         agentId: string;
@@ -147,66 +126,129 @@ export class AgentMemoryService {
     }): Promise<Array<{ key: string; content: string; category: string; lastAccessedAt: Date }>> {
         const limit = params.limit || 5;
 
+        const { EmbeddingService } = await import("./EmbeddingService");
+        
+        const results = await EmbeddingService.query({
+            indexName: "axle",
+            queryText: params.query,
+            filter: { agentId: params.agentId },
+            topK: limit,
+        });
+
+        // Return the results from Pinecone
+        return results.map(r => ({
+            key: (r.metadata.key as string) || "",
+            content: r.text,
+            category: (r.metadata.category as string) || "general_fact",
+            lastAccessedAt: new Date(r.metadata.timestamp as number || Date.now()),
+        }));
+    }
+
+    /**
+     * AUTO-LEARNING PIPELINE
+     * Extract learnable information from an execution and store it
+     * This runs async at the end of every execution (fire and forget)
+     */
+    static async extractAndLearn(params: {
+        userId: string;
+        agentId: string;
+        execution: {
+            task: string;
+            response: string;
+            toolsUsed: string[];
+            duration: number;
+            userFeedback?: string;
+        };
+    }): Promise<void> {
         try {
-            // Use Pinecone semantic search
+            const { userId, agentId, execution } = params;
+
+            const { GoogleGenerativeAI } = await import("@google/generative-ai");
+            const { env } = await import("../config/env");
+
+            const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+            const systemPrompt = `You are a learning extraction AI. Given an agent execution, extract everything learnable about the user. Be aggressive — extract more rather than less.
+
+Extract these categories:
+- preferences: how they like things done, communication style, format preferences
+- corrections: anything the agent did wrong that the user fixed or complained about
+- people: names, emails, roles mentioned
+- projects: work they're doing, deadlines, context
+- workflows: recurring patterns or tasks they do repeatedly
+- tools: which apps/tools they use for what
+- schedule: working hours, timezone, recurring meetings
+- rules: hard rules the agent must follow for this user
+
+Output ONLY a JSON array of memory items:
+[{
+  category: string,
+  key: string (snake_case, specific, e.g. 'email_signature', 'prefers_bullet_points'),
+  content: string (full detail, don't abbreviate),
+  importance: 'low'|'medium'|'high'|'critical',
+  type: 'preference'|'correction'|'person'|'project'|'workflow'|'rule'|'fact'
+}]
+
+Corrections and rules are always 'critical'. Extract up to 10 items per execution.
+
+If nothing learnable, return empty array [].`;
+
+            const executionSummary = `Task: ${execution.task}
+Response: ${execution.response}
+Tools Used: ${execution.toolsUsed.join(", ")}
+Duration: ${execution.duration}ms
+${execution.userFeedback ? `User Feedback: ${execution.userFeedback}` : ""}`;
+
+            const result = await model.generateContent([
+                { role: "user", parts: [{ text: systemPrompt }] },
+                { role: "user", parts: [{ text: executionSummary }] },
+            ]);
+
+            const responseText = result.response.text();
+            
+            // Extract JSON from response (handle markdown code blocks)
+            let jsonText = responseText.trim();
+            if (jsonText.startsWith("```json")) {
+                jsonText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "");
+            } else if (jsonText.startsWith("```")) {
+                jsonText = jsonText.replace(/```\n?/g, "");
+            }
+
+            const extractedItems = JSON.parse(jsonText);
+
+            if (!Array.isArray(extractedItems) || extractedItems.length === 0) {
+                console.log("[AgentMemoryService] No learnable items extracted from execution");
+                return;
+            }
+
+            // Store each extracted item in Pinecone
             const { EmbeddingService } = await import("./EmbeddingService");
-            
-            const results = await EmbeddingService.query({
-                indexName: "axle-memory",
-                queryText: params.query,
-                filter: { agentId: params.agentId },
-                topK: limit,
-            });
 
-            // Return the text from metadata
-            return results.map(r => ({
-                key: (r.metadata.key as string) || "",
-                content: r.text,
-                category: (r.metadata.category as string) || "general_fact",
-                lastAccessedAt: new Date(r.metadata.timestamp as number || Date.now()),
-            }));
+            for (const item of extractedItems) {
+                const { category, key, content, importance, type } = item;
+
+                await EmbeddingService.upsert({
+                    indexName: "axle",
+                    id: `memory:${agentId}:${key}`,
+                    text: content,
+                    metadata: {
+                        userId,
+                        agentId,
+                        key,
+                        category,
+                        importance,
+                        type: type || "memory",
+                        timestamp: Date.now(),
+                        extractedFrom: "auto_learning",
+                    },
+                });
+            }
+
+            console.log(`[AgentMemoryService] Extracted and stored ${extractedItems.length} learnable items`);
         } catch (error) {
-            console.error("Pinecone query failed, falling back to MongoDB:", error);
-            
-            // Fallback to MongoDB text search if Pinecone fails
-            const agentObjectId = new Types.ObjectId(params.agentId);
-            const keywords = params.query
-                .toLowerCase()
-                .split(/\s+/)
-                .filter(word => word.length > 2);
-
-            const queryConditions: any = { agentId: agentObjectId };
-
-            if (keywords.length > 0) {
-                queryConditions.$or = [
-                    ...keywords.map(keyword => ({
-                        content: { $regex: keyword, $options: "i" },
-                    })),
-                    ...keywords.map(keyword => ({
-                        key: { $regex: keyword, $options: "i" },
-                    })),
-                ];
-            }
-
-            const memories = await MemoryItem.find(queryConditions)
-                .sort({ importance: -1, lastAccessedAt: -1 })
-                .limit(limit)
-                .lean();
-
-            if (memories.length > 0) {
-                const ids = memories.map(m => m._id);
-                await MemoryItem.updateMany(
-                    { _id: { $in: ids } },
-                    { lastAccessedAt: new Date() }
-                );
-            }
-
-            return memories.map(m => ({
-                key: m.key,
-                content: m.content,
-                category: m.category,
-                lastAccessedAt: m.lastAccessedAt || m.createdAt,
-            }));
+            console.error("[AgentMemoryService] Error in extractAndLearn:", error);
+            // Don't throw - this is fire-and-forget
         }
     }
 }

@@ -38,6 +38,9 @@ importers:
       '@outray/express':
         specifier: ^0.0.2
         version: 0.0.2(express@5.1.0)
+      '@pinecone-database/pinecone':
+        specifier: ^7.1.0
+        version: 7.1.0
       '@polar-sh/sdk':
         specifier: ^0.43.1
         version: 0.43.1
@@ -852,6 +855,10 @@ packages:
     resolution: {integrity: sha512-61fIvY2nbtAzvtlFRe32h+x+0SGrj4htdf7TN+vsob1WQvfHl4WMmJUDNxzTMlxHIjK6Z2VTiUxcuWR1ZG8zcw==}
     peerDependencies:
       express: ^4.0.0 || ^5.0.0
+
+  '@pinecone-database/pinecone@7.1.0':
+    resolution: {integrity: sha512-w6HoBCriv4NKOVFjdj4/KuJ6df7RZpQEsZ61VctRzoauTXQpe8wpccsS94AawxAxMOu7hOTXVlcQ5QLHYKjrDA==}
+    engines: {node: '>=20.0.0'}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -4181,6 +4188,8 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  '@pinecone-database/pinecone@7.1.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

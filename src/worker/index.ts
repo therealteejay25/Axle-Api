@@ -2,7 +2,7 @@ import { Worker, Job } from "bullmq";
 import { redis } from "../lib/redis";
 import { ExecutionJobData, ExecutionJobResult } from "../queue/executionQueue";
 import { Execution } from "../models/Execution";
-import { loadAgent } from "./agentLoader";
+import { loadAgentOptimized } from "./agentLoaderOptimized"; // OPTIMIZATION 2: Use optimized loader
 import { createAllUserTools } from "../tools/registry/masterToolList";
 import { buildFocusedContext } from "./contextBuilder";
 import {
@@ -23,8 +23,10 @@ import { REQUIRES_APPROVAL } from "../types/messages";
 import { User } from "../models/User";
 import { Thread } from "../models/Thread";
 import { LlmAgent, Runner } from "@google/adk";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getGeminiClient } from "../lib/clients"; // OPTIMIZATION 4: Use singleton client
 import { env } from "../config/env";
+import { createPerformanceTimer } from "../utils/performance"; // OPTIMIZATION 3: Add instrumentation
+import { queryOptimized } from "../services/EmbeddingServiceOptimized"; // OPTIMIZATION 5: Use optimized queries
 
 // ============================================
 // WORKER - ADK AGENT WITH REASONING & MEMORY
@@ -43,7 +45,7 @@ export const startWorker = (): Worker<ExecutionJobData, ExecutionJobResult> => {
     },
     {
       connection: redis,
-      concurrency: 5,
+      concurrency: 20, // OPTIMIZATION 7: Increased from 5 to 20
       limiter: {
         max: 100,
         duration: 60000,
@@ -80,6 +82,9 @@ const processJob = async (
 ): Promise<ExecutionJobResult> => {
   const { executionId, agentId, ownerId, triggerType, payload } = job.data;
 
+  // OPTIMIZATION 3: Performance instrumentation
+  const perf = createPerformanceTimer();
+  
   const runStartedAtMs = Date.now();
 
   const effectivePayload: Record<string, any> = { ...(payload || {}) };
@@ -279,20 +284,59 @@ const processJob = async (
       "init",
     );
 
-    // 2. Load Agent & Integrations
-    const loaded = await loadAgent(agentId, ownerId);
+    // OPTIMIZATION 6: Parallelize everything that can run in parallel
+    perf.mark('start_parallel_loads');
+    
+    const [loaded, threadContext] = await Promise.all([
+      // Load agent, user, and integrations in parallel (already parallelized in loadAgentOptimized)
+      loadAgentOptimized(agentId, ownerId),
+      // Load thread context in parallel
+      effectivePayload.threadId
+        ? ContextManagerService.getThread({
+            ownerId,
+            threadId: effectivePayload.threadId,
+          }).catch(() => null)
+        : Promise.resolve(null),
+    ]);
+    
+    perf.mark('db_loads_complete');
+
+    // Apply thread context if available
+    if (threadContext) {
+      const threadGithubRepo = (threadContext as any)?.metadata?.githubRepo;
+      const threadCurrentContext = (threadContext as any)?.metadata?.currentContext;
+
+      if (threadGithubRepo?.owner && threadGithubRepo?.repo && !effectivePayload.githubRepo) {
+        effectivePayload.githubRepo = {
+          owner: threadGithubRepo.owner,
+          repo: threadGithubRepo.repo,
+          ref: threadGithubRepo.ref,
+        };
+      }
+
+      if (
+        !effectivePayload.requestedFiles &&
+        Array.isArray(threadGithubRepo?.requestedFiles)
+      ) {
+        effectivePayload.requestedFiles = threadGithubRepo.requestedFiles;
+      }
+
+      if (threadCurrentContext && !effectivePayload.currentContext) {
+        effectivePayload.currentContext = threadCurrentContext;
+      }
+    }
 
     const userMessageForEstimate =
       effectivePayload?.input ||
       effectivePayload?.task ||
       "Execute the assigned task";
 
+    // OPTIMIZATION 10: Thread title update (fire-and-forget, non-blocking)
     if (effectivePayload.threadId) {
-      try {
-        const thread = await Thread.findOne({
-          _id: effectivePayload.threadId,
-          ownerId,
-        });
+      Thread.findOne({
+        _id: effectivePayload.threadId,
+        ownerId,
+      }).then(thread => {
         if (thread && shouldReplaceThreadTitle(thread.title)) {
           const baseText =
             getFirstMeaningfulUserInput(effectivePayload?.messages) ||
@@ -306,12 +350,12 @@ const processJob = async (
           const nextTitle = normalizeTitleCandidate(baseText);
           if (nextTitle && nextTitle !== thread.title) {
             thread.title = nextTitle;
-            await thread.save();
+            thread.save().catch(err => logger.error("Failed to update thread title:", err));
           }
         }
-      } catch {
+      }).catch(() => {
         // ignore thread title updates
-      }
+      });
     }
 
     // Pre-flight credit guardrail (before planning / runner)
@@ -343,6 +387,8 @@ const processJob = async (
 
     // Always use all tools - context should not restrict tool availability
     const tools = allTools;
+    
+    perf.mark('tools_loaded');
 
     messageEmitter.emitThinking(
       executionId,
@@ -475,6 +521,8 @@ const processJob = async (
     // Build focused context with semantic memory search (no overwhelming dumps)
     // Context builder now handles memory search and GitHub context internally
     const systemPrompt = await buildFocusedContext(loaded, effectivePayload);
+    
+    perf.mark('context_built');
 
     // Get agent model
     const brainModelRaw =
@@ -505,6 +553,8 @@ const processJob = async (
         temperature: 2.0, // Balanced creativity (max is 2.0)
       },
     });
+    
+    perf.mark('agent_initialized');
 
     // 4. Initialize Runner with session service for memory
     const sessionService = new MongoSessionService();
@@ -1239,7 +1289,7 @@ const processJob = async (
 
     const creditsUsed = creditsDeductedTotal;
 
-    const refreshedUser = await User.findById(ownerId).lean();
+    const refreshedUser = await User.findById(ownerId).select('plan credits').lean();
     if (refreshedUser) {
       const refreshedPlan = (refreshedUser.plan as PlanType) || "free";
       const refreshedLimit =
@@ -1257,100 +1307,120 @@ const processJob = async (
       );
     }
 
-    // Update Execution
-    execution.status = taskComplete ? "success" : "success";
-    execution.finishedAt = new Date();
-    execution.executionResult = {
-      version: 1,
-      run: {
-        startedAt: execution.startedAt || new Date(runStartedAtMs),
-        finishedAt: execution.finishedAt,
-        executionTimeMs: Date.now() - runStartedAtMs,
-      },
-      adk: {
-        eventStream: adkEventStream,
-        candidateParts: candidatePartsStream,
-        usageMetadata: latestUsageMetadata,
-        groundingMetadata: latestGroundingMetadata,
-        groundingSources,
-      },
-    };
-    execution.outputPayload = {
-      result: responseText || finalResponse || "Task completed",
-      reasoning: reasoningText,
-      confidence: "high",
-      toolOutputs,
-    };
-
-    messageEmitter.emitText(executionId, "Task completed successfully! ✓", "system");
-    execution.creditsUsed = creditsUsed;
-    execution.aiTokensUsed = actualTokensUsed;
-    execution.aiResponse = responseText || finalResponse;
-    execution.reasoning = reasoningText;
-    execution.traces = traces;
-    execution.actionsExecuted = actionsExecuted;
-    await execution.save();
-
-    // Persist assistant response into agent-scoped Messages collection
-    const assistantMessage = responseText || finalResponse;
-    if (assistantMessage && typeof assistantMessage === "string") {
-      await AgentMemoryService.appendMessage({
-        agentId,
-        role: "assistant",
-        content: assistantMessage,
-        metadata: {
-          source: "worker",
-          executionId,
-          tokensUsed: actualTokensUsed,
-        },
-      });
-    }
-
-    try {
-      const latestUserText =
-        getLatestUserInput(effectivePayload?.messages) ||
-        (typeof effectivePayload?.input === "string"
-          ? effectivePayload.input
-          : "") ||
-        (typeof effectivePayload?.task === "string"
-          ? effectivePayload.task
-          : "");
-
-      if (
-        latestUserText &&
-        assistantMessage &&
-        typeof assistantMessage === "string"
-      ) {
-        const existingMemory =
-          (await AgentMemoryService.getLongTermMemory(agentId)) || "";
-
-        // Memory is now handled via remember/recall tools, not automatic updates
-        // Agents can explicitly store memories using the remember tool
-      }
-    } catch {
-      // ignore memory update failures
-    }
-
-    await ExecutionEventService.log({
-      executionId,
-      agentId,
-      userId: ownerId,
-      type: "execution_completed",
-      level: "info",
-      message: "ADK Agent execution completed successfully",
-      data: { creditsUsed, tokensUsed: actualTokensUsed },
-    });
-
-    SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
-      executionId: execution._id,
-      status: "success",
-    });
-
-    return {
+    // OPTIMIZATION 10: Return result immediately, then do non-blocking operations
+    const result = {
       success: taskComplete,
       actionsExecuted: toolCallsCompleted,
       creditsUsed,
     };
+
+    // OPTIMIZATION 10: Fire-and-forget operations (don't block return)
+    Promise.all([
+      // Update Execution record
+      (async () => {
+        execution.status = taskComplete ? "success" : "success";
+        execution.finishedAt = new Date();
+        execution.executionResult = {
+          version: 1,
+          run: {
+            startedAt: execution.startedAt || new Date(runStartedAtMs),
+            finishedAt: execution.finishedAt,
+            executionTimeMs: Date.now() - runStartedAtMs,
+          },
+          adk: {
+            eventStream: adkEventStream,
+            candidateParts: candidatePartsStream,
+            usageMetadata: latestUsageMetadata,
+            groundingMetadata: latestGroundingMetadata,
+            groundingSources,
+          },
+        };
+        execution.outputPayload = {
+          result: responseText || finalResponse || "Task completed",
+          reasoning: reasoningText,
+          confidence: "high",
+          toolOutputs,
+        };
+        execution.creditsUsed = creditsUsed;
+        execution.aiTokensUsed = actualTokensUsed;
+        execution.aiResponse = responseText || finalResponse;
+        execution.reasoning = reasoningText;
+        execution.traces = traces;
+        execution.actionsExecuted = actionsExecuted;
+        await execution.save();
+      })(),
+      
+      // Persist assistant response
+      (async () => {
+        const assistantMessage = responseText || finalResponse;
+        if (assistantMessage && typeof assistantMessage === "string") {
+          await AgentMemoryService.appendMessage({
+            agentId,
+            role: "assistant",
+            content: assistantMessage,
+            metadata: {
+              source: "worker",
+              executionId,
+              tokensUsed: actualTokensUsed,
+            },
+          });
+        }
+      })(),
+      
+      // AUTO-LEARNING PIPELINE (already fire-and-forget)
+      (async () => {
+        const latestUserText =
+          getLatestUserInput(effectivePayload?.messages) ||
+          (typeof effectivePayload?.input === "string"
+            ? effectivePayload.input
+            : "") ||
+          (typeof effectivePayload?.task === "string"
+            ? effectivePayload.task
+            : "");
+
+        if (latestUserText && (responseText || finalResponse)) {
+          await AgentMemoryService.extractAndLearn({
+            userId: ownerId.toString(),
+            agentId,
+            execution: {
+              task: latestUserText,
+              response: responseText || finalResponse,
+              toolsUsed: actionsExecuted.map((a) => a.type),
+              duration: Date.now() - runStartedAtMs,
+              userFeedback: undefined,
+            },
+          }).catch((err) => {
+            logger.error("extractAndLearn failed (non-blocking)", { error: err });
+          });
+        }
+      })(),
+      
+      // Log completion event
+      ExecutionEventService.log({
+        executionId,
+        agentId,
+        userId: ownerId,
+        type: "execution_completed",
+        level: "info",
+        message: "ADK Agent execution completed successfully",
+        data: { creditsUsed, tokensUsed: actualTokensUsed },
+      }),
+    ]).catch((err) => {
+      logger.error("Post-execution tasks failed (non-blocking):", err);
+    });
+
+    // Emit completion events (non-blocking)
+    messageEmitter.emitText(executionId, "Task completed successfully! ✓", "system");
+    SocketService.getInstance().emitToAgent(agentId, "execution:completed", {
+      executionId: execution._id,
+      status: "success",
+    });
+    
+    // OPTIMIZATION 3: Log performance breakdown
+    perf.mark('execution_complete');
+    perf.logBreakdown(executionId);
+
+    return result;
   } catch (error) {
     logger.error("Execution failed", { error });
     execution.status = "failed";

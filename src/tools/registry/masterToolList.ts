@@ -39,7 +39,7 @@ import { createFigmaTools } from "../figma";
 import { createUtilsTools } from "../utils";
 import { createLinearTools } from "../linear";
 import { createWebSearchTool, createWebReadPageTool } from "../web";
-import { createPreloadMemoryTool } from "../memory";
+import { createMemoryTools } from "../memory";
 import { createNotificationSyncTool } from "../notificationSync";
 import { createArxivSearchTool } from "../research";
 import { createScheduleSelfTool } from "../scheduler";
@@ -756,9 +756,9 @@ export { createLinearTools } from "../linear";
 export { createWebSearchTool, createWebReadPageTool } from "../web";
 
 // ============================================
-// MEMORY TOOLS (1 tool)
+// MEMORY TOOLS (16 tools)
 // ============================================
-export { createPreloadMemoryTool } from "../memory";
+export { createMemoryTools } from "../memory";
 
 // ============================================
 // NOTIFICATION TOOLS (1 tool)
@@ -820,15 +820,16 @@ export {
  * - Utility: 11 tools ⬆️ NEW
  * - Linear: 45 tools ⬆️ EXPANDED (was 35)
  * - Web: 2 tools
- * - Memory: 1 tool
+ * - Memory: 16 tools ⬆️ EXPANDED (was 1) - Comprehensive learning system
  * - Notifications: 1 tool
  * - Research: 1 tool
  * - Scheduler: 2 tools
  * - Platform: multiple tools
  * - Control: 5 tools
  * 
+ * CURRENT TOTAL: ~551 tools (was ~536)
  * TARGET: 800+ tools
- * REMAINING: ~353 tools to be added
+ * REMAINING: ~249 tools to be added
  */
 
 // ============================================
@@ -911,9 +912,6 @@ export const createAllUserTools = (userId: string, agentId?: string) => {
     createWebSearchTool(),
     createWebReadPageTool(),
 
-    // Memory (1 tool)
-    createPreloadMemoryTool(userId),
-
     // Notifications (1 tool)
     createNotificationSyncTool(userId),
 
@@ -934,6 +932,9 @@ export const createAllUserTools = (userId: string, agentId?: string) => {
     tools.push(createRememberTool(userId, agentId));
     tools.push(createRecallTool(userId, agentId));
     tools.push(createScheduleSelfTool(userId, agentId));
+    
+    // Add comprehensive memory tools
+    tools.push(...createMemoryTools(userId, agentId));
   }
 
   // Log total tool count

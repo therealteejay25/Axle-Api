@@ -29,6 +29,12 @@ const startServer = async () => {
   // Connect to database
   await connectDB();
 
+  // OPTIMIZATION 1: Warm up singleton clients on server start
+  logger.info("Warming up singleton clients...");
+  const { warmupClients } = await import("./src/lib/clients");
+  await warmupClients();
+  logger.info("Clients warmed up successfully");
+
   // Initialize Express
   const app = express();
 
