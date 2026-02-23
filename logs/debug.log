@@ -26480,3 +26480,5 @@
 {"timestamp":"2026-02-23 21:04:11","level":"warn","message":"[Redis] Retrying connection in 100ms... (Attempt 1)"}
 {"timestamp":"2026-02-23 21:04:21","level":"error","message":"Worker error","error":"connect ETIMEDOUT"}
 {"timestamp":"2026-02-23 21:04:21","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
+{"timestamp":"2026-02-23 21:17:56","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-23 21:31:56","level":"debug","message":"[KeepAlive] Ping successful"}

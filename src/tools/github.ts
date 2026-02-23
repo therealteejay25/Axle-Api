@@ -1832,13 +1832,14 @@ export class GithubToolSuite extends BaseGithubTool {
         repo: z.string().min(1, "Repo name is required"),
         workflowId: z.union([z.number(), z.string()]).describe("Workflow ID or filename"),
         ref: z.string().min(1, "Branch or tag ref is required"),
-        inputs: z.record(z.string()).optional().describe("Workflow inputs"),
+        inputs: z.string().optional().describe("Workflow inputs as JSON string (e.g., '{\"key\":\"value\"}')"),
       }),
       async ({ owner, repo, workflowId, ref, inputs }) => {
         logger.info(`[GITHUB] Triggering workflow: ${workflowId}`);
+        const parsedInputs = inputs ? JSON.parse(inputs) : undefined;
         await this.executeGithubRequest(`/repos/${owner}/${repo}/actions/workflows/${workflowId}/dispatches`, {
           method: "POST",
-          body: JSON.stringify({ ref, inputs }),
+          body: JSON.stringify({ ref, inputs: parsedInputs }),
         });
         return {
           success: true,
@@ -2239,18 +2240,17 @@ export class GithubToolSuite extends BaseGithubTool {
       z.object({
         description: z.string().optional(),
         public: z.boolean().optional().default(true),
-        files: z.record(z.object({
-          content: z.string().min(1, "File content is required"),
-        })).describe("Object with filename as key and content object as value"),
+        files: z.string().describe("JSON string with filename as key and content object as value (e.g., '{\"file.txt\":{\"content\":\"Hello\"}}')"),
       }),
       async ({ description, public: isPublic, files }) => {
         logger.info(`[GITHUB] Creating gist`);
+        const parsedFiles = JSON.parse(files);
         const result = await this.executeGithubRequest("/gists", {
           method: "POST",
           body: JSON.stringify({
             description,
             public: isPublic,
-            files,
+            files: parsedFiles,
           }),
         });
         return {
@@ -2306,18 +2306,16 @@ export class GithubToolSuite extends BaseGithubTool {
       z.object({
         gistId: z.string().min(1, "Gist ID is required"),
         description: z.string().optional(),
-        files: z.record(z.object({
-          content: z.string().optional(),
-          filename: z.string().optional(),
-        })).optional(),
+        files: z.string().optional().describe("JSON string with filename as key and content/filename object as value (e.g., '{\"file.txt\":{\"content\":\"Updated\"}}')"),
       }),
       async ({ gistId, description, files }) => {
         logger.info(`[GITHUB] Updating gist: ${gistId}`);
+        const parsedFiles = files ? JSON.parse(files) : undefined;
         const result = await this.executeGithubRequest(`/gists/${gistId}`, {
           method: "PATCH",
           body: JSON.stringify({
             description,
-            files,
+            files: parsedFiles,
           }),
         });
         return {
