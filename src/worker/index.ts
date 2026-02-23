@@ -3,7 +3,7 @@ import { redis } from "../lib/redis";
 import { ExecutionJobData, ExecutionJobResult } from "../queue/executionQueue";
 import { Execution } from "../models/Execution";
 import { loadAgent } from "./agentLoader";
-import { createUserTools } from "../tools/registry";
+import { createAllUserTools } from "../tools/registry/masterToolList";
 import { buildFocusedContext } from "./contextBuilder";
 import {
   CreditManagerService,
@@ -339,7 +339,7 @@ const processJob = async (
     const agentName = loaded.agent.name.replace(/[^a-zA-Z0-9_]/g, "_");
 
     // Create user-specific tools - each tool gets the userId embedded
-    const allTools = createUserTools(ownerId, agentId);
+    const allTools = createAllUserTools(ownerId, agentId);
 
     // Always use all tools - context should not restrict tool availability
     const tools = allTools;
