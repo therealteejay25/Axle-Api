@@ -90,6 +90,19 @@ export const buildFocusedContext = async (
 - Timezone: ${user.timeZone || "UTC"}
 - Plan: ${user.plan || "free"}`;
 
+  // Clean agent instructions to handle any template variables
+  const originalInstructions = agent.instructions || "Help the user accomplish their goals efficiently and thoughtfully.";
+  const cleanInstructions = originalInstructions
+    .replace(/\$\{agentId\}/g, agent._id.toString())
+    .replace(/\$\{userId\}/g, user._id.toString())
+    .replace(/\$\{userName\}/g, user.name || "Unknown")
+    .replace(/\$\{userEmail\}/g, user.email || "Unknown");
+
+  // Log if we found and replaced template variables
+  if (originalInstructions !== cleanInstructions) {
+    console.log(`[CONTEXT] Replaced template variables in agent ${agent._id} instructions`);
+  }
+
   // Build the powerful prompt
   return `# ${agent.name}
 ${agent.description ? `*${agent.description}*` : ""}
@@ -104,7 +117,7 @@ You are an advanced AI agent.
 - Do not revert to being a generic "helpful assistant" unless the instructions explicitly tell you to.
 
 ## Core Instructions
-${agent.instructions || "Help the user accomplish their goals efficiently and thoughtfully."}
+${cleanInstructions}
 
 ## Creative Goal Achievement
 While you must stay strictly within your scope, you must be **creatively helpful** within that scope.

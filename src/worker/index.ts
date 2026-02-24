@@ -600,21 +600,44 @@ const processJob = async (
     // Agent starts working immediately, uses tools freely
     // ============================================
 
-    const adkAgent = new LlmAgent({
-      name: agentName,
-      model: "gemini-2.5-pro",
-      tools: tools,
-      instruction: systemPrompt,
-      generateContentConfig: {
-        maxOutputTokens: 18000,
-        temperature: 1.5, // Balanced creativity (max is 2.0)
-      },
-      context: {
-        agentId: agentId,
-        userId: ownerId.toString(),
-        executionId: executionId,
-      },
-    });
+    // Clean the system prompt to remove any template variables that might cause issues
+    const originalSystemPrompt = systemPrompt;
+    const cleanSystemPrompt = systemPrompt
+      .replace(/\$\{agentId\}/g, agentId)
+      .replace(/\$\{userId\}/g, ownerId.toString())
+      .replace(/\$\{executionId\}/g, executionId);
+
+    // Log if we found and replaced template variables
+    if (originalSystemPrompt !== cleanSystemPrompt) {
+      logger.info(`[WORKER] Replaced template variables in system prompt for agent ${agentId}`);
+    }
+
+    let adkAgent;
+    try {
+      adkAgent = new LlmAgent({
+        name: agentName,
+        model: "gemini-2.5-pro",
+        tools: tools,
+        instruction: cleanSystemPrompt,
+        generateContentConfig: {
+          maxOutputTokens: 18000,
+          temperature: 1.5, // Balanced creativity (max is 2.0)
+        },
+        context: {
+          agentId: agentId,
+          userId: ownerId.toString(),
+          executionId: executionId,
+        },
+      });
+    } catch (error: any) {
+      logger.error("Failed to initialize ADK agent", { 
+        error: error.message, 
+        agentId, 
+        agentName,
+        systemPromptLength: cleanSystemPrompt.length 
+      });
+      throw new Error(`Failed to initialize agent: ${error.message}`);
+    }
     
     perf.mark('agent_initialized');
 
