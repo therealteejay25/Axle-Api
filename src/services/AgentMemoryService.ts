@@ -166,7 +166,7 @@ export class AgentMemoryService {
             const { GoogleGenerativeAI } = await import("@google/generative-ai");
             const { env } = await import("../config/env");
 
-            const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+            const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY!);
             const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
             const systemPrompt = `You are a learning extraction AI. Given an agent execution, extract everything learnable about the user. Be aggressive — extract more rather than less.

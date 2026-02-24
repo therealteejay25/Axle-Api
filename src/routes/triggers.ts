@@ -1,10 +1,9 @@
 import { Router, Request, Response } from "express";
-import crypto from "crypto";
+import { z } from "zod";
 import { Trigger } from "../models/Trigger";
 import { Agent } from "../models/Agent";
-import { User, PLAN_LIMITS, PlanType } from "../models/User";
-import { registerScheduleTrigger, removeScheduleTrigger } from "../services/triggerScheduler";
 import { authMiddleware } from "../middleware/auth";
+import { registerScheduleTrigger, removeScheduleTrigger } from "../services/triggerScheduler";
 
 // ============================================
 // TRIGGERS ROUTES
@@ -12,98 +11,50 @@ import { authMiddleware } from "../middleware/auth";
 
 const router = Router();
 
+// Apply auth middleware to all routes
 router.use(authMiddleware);
 
-// List triggers for an agent
-router.get("/", async (req: Request, res: Response) => {
-  try {
-    const { agentId } = req.query;
-
-    // If agentId is provided, return triggers for that single agent.
-    // If agentId is NOT provided, return triggers across all of the user's agents
-    // (frontend dashboard view expects to list everything).
-    let agentIds: any[] = [];
-    if (agentId) {
-      // Verify agent ownership
-      const agent = await Agent.findOne({
-        _id: agentId,
-        ownerId: req.user!.id
-      });
-
-      if (!agent) {
-        return res.status(404).json({ error: "Agent not found" });
-      }
-
-      agentIds = [agent._id];
-    } else {
-      agentIds = (await Agent.find({ ownerId: req.user!.id }).select("_id").lean()).map(a => a._id);
-    }
-
-    const triggers = await Trigger.find({ agent: { $in: agentIds } })
-      .sort({ createdAt: -1 })
-      .populate("agent", "name")
-      .lean();
-
-    const normalized = triggers.map((t: any) => {
-      return {
-        ...t,
-        agentId: t.agent, // For backward compatibility
-      };
-    });
-
-    res.json({ triggers: normalized });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+// Validation schemas
+const createTriggerSchema = z.object({
+  agentId: z.string().min(1, "agentId is required"),
+  type: z.enum(["schedule", "webhook", "manual"], {
+    errorMap: () => ({ message: "type must be one of: schedule, webhook, manual" })
+  }),
+  cron: z.string().optional(),
+  timezone: z.string().default("UTC"),
+  customInstruction: z.string().min(1, "customInstruction is required")
+}).refine((data) => {
+  if (data.type === "schedule" && !data.cron) {
+    return false;
   }
+  return true;
+}, {
+  message: "cron is required when type is 'schedule'",
+  path: ["cron"]
 });
 
-// Get single trigger
-router.get("/:id", async (req: Request, res: Response) => {
-  try {
-    const trigger = await Trigger.findById(req.params.id)
-      .populate("agent", "name")
-      .lean();
-
-    if (!trigger) {
-      return res.status(404).json({ error: "Trigger not found" });
-    }
-
-    // Verify ownership
-    const agent = await Agent.findOne({
-      _id: trigger.agent,
-      ownerId: req.user!.id
-    });
-
-    if (!agent) {
-      return res.status(404).json({ error: "Trigger not found" });
-    }
-
-    res.json({
-      trigger: {
-        ...trigger,
-        agentId: trigger.agent, // For backward compatibility
-      }
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
+const updateTriggerSchema = z.object({
+  cron: z.string().optional(),
+  timezone: z.string().optional(),
+  customInstruction: z.string().optional(),
+  enabled: z.boolean().optional()
 });
 
-// Create trigger
+// POST /api/v1/triggers
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const { agentId, type, config, cronExpression, enabled = true, name } = req.body;
-
-    // Validate
-    if (!agentId || !type) {
-      return res.status(400).json({ error: "agentId and type are required" });
+    // Validate request body
+    const validationResult = createTriggerSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: validationResult.error.errors
+      });
     }
 
-    if (!["schedule", "webhook", "manual"].includes(type)) {
-      return res.status(400).json({ error: "Invalid trigger type" });
-    }
+    const { agentId, type, cron, timezone, customInstruction } = validationResult.data;
 
-    // Verify agent ownership
+    // Verify the agent exists and belongs to the user
     const agent = await Agent.findOne({
       _id: agentId,
       ownerId: req.user!.id
@@ -113,275 +64,166 @@ router.post("/", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Agent not found" });
     }
 
-    // Get user and plan limits
-    const user = await User.findById(req.user!.id);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const planLimits = PLAN_LIMITS[user.plan as PlanType];
-
-    // Check plan limits based on trigger type
-    if (type === "schedule") {
-      // Count existing schedule triggers for this agent
-      const existingSchedules = await Trigger.countDocuments({
-        agent: agentId,
-        type: "schedule",
-      });
-
-      const limit = planLimits.schedulesPerAgent;
-      
-      if (limit !== Number.POSITIVE_INFINITY && existingSchedules >= limit) {
-        return res.status(403).json({
-          error: `Schedule trigger limit reached. Your ${user.plan} plan allows ${limit} schedule trigger${limit === 1 ? '' : 's'} per agent.`,
-          limit,
-          current: existingSchedules,
-          upgradeRequired: true,
-        });
-      }
-    }
-
-    if (type === "webhook") {
-      // Count existing webhook triggers for this agent
-      const existingWebhooks = await Trigger.countDocuments({
-        agent: agentId,
-        type: "webhook",
-      });
-
-      // Determine webhook limit based on plan
-      let webhookLimit = 0;
-      if (user.plan === "free") {
-        webhookLimit = 0;
-      } else if (user.plan === "pro") {
-        webhookLimit = 5;
-      } else if (user.plan === "premium") {
-        webhookLimit = 20;
-      } else if (user.plan === "custom") {
-        webhookLimit = Number.POSITIVE_INFINITY;
-      }
-
-      if (webhookLimit === 0) {
-        return res.status(403).json({
-          error: `Webhook triggers are not available on the ${user.plan} plan. Please upgrade to use webhooks.`,
-          limit: 0,
-          current: existingWebhooks,
-          upgradeRequired: true,
-        });
-      }
-
-      if (webhookLimit !== Number.POSITIVE_INFINITY && existingWebhooks >= webhookLimit) {
-        return res.status(403).json({
-          error: `Webhook trigger limit reached. Your ${user.plan} plan allows ${webhookLimit} webhook trigger${webhookLimit === 1 ? '' : 's'} per agent.`,
-          limit: webhookLimit,
-          current: existingWebhooks,
-          upgradeRequired: true,
-        });
-      }
-    }
-
-    // Get user timezone for schedule triggers
-    const timezone = user?.timeZone || "UTC";
-
-    // Build trigger data
-    const triggerData: any = {
-      user: req.user!.id,
-      agent: agentId,
+    // Create the trigger
+    const triggerData = {
+      agentId,
+      userId: req.user!.id,
       type,
-      name: name || `${type} trigger`,
-      active: enabled,
+      cron: type === "schedule" ? cron : undefined,
+      timezone: timezone || "UTC",
+      customInstruction,
+      enabled: true
     };
-
-    // Handle schedule-specific fields
-    if (type === "schedule") {
-      const cron = cronExpression || config?.cron;
-      if (!cron) {
-        return res.status(400).json({ error: "cron expression required for schedule trigger" });
-      }
-      triggerData.cronExpression = cron;
-    }
-
-    // Handle webhook-specific fields
-    if (type === "webhook") {
-      triggerData.webhookToken = crypto.randomUUID();
-      if (config?.webhookSecret) {
-        triggerData.webhookSecret = config.webhookSecret;
-      }
-    }
 
     const trigger = await Trigger.create(triggerData);
 
-    // Register schedule trigger if enabled
-    if (type === "schedule" && enabled) {
-      await registerScheduleTrigger(trigger._id.toString());
-    }
-
-    // Return response with backward compatibility
-    const response: any = {
-      trigger: {
-        ...(trigger.toObject ? trigger.toObject() : trigger),
-        agentId: trigger.agent,
-        enabled: trigger.active,
+    // If type is schedule, register with scheduler
+    if (type === "schedule") {
+      try {
+        await registerScheduleTrigger(trigger._id.toString());
+      } catch (error) {
+        console.error("Failed to schedule job:", error);
+        // Continue execution - don't fail the trigger creation
       }
-    };
-    
-    if (type === "webhook") {
-      response.webhookUrl = `/webhooks/${trigger.webhookToken}`;
-      response.trigger.webhookUrl = response.webhookUrl;
     }
 
-    res.status(201).json(response);
+    res.status(201).json({ trigger });
   } catch (err: any) {
+    console.error("Error creating trigger:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Update trigger
+// GET /api/v1/triggers?agentId=<agentId>
+router.get("/", async (req: Request, res: Response) => {
+  try {
+    const { agentId } = req.query;
+
+    if (!agentId) {
+      return res.status(400).json({ error: "agentId query parameter is required" });
+    }
+
+    // Verify the agent exists and belongs to the user
+    const agent = await Agent.findOne({
+      _id: agentId,
+      ownerId: req.user!.id
+    });
+
+    if (!agent) {
+      return res.status(404).json({ error: "Agent not found" });
+    }
+
+    // Find all triggers for this agent and user
+    const triggers = await Trigger.find({
+      agentId,
+      userId: req.user!.id
+    }).sort({ createdAt: -1 });
+
+    res.json({ triggers });
+  } catch (err: any) {
+    console.error("Error fetching triggers:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH /api/v1/triggers/:id
 router.patch("/:id", async (req: Request, res: Response) => {
   try {
-    const { config, enabled, cronExpression, active, name } = req.body;
+    // Validate request body
+    const validationResult = updateTriggerSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: validationResult.error.errors
+      });
+    }
 
+    const updates = validationResult.data;
+
+    // Find trigger and verify ownership
     const trigger = await Trigger.findById(req.params.id);
-    
     if (!trigger) {
       return res.status(404).json({ error: "Trigger not found" });
     }
-    
-    // Verify ownership
-    const agent = await Agent.findOne({
-      _id: trigger.agent,
-      ownerId: req.user!.id
-    });
-    
-    if (!agent) {
-      return res.status(404).json({ error: "Trigger not found" });
-    }
-    
-    const wasActive = trigger.active;
-    
-    // Update fields
-    if (name !== undefined) {
-      trigger.name = name;
-    }
-    if (cronExpression !== undefined) {
-      trigger.cronExpression = cronExpression;
-    }
-    if (config?.cron !== undefined) {
-      trigger.cronExpression = config.cron;
-    }
-    if (enabled !== undefined) {
-      trigger.active = enabled;
-    }
-    if (active !== undefined) {
-      trigger.active = active;
-    }
-    
-    await trigger.save();
-    
-    // Handle schedule trigger changes
-    if (trigger.type === "schedule") {
-      if (wasActive && !trigger.active) {
-        await removeScheduleTrigger(trigger._id.toString());
-      } else if (!wasActive && trigger.active) {
-        await registerScheduleTrigger(trigger._id.toString());
-      } else if (trigger.active && cronExpression !== undefined) {
-        // Cron changed, re-register
-        await removeScheduleTrigger(trigger._id.toString());
-        await registerScheduleTrigger(trigger._id.toString());
-      }
+
+    if (trigger.userId.toString() !== req.user!.id) {
+      return res.status(403).json({ error: "Access denied" });
     }
 
-    const updated = await Trigger.findById(trigger._id)
-      .populate("agent", "name")
-      .lean();
+    // Store original values for scheduler updates
+    const originalCron = trigger.cron;
+    const originalEnabled = trigger.enabled;
 
-    res.json({
-      trigger: {
-        ...(updated as any),
-        agentId: (updated as any).agent,
-        enabled: (updated as any).active,
-      }
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Toggle trigger active status
-router.patch("/:id/toggle", async (req: Request, res: Response) => {
-  try {
-    const trigger = await Trigger.findById(req.params.id);
-    
-    if (!trigger) {
-      return res.status(404).json({ error: "Trigger not found" });
-    }
-    
-    // Verify ownership
-    const agent = await Agent.findOne({
-      _id: trigger.agent,
-      ownerId: req.user!.id
-    });
-    
-    if (!agent) {
-      return res.status(404).json({ error: "Trigger not found" });
-    }
-    
-    // Toggle active status
-    trigger.active = !trigger.active;
-    await trigger.save();
-    
-    // Handle schedule trigger registration
-    if (trigger.type === "schedule") {
-      if (trigger.active) {
-        await registerScheduleTrigger(trigger._id.toString());
+    // Update trigger fields
+    if (updates.cron !== undefined) {
+      if (trigger.type === "schedule") {
+        trigger.cron = updates.cron;
       } else {
-        await removeScheduleTrigger(trigger._id.toString());
+        return res.status(400).json({ error: "Cannot set cron for non-schedule trigger" });
+      }
+    }
+    if (updates.timezone !== undefined) trigger.timezone = updates.timezone;
+    if (updates.customInstruction !== undefined) trigger.customInstruction = updates.customInstruction;
+    if (updates.enabled !== undefined) trigger.enabled = updates.enabled;
+
+    await trigger.save();
+
+    // Handle scheduler updates for schedule triggers
+    if (trigger.type === "schedule") {
+      const cronChanged = updates.cron !== undefined && updates.cron !== originalCron;
+      const enabledChanged = updates.enabled !== undefined && updates.enabled !== originalEnabled;
+
+      if (cronChanged || enabledChanged) {
+        try {
+          if (originalEnabled) {
+            await removeScheduleTrigger(trigger._id.toString());
+          }
+          if (trigger.enabled) {
+            await registerScheduleTrigger(trigger._id.toString());
+          }
+        } catch (error) {
+          console.error("Failed to update scheduled job:", error);
+          // Continue execution - don't fail the update
+        }
       }
     }
 
-    const updated = await Trigger.findById(trigger._id)
-      .populate("agent", "name")
-      .lean();
-
-    res.json({
-      trigger: {
-        ...(updated as any),
-        agentId: (updated as any).agent,
-        enabled: (updated as any).active,
-      }
-    });
+    res.json({ trigger });
   } catch (err: any) {
+    console.error("Error updating trigger:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Delete trigger
+// DELETE /api/v1/triggers/:id
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
+    // Find trigger and verify ownership
     const trigger = await Trigger.findById(req.params.id);
-    
     if (!trigger) {
       return res.status(404).json({ error: "Trigger not found" });
     }
-    
-    // Verify ownership
-    const agent = await Agent.findOne({
-      _id: trigger.agent,
-      ownerId: req.user!.id
-    });
-    
-    if (!agent) {
-      return res.status(404).json({ error: "Trigger not found" });
+
+    if (trigger.userId.toString() !== req.user!.id) {
+      return res.status(403).json({ error: "Access denied" });
     }
-    
-    // Remove from scheduler if schedule trigger
+
+    // Cancel scheduled job if it's a schedule trigger
     if (trigger.type === "schedule") {
-      await removeScheduleTrigger(trigger._id.toString());
+      try {
+        await removeScheduleTrigger(trigger._id.toString());
+      } catch (error) {
+        console.error("Failed to cancel scheduled job:", error);
+        // Continue with deletion even if scheduler cleanup fails
+      }
     }
-    
+
+    // Delete the trigger
     await trigger.deleteOne();
-    
-    res.json({ deleted: true, id: req.params.id });
+
+    res.json({ success: true });
   } catch (err: any) {
+    console.error("Error deleting trigger:", err);
     res.status(500).json({ error: err.message });
   }
 });

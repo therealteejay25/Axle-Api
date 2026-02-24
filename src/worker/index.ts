@@ -2,6 +2,7 @@ import { Worker, Job } from "bullmq";
 import { redis } from "../lib/redis";
 import { ExecutionJobData, ExecutionJobResult } from "../queue/executionQueue";
 import { Execution } from "../models/Execution";
+import { Types } from "mongoose";
 import { loadAgentOptimized } from "./agentLoaderOptimized"; // OPTIMIZATION 2: Use optimized loader
 import { createAllUserTools } from "../tools/registry/masterToolList";
 import { buildFocusedContext } from "./contextBuilder";
@@ -80,7 +81,7 @@ export const startWorker = (): Worker<ExecutionJobData, ExecutionJobResult> => {
 const processJob = async (
   job: Job<ExecutionJobData, ExecutionJobResult>,
 ): Promise<ExecutionJobResult> => {
-  const { executionId, agentId, ownerId, triggerType, payload } = job.data;
+  const { executionId, agentId, ownerId, triggerType, payload, triggerId } = job.data;
 
   // OPTIMIZATION 3: Performance instrumentation
   const perf = createPerformanceTimer();
@@ -88,6 +89,57 @@ const processJob = async (
   const runStartedAtMs = Date.now();
 
   const effectivePayload: Record<string, any> = { ...(payload || {}) };
+
+  // Handle trigger-based execution
+  let trigger = null;
+  if (triggerId) {
+    try {
+      const { Trigger } = await import("../models/Trigger");
+      trigger = await Trigger.findById(triggerId);
+      
+      if (!trigger) {
+        logger.warn(`Trigger not found: ${triggerId}`, { executionId, agentId });
+        return {
+          success: false,
+          actionsExecuted: 0,
+          creditsUsed: 0,
+          error: "Trigger not found"
+        };
+      }
+
+      if (!trigger.enabled) {
+        logger.info(`Trigger disabled, skipping execution: ${triggerId}`, { executionId, agentId });
+        return {
+          success: false,
+          actionsExecuted: 0,
+          creditsUsed: 0,
+          error: "Trigger is disabled"
+        };
+      }
+
+      // Update trigger's lastRunAt
+      trigger.lastRunAt = new Date();
+      await trigger.save();
+
+      // Use trigger's customInstruction as the user input
+      effectivePayload.input = trigger.customInstruction;
+      
+      logger.info(`Processing trigger-based execution`, {
+        executionId,
+        agentId,
+        triggerId,
+        customInstruction: trigger.customInstruction
+      });
+    } catch (error: any) {
+      logger.error(`Error loading trigger ${triggerId}:`, error);
+      return {
+        success: false,
+        actionsExecuted: 0,
+        creditsUsed: 0,
+        error: `Failed to load trigger: ${error.message}`
+      };
+    }
+  }
 
   const extractConversationText = (msgs: any, maxChars: number): string => {
     if (!Array.isArray(msgs) || msgs.length === 0) return "";
@@ -224,6 +276,11 @@ const processJob = async (
   const execution = await Execution.findById(executionId);
   if (!execution) {
     throw new Error(`Execution not found: ${executionId}`);
+  }
+
+  // Set triggerId if this is a trigger-based execution
+  if (triggerId && !execution.triggerId) {
+    execution.triggerId = new Types.ObjectId(triggerId);
   }
 
   execution.status = "running";
@@ -424,8 +481,8 @@ const processJob = async (
         // Emit tool call status
         messageEmitter.emitToolCall(executionId, toolName, toolInput);
 
-        // Gate sensitive tools
-        if ((REQUIRES_APPROVAL as readonly string[]).includes(toolName)) {
+        // Gate sensitive tools (skip approval for trigger-based executions)
+        if ((REQUIRES_APPROVAL as readonly string[]).includes(toolName) && !triggerId) {
           const shouldExecute = await messageEmitter.emitApprovalRequest(
             executionId,
             ownerId.toString(),
@@ -550,7 +607,12 @@ const processJob = async (
       instruction: systemPrompt,
       generateContentConfig: {
         maxOutputTokens: 18000,
-        temperature: 2.0, // Balanced creativity (max is 2.0)
+        temperature: 1.5, // Balanced creativity (max is 2.0)
+      },
+      context: {
+        agentId: agentId,
+        userId: ownerId.toString(),
+        executionId: executionId,
       },
     });
     
@@ -561,7 +623,7 @@ const processJob = async (
     const runner = new Runner({
       agent: adkAgent,
       sessionService,
-      appName: "axle-agent",
+      appName: "axle",
     });
 
     // 5. Execute withy reasoning loop using runAsync
@@ -1364,6 +1426,49 @@ const processJob = async (
               tokensUsed: actualTokensUsed,
             },
           });
+        }
+      })(),
+
+      // Save trigger-based execution to memory thread
+      (async () => {
+        if (triggerId && trigger) {
+          try {
+            // Save user message (trigger instruction) to memory
+            await AgentMemoryService.appendMessage({
+              agentId,
+              role: "user",
+              content: trigger.customInstruction,
+              metadata: {
+                source: "scheduled",
+                triggerId,
+                executionId,
+              },
+            });
+
+            // Save assistant response to memory
+            const assistantMessage = responseText || finalResponse;
+            if (assistantMessage && typeof assistantMessage === "string") {
+              await AgentMemoryService.appendMessage({
+                agentId,
+                role: "assistant",
+                content: assistantMessage,
+                metadata: {
+                  source: "scheduled",
+                  triggerId,
+                  executionId,
+                  tokensUsed: actualTokensUsed,
+                },
+              });
+            }
+
+            logger.info("Saved trigger execution to agent memory", {
+              agentId,
+              triggerId,
+              executionId,
+            });
+          } catch (error: any) {
+            logger.error("Failed to save trigger execution to memory:", error);
+          }
         }
       })(),
       

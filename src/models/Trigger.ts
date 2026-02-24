@@ -12,30 +12,31 @@ export type TriggerType = "schedule" | "webhook" | "manual";
 
 export interface ITrigger extends Document {
   _id: Types.ObjectId;
-  user: Types.ObjectId;
-  agent: Types.ObjectId;
+  agentId: Types.ObjectId;
+  userId: Types.ObjectId;
   type: TriggerType;
-  name: string;
-  active: boolean;
-  cronExpression?: string;
-  webhookToken?: string;
-  webhookSecret?: string;
-  lastFiredAt?: Date;
+  cron?: string;
+  timezone: string;
+  customInstruction: string;
+  enabled: boolean;
+  bullmqJobKey?: string;
+  lastRunAt?: Date;
+  nextRunAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const TriggerSchema = new Schema<ITrigger>(
   {
-    user: {
+    agentId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Agent",
       required: true,
       index: true
     },
-    agent: {
+    userId: {
       type: Schema.Types.ObjectId,
-      ref: "Agent",
+      ref: "User",
       required: true,
       index: true
     },
@@ -44,29 +45,33 @@ const TriggerSchema = new Schema<ITrigger>(
       enum: ["schedule", "webhook", "manual"],
       required: true
     },
-    name: {
+    cron: {
+      type: String,
+      required: function(this: ITrigger) {
+        return this.type === "schedule";
+      }
+    },
+    timezone: {
+      type: String,
+      default: "UTC"
+    },
+    customInstruction: {
       type: String,
       required: true
     },
-    active: {
+    enabled: {
       type: Boolean,
-      default: true,
-      index: true
+      default: true
     },
-    cronExpression: {
+    bullmqJobKey: {
       type: String,
       required: false
     },
-    webhookToken: {
-      type: String,
-      unique: true,
-      sparse: true
-    },
-    webhookSecret: {
-      type: String,
+    lastRunAt: {
+      type: Date,
       required: false
     },
-    lastFiredAt: {
+    nextRunAt: {
       type: Date,
       required: false
     }
@@ -74,9 +79,10 @@ const TriggerSchema = new Schema<ITrigger>(
   { timestamps: true }
 );
 
-// Compound index for finding active triggers
-TriggerSchema.index({ user: 1, agent: 1 });
-TriggerSchema.index({ type: 1, active: 1 });
-TriggerSchema.index({ webhookToken: 1 }, { unique: true, sparse: true });
+// Indexes for efficient queries
+TriggerSchema.index({ agentId: 1 });
+TriggerSchema.index({ userId: 1 });
+TriggerSchema.index({ agentId: 1, userId: 1 });
+TriggerSchema.index({ type: 1, enabled: 1 });
 
 export const Trigger = model<ITrigger>("Trigger", TriggerSchema);

@@ -5,6 +5,8 @@ import { Agent } from "../models/Agent";
 import { Execution } from "../models/Execution";
 import { enqueueExecution } from "../queue/executionQueue";
 import { logger } from "../services/logger";
+import cronParser from "cron-parser";
+import { User } from "../models/User";
 
 // ============================================
 // SCHEDULE HANDLER
@@ -34,32 +36,32 @@ export const initScheduler = async (): Promise<void> => {
   // Find all enabled schedule triggers
   const triggers = await Trigger.find({
     type: "schedule",
-    active: true
-  }).populate("agent");
+    enabled: true
+  }).populate("agentId");
 
   logger.info(`Found ${triggers.length} enabled schedule triggers`);
 
   let scheduledCount = 0;
 
   for (const trigger of triggers) {
-    if (!trigger.cronExpression) {
+    if (!trigger.cron) {
       logger.warn(`Schedule trigger ${trigger._id} has no cron expression`);
       continue;
     }
 
-    const agent = await Agent.findById(trigger.agent);
+    const agent = await Agent.findById(trigger.agentId);
     if (!agent || agent.status !== "active") {
-      logger.debug(`Skipping trigger for inactive agent ${trigger.agent}`);
+      logger.debug(`Skipping trigger for inactive agent ${trigger.agentId}`);
       continue;
     }
 
     try {
       // Validate cron expression before scheduling
-      const cronParser = require('cron-parser');
-      const user = await require("../models/User").User.findById(trigger.user);
-      const timezone = user?.timeZone || "UTC";
+      const cronParserModule = require('cron-parser');
+      const user = await User.findById(trigger.userId);
+      const timezone = trigger.timezone || user?.timeZone || "UTC";
       
-      const interval = cronParser.parseExpression(trigger.cronExpression, {
+      const interval = cronParserModule.default.parse(trigger.cron, {
         tz: timezone
       });
       const nextRun = interval.next().toDate();
@@ -73,7 +75,7 @@ export const initScheduler = async (): Promise<void> => {
         },
         {
           repeat: { 
-            cron: trigger.cronExpression,
+            cron: trigger.cron,
             tz: timezone
           },
           jobId: `schedule-${trigger._id}`
@@ -82,7 +84,7 @@ export const initScheduler = async (): Promise<void> => {
 
       scheduledCount++;
       logger.info(`Scheduled trigger ${trigger._id}`, {
-        cron: trigger.cronExpression,
+        cron: trigger.cron,
         timezone,
         nextRun: nextRun.toISOString(),
         agentId: agent._id
@@ -100,21 +102,21 @@ export const initScheduler = async (): Promise<void> => {
  */
 export const addScheduleTrigger = async (triggerId: string): Promise<void> => {
   const trigger = await Trigger.findById(triggerId);
-  if (!trigger || trigger.type !== "schedule" || !trigger.active) {
+  if (!trigger || trigger.type !== "schedule" || !trigger.enabled) {
     return;
   }
 
-  const agent = await Agent.findById(trigger.agent);
+  const agent = await Agent.findById(trigger.agentId);
   if (!agent) {
-    throw new Error(`Agent not found: ${trigger.agent}`);
+    throw new Error(`Agent not found: ${trigger.agentId}`);
   }
 
-  if (!trigger.cronExpression) {
+  if (!trigger.cron) {
     throw new Error("Schedule trigger requires cron expression");
   }
 
-  const user = await require("../models/User").User.findById(trigger.user);
-  const timezone = user?.timeZone || "UTC";
+  const user = await User.findById(trigger.userId);
+  const timezone = trigger.timezone || user?.timeZone || "UTC";
 
   await schedulerQueue.add(
     `trigger-${trigger._id}`,
@@ -125,7 +127,7 @@ export const addScheduleTrigger = async (triggerId: string): Promise<void> => {
     },
     {
       repeat: { 
-        cron: trigger.cronExpression,
+        cron: trigger.cron,
         tz: timezone
       },
       jobId: `schedule-${trigger._id}`
@@ -156,16 +158,17 @@ export const processScheduledTrigger = async (
   agentId: string,
   ownerId: string
 ): Promise<void> => {
+  const trigger = await Trigger.findById(triggerId);
+  if (!trigger || !trigger.enabled) {
+    logger.debug(`Skipping disabled trigger ${triggerId}`);
+    return;
+  }
+
   const agent = await Agent.findById(agentId).lean();
   if (!agent || (agent as any).status !== "active") {
     logger.debug(`Skipping scheduled trigger for inactive agent ${agentId}`);
     return;
   }
-
-  const agentInstructions =
-    (agent as any)?.instructions ||
-    (agent as any)?.brain?.systemPrompt ||
-    "Execute the scheduled task";
 
   const scheduledAt = new Date().toISOString();
 
@@ -176,18 +179,17 @@ export const processScheduledTrigger = async (
     triggerType: "schedule",
     status: "pending",
     inputPayload: {
-      input: agentInstructions,
-      task: agentInstructions,
+      input: trigger.customInstruction,
+      task: trigger.customInstruction,
       triggeredAt: scheduledAt,
       triggeredBy: ownerId,
       type: "scheduled"
     }
   });
 
-  // Update trigger last triggered time
-  await Trigger.findByIdAndUpdate(triggerId, {
-    lastFiredAt: new Date()
-  });
+  // Update trigger last run time
+  trigger.lastRunAt = new Date();
+  await trigger.save();
 
   // Enqueue execution job
   await enqueueExecution({
@@ -197,8 +199,8 @@ export const processScheduledTrigger = async (
     triggerId,
     triggerType: "schedule",
     payload: {
-      input: agentInstructions,
-      task: agentInstructions,
+      input: trigger.customInstruction,
+      task: trigger.customInstruction,
       triggeredAt: scheduledAt,
       triggeredBy: ownerId,
       timestamp: scheduledAt

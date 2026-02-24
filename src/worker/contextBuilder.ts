@@ -44,6 +44,9 @@ export const buildFocusedContext = async (
     ? `\n## Your Memories\n${memories.map(m => `- [${m.category}] ${m.content}`).join("\n")}`
     : "";
 
+  // GitHub context if available
+  const githubRepo = payload?.githubRepo;
+
   // RAG retrieval section - if thread has attached files or agent has ingested docs
   let ragSection = "";
   try {
@@ -72,8 +75,6 @@ export const buildFocusedContext = async (
     console.error("RAG retrieval failed:", error);
   }
 
-  // GitHub context if available
-  const githubRepo = payload?.githubRepo;
   const githubSection = githubRepo?.owner && githubRepo?.repo
     ? `\n## Active Repository\n${githubRepo.owner}/${githubRepo.repo}${githubRepo.ref ? ` (${githubRepo.ref})` : ""}`
     : "";

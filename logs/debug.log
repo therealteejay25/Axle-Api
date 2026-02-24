@@ -26482,3 +26482,102 @@
 {"timestamp":"2026-02-23 21:04:21","level":"warn","message":"[Redis] Retrying connection in 200ms... (Attempt 2)"}
 {"timestamp":"2026-02-23 21:17:56","level":"debug","message":"[KeepAlive] Ping successful"}
 {"timestamp":"2026-02-23 21:31:56","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-02-24 22:51:28","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-24 22:51:30","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-24 22:52:03","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-24 22:52:04","level":"info","message":"Clearing 0 existing repeatable jobs"}
+{"timestamp":"2026-02-24 22:52:08","level":"info","message":"Found 22 enabled schedule triggers"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 6956ffde2d3ad10a603a6694 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 696638dbcc1c79ce30f40c66 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 69663bc6cc1c79ce30f40de0 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 6966482acc1c79ce30f41012 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 6969269d2e6a51b8eb1b8ebc has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 6969371d5c123aa314430157 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 6969377b5c123aa3144301d7 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 696939bc5c123aa314430288 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 69693a105c123aa31443033e has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 69693b915c123aa3144304df has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 69693d745c123aa31443076b has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 69693fd55c123aa31443091b has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 69695e0b73b9e979a431779a has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 696963bc18dc4761d2e9e3bf has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 6969ea0223a1970bf307a244 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 696a06330e253de7c71d98ac has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 696bfbd94253a1969f910205 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 6977c100ffa5e9cf02a29194 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 698b49677d89cacb939b0855 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 699b9bc8cc93729dfb16022f has no cron expression"}
+{"timestamp":"2026-02-24 22:52:08","level":"warn","message":"Schedule trigger 699ca7e465e29764b9ee3d39 has no cron expression"}
+{"timestamp":"2026-02-24 22:52:09","level":"error","message":"Failed to schedule trigger 699e1d82f6f6c8ad3467ee3a: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:62:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async testScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\test_scheduler.ts:91:5)"}
+{"timestamp":"2026-02-24 22:52:09","level":"info","message":"Scheduler initialized: 0 triggers scheduled"}
+{"timestamp":"2026-02-24 22:52:09","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-24 22:52:09","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-24 22:52:09","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-24 22:52:12","level":"info","message":"Execution job enqueued","jobId":"1270","executionId":"699e1d8af6f6c8ad3467ee4e","agentId":"699e1d81f6f6c8ad3467ee2d","triggerType":"schedule"}
+{"timestamp":"2026-02-24 22:52:12","level":"info","message":"Scheduled trigger fired","triggerId":"699e1d82f6f6c8ad3467ee3a","agentId":"699e1d81f6f6c8ad3467ee2d","executionId":"699e1d8af6f6c8ad3467ee4e"}
+{"timestamp":"2026-02-24 22:54:00","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-24 22:54:00","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-24 22:54:18","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-24 22:54:18","level":"info","message":"Clearing 0 existing repeatable jobs"}
+{"timestamp":"2026-02-24 22:54:21","level":"info","message":"Found 22 enabled schedule triggers"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 6956ffde2d3ad10a603a6694 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 696638dbcc1c79ce30f40c66 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 69663bc6cc1c79ce30f40de0 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 6966482acc1c79ce30f41012 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 6969269d2e6a51b8eb1b8ebc has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 6969371d5c123aa314430157 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 6969377b5c123aa3144301d7 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 696939bc5c123aa314430288 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 69693a105c123aa31443033e has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 69693b915c123aa3144304df has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 69693d745c123aa31443076b has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 69693fd55c123aa31443091b has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 69695e0b73b9e979a431779a has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 696963bc18dc4761d2e9e3bf has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 6969ea0223a1970bf307a244 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 696a06330e253de7c71d98ac has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 696bfbd94253a1969f910205 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 6977c100ffa5e9cf02a29194 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 698b49677d89cacb939b0855 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 699b9bc8cc93729dfb16022f has no cron expression"}
+{"timestamp":"2026-02-24 22:54:21","level":"warn","message":"Schedule trigger 699ca7e465e29764b9ee3d39 has no cron expression"}
+{"timestamp":"2026-02-24 22:54:22","level":"error","message":"Failed to schedule trigger 699e1e09d41711ffd6c1dd03: cronParser.parseExpression is not a function","stack":"TypeError: cronParser.parseExpression is not a function\n    at initScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\src\\triggers\\scheduleHandler.ts:63:35)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async testScheduler (C:\\Users\\Ariyo Eyitayo\\Desktop\\Axle-Api\\test_scheduler.ts:91:5)"}
+{"timestamp":"2026-02-24 22:54:22","level":"info","message":"Scheduler initialized: 0 triggers scheduled"}
+{"timestamp":"2026-02-24 22:54:22","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-24 22:54:22","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-24 22:54:22","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-24 22:54:25","level":"info","message":"Execution job enqueued","jobId":"1271","executionId":"699e1e0fd41711ffd6c1dd0b","agentId":"699e1d81f6f6c8ad3467ee2d","triggerType":"schedule"}
+{"timestamp":"2026-02-24 22:54:25","level":"info","message":"Scheduled trigger fired","triggerId":"699e1e09d41711ffd6c1dd03","agentId":"699e1d81f6f6c8ad3467ee2d","executionId":"699e1e0fd41711ffd6c1dd0b"}
+{"timestamp":"2026-02-24 23:06:29","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-02-24 23:06:29","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-02-24 23:06:35","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-02-24 23:06:36","level":"info","message":"Clearing 0 existing repeatable jobs"}
+{"timestamp":"2026-02-24 23:06:37","level":"info","message":"Found 22 enabled schedule triggers"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 6956ffde2d3ad10a603a6694 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 696638dbcc1c79ce30f40c66 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 69663bc6cc1c79ce30f40de0 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 6966482acc1c79ce30f41012 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 6969269d2e6a51b8eb1b8ebc has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 6969371d5c123aa314430157 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 6969377b5c123aa3144301d7 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 696939bc5c123aa314430288 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 69693a105c123aa31443033e has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 69693b915c123aa3144304df has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 69693d745c123aa31443076b has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 69693fd55c123aa31443091b has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 69695e0b73b9e979a431779a has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 696963bc18dc4761d2e9e3bf has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 6969ea0223a1970bf307a244 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 696a06330e253de7c71d98ac has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 696bfbd94253a1969f910205 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 6977c100ffa5e9cf02a29194 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 698b49677d89cacb939b0855 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 699b9bc8cc93729dfb16022f has no cron expression"}
+{"timestamp":"2026-02-24 23:06:37","level":"warn","message":"Schedule trigger 699ca7e465e29764b9ee3d39 has no cron expression"}
+{"timestamp":"2026-02-24 23:06:38","level":"info","message":"Scheduled trigger 699e20eb1fadcc148714b9ce","cron":"*/2 * * * *","timezone":"UTC","nextRun":"2026-02-24T22:08:00.000Z","agentId":"699e1d81f6f6c8ad3467ee2d"}
+{"timestamp":"2026-02-24 23:06:38","level":"info","message":"Scheduler initialized: 1 triggers scheduled"}
+{"timestamp":"2026-02-24 23:06:38","level":"info","message":"Worker started"}
+{"timestamp":"2026-02-24 23:06:39","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-02-24 23:06:39","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-02-24 23:06:40","level":"info","message":"Execution job enqueued","jobId":"1272","executionId":"699e20ef1fadcc148714b9ed","agentId":"699e1d81f6f6c8ad3467ee2d","triggerType":"schedule"}
+{"timestamp":"2026-02-24 23:06:40","level":"info","message":"Scheduled trigger fired","triggerId":"699e20eb1fadcc148714b9ce","agentId":"699e1d81f6f6c8ad3467ee2d","executionId":"699e20ef1fadcc148714b9ed"}

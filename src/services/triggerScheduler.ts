@@ -27,18 +27,18 @@ export const registerScheduleTrigger = async (triggerId: string): Promise<void> 
       throw new Error(`Trigger ${triggerId} is not a schedule trigger`);
     }
 
-    if (!trigger.active) {
-      logger.debug(`Skipping inactive trigger ${triggerId}`);
+    if (!trigger.enabled) {
+      logger.debug(`Skipping disabled trigger ${triggerId}`);
       return;
     }
 
-    if (!trigger.cronExpression) {
+    if (!trigger.cron) {
       throw new Error(`Trigger ${triggerId} has no cron expression`);
     }
 
     // Get user timezone
-    const user = await User.findById(trigger.user);
-    const timezone = user?.timeZone || "UTC";
+    const user = await User.findById(trigger.userId);
+    const timezone = trigger.timezone || user?.timeZone || "UTC";
 
     // Remove existing repeatable job if it exists
     const repeatableJobs = await scheduleQueue.getRepeatableJobs();
@@ -50,26 +50,32 @@ export const registerScheduleTrigger = async (triggerId: string): Promise<void> 
     }
 
     // Add new repeatable job
-    await scheduleQueue.add(
+    const job = await scheduleQueue.add(
       `trigger:${triggerId}`,
       {
         triggerId: trigger._id.toString(),
-        agentId: trigger.agent.toString(),
-        userId: trigger.user.toString(),
+        agentId: trigger.agentId.toString(),
+        userId: trigger.userId.toString(),
       },
       {
         repeat: {
-          pattern: trigger.cronExpression,
+          pattern: trigger.cron,
           tz: timezone,
         },
         jobId: `schedule-${triggerId}`,
       }
     );
 
+    // Store the BullMQ job key for later cancellation
+    if (job.opts?.repeat) {
+      trigger.bullmqJobKey = `repeat:${QUEUE_NAME}:${job.id}:${trigger.cron}:${timezone}`;
+    }
+    await trigger.save();
+
     logger.info(`Registered schedule trigger ${triggerId}`, {
-      cron: trigger.cronExpression,
+      cron: trigger.cron,
       timezone,
-      agentId: trigger.agent.toString(),
+      agentId: trigger.agentId.toString(),
     });
   } catch (error: any) {
     logger.error(`Failed to register schedule trigger ${triggerId}:`, error);
@@ -83,14 +89,23 @@ export const registerScheduleTrigger = async (triggerId: string): Promise<void> 
  */
 export const removeScheduleTrigger = async (triggerId: string): Promise<void> => {
   try {
-    const repeatableJobs = await scheduleQueue.getRepeatableJobs();
-    const job = repeatableJobs.find(j => j.id === `schedule-${triggerId}`);
-
-    if (job) {
-      await scheduleQueue.removeRepeatableByKey(job.key);
-      logger.info(`Removed schedule trigger ${triggerId}`);
+    const trigger = await Trigger.findById(triggerId);
+    
+    if (trigger?.bullmqJobKey) {
+      // Use stored job key if available
+      await scheduleQueue.removeRepeatableByKey(trigger.bullmqJobKey);
+      logger.info(`Removed schedule trigger ${triggerId} using stored key`);
     } else {
-      logger.debug(`No repeatable job found for trigger ${triggerId}`);
+      // Fallback to searching by job ID
+      const repeatableJobs = await scheduleQueue.getRepeatableJobs();
+      const job = repeatableJobs.find(j => j.id === `schedule-${triggerId}`);
+
+      if (job) {
+        await scheduleQueue.removeRepeatableByKey(job.key);
+        logger.info(`Removed schedule trigger ${triggerId}`);
+      } else {
+        logger.debug(`No repeatable job found for trigger ${triggerId}`);
+      }
     }
   } catch (error: any) {
     logger.error(`Failed to remove schedule trigger ${triggerId}:`, error);
@@ -106,13 +121,13 @@ export const syncAllScheduleTriggers = async (): Promise<void> => {
   try {
     logger.info("Syncing all schedule triggers...");
 
-    // Find all active schedule triggers
+    // Find all enabled schedule triggers
     const triggers = await Trigger.find({
       type: "schedule",
-      active: true,
+      enabled: true,
     }).lean();
 
-    logger.info(`Found ${triggers.length} active schedule triggers`);
+    logger.info(`Found ${triggers.length} enabled schedule triggers`);
 
     let successCount = 0;
     let failCount = 0;
