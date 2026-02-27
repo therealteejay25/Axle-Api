@@ -4,7 +4,8 @@ import { Execution } from '../models/Execution';
 import { logger } from './logger';
 
 export class MongoSessionService implements SessionService {
-  async getSession(sessionId: string): Promise<Session | undefined> {
+  async getSession(request: { sessionId: string } | string): Promise<Session | undefined> {
+    const sessionId = typeof request === 'string' ? request : request.sessionId;
     return this.load(sessionId);
   }
 
@@ -13,11 +14,11 @@ export class MongoSessionService implements SessionService {
     return session;
   }
 
-  async listSessions(): Promise<Session[]> {
-    return []; 
+  async listSessions(): Promise<{ sessions: Session[] }> {
+    return { sessions: [] }; 
   }
 
-  async deleteSession(sessionId: string): Promise<void> {
+  async deleteSession(request: { sessionId: string } | string): Promise<void> {
     // No-op
   }
 
@@ -69,13 +70,14 @@ export class MongoSessionService implements SessionService {
     return session as any;
   }
 
-  async appendEvent(request: { session: Session; event: any }): Promise<void> {
+  async appendEvent(request: { session: Session; event: any }): Promise<any> {
     const { session, event } = request;
     if (!session.events) session.events = [];
     session.events.push(event);
     // Sync history for legacy compatibility
     session.history = session.events;
     await this.save(session);
+    return event;
   }
 
   async updateSessionState(request: { session: Session; stateDelta: Record<string, any> }): Promise<void> {

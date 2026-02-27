@@ -16,6 +16,12 @@ export interface ExecutionJobData {
   triggerId?: string;
   triggerType: "schedule" | "webhook" | "manual";
   payload: Record<string, any>;
+  attachments?: Array<{
+    url: string;
+    mimeType: string;
+    fileId: string;
+    filename?: string;
+  }>;
 }
 
 export interface ExecutionJobResult {

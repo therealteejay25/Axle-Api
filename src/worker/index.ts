@@ -28,6 +28,7 @@ import { getGeminiClient } from "../lib/clients"; // OPTIMIZATION 4: Use singlet
 import { env } from "../config/env";
 import { createPerformanceTimer } from "../utils/performance"; // OPTIMIZATION 3: Add instrumentation
 import { queryOptimized } from "../services/EmbeddingServiceOptimized"; // OPTIMIZATION 5: Use optimized queries
+import { GoogleAIFileManager } from "@google/generative-ai/server";
 
 // ============================================
 // WORKER - ADK AGENT WITH REASONING & MEMORY
@@ -37,6 +38,110 @@ import { queryOptimized } from "../services/EmbeddingServiceOptimized"; // OPTIM
 
 const QUEUE_NAME = "execution-queue";
 let worker: Worker<ExecutionJobData, ExecutionJobResult> | null = null;
+
+// Helper function to build user message with attachments
+const buildUserMessage = async (
+  userMessage: string,
+  attachments?: Array<{
+    fileId: string;
+    filename?: string;
+    mimeType: string;
+    url: string;
+  }>
+) => {
+  const parts: any[] = [{ text: userMessage }];
+
+  if (!attachments || attachments.length === 0) {
+    return {
+      role: "user",
+      parts,
+    };
+  }
+
+  // Process image attachments
+  let totalBase64Size = 0;
+  const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY!);
+
+  for (const attachment of attachments) {
+    if (!attachment.mimeType.startsWith("image/")) {
+      logger.warn("Skipping non-image attachment", { fileId: attachment.fileId, mimeType: attachment.mimeType });
+      continue;
+    }
+
+    try {
+      // Fetch the image with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+      const response = await fetch(attachment.url, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        logger.error("Failed to fetch attachment", {
+          fileId: attachment.fileId,
+          url: attachment.url,
+          status: response.status,
+        });
+        continue;
+      }
+
+      const buffer = await response.arrayBuffer();
+      const base64Data = Buffer.from(buffer).toString("base64");
+      const sizeBytes = base64Data.length;
+
+      // Check if adding this image would exceed 5MB total
+      if (totalBase64Size + sizeBytes > 5 * 1024 * 1024) {
+        // Use Gemini File API instead
+        logger.info("Using Gemini File API for large image", {
+          fileId: attachment.fileId,
+          sizeBytes,
+          totalSizeBefore: totalBase64Size,
+        });
+
+        const uploadResult = await fileManager.uploadFile(attachment.url, {
+          mimeType: attachment.mimeType,
+          displayName: attachment.filename || attachment.fileId,
+        });
+
+        parts.push({
+          fileData: {
+            mimeType: attachment.mimeType,
+            fileUri: uploadResult.file.uri,
+          },
+        });
+      } else {
+        // Use inline base64
+        parts.push({
+          inlineData: {
+            mimeType: attachment.mimeType,
+            data: base64Data,
+          },
+        });
+        totalBase64Size += sizeBytes;
+      }
+
+      logger.info("Added image attachment to message", {
+        fileId: attachment.fileId,
+        mimeType: attachment.mimeType,
+        sizeBytes,
+        method: totalBase64Size + sizeBytes > 5 * 1024 * 1024 ? "file_api" : "inline",
+      });
+    } catch (error: any) {
+      logger.error("Failed to process attachment", {
+        fileId: attachment.fileId,
+        error: error.message,
+      });
+      // Continue with other attachments
+    }
+  }
+
+  return {
+    role: "user",
+    parts,
+  };
+};
 
 export const startWorker = (): Worker<ExecutionJobData, ExecutionJobResult> => {
   worker = new Worker<ExecutionJobData, ExecutionJobResult>(
@@ -51,90 +156,7 @@ export const startWorker = (): Worker<ExecutionJobData, ExecutionJobResult> => {
         max: 100,
         duration: 60000,
       },
-    let totalBase64Size = 0;
-    const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY!);
-
-    for (const attachment of attachments) {
-      if (!attachment.mimeType.startsWith("image/")) {
-        logger.warn("Skipping non-image attachment", { fileId: attachment.fileId, mimeType: attachment.mimeType });
-        continue;
-      }
-
-      try {
-        // Fetch the image with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-
-        const response = await fetch(attachment.url, {
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          logger.error("Failed to fetch attachment", {
-            fileId: attachment.fileId,
-            url: attachment.url,
-            status: response.status,
-          });
-          continue;
-        }
-
-        const buffer = await response.arrayBuffer();
-        const base64Data = Buffer.from(buffer).toString("base64");
-        const sizeBytes = base64Data.length;
-
-        // Check if adding this image would exceed 5MB total
-        if (totalBase64Size + sizeBytes > 5 * 1024 * 1024) {
-          // Use Gemini File API instead
-          logger.info("Using Gemini File API for large image", {
-            fileId: attachment.fileId,
-            sizeBytes,
-            totalSizeBefore: totalBase64Size,
-          });
-
-          const uploadResult = await fileManager.uploadFile(attachment.url, {
-            mimeType: attachment.mimeType,
-            displayName: attachment.filename || attachment.fileId,
-          });
-
-          parts.push({
-            fileData: {
-              mimeType: attachment.mimeType,
-              fileUri: uploadResult.file.uri,
-            },
-          });
-        } else {
-          // Use inline base64
-          parts.push({
-            inlineData: {
-              mimeType: attachment.mimeType,
-              data: base64Data,
-            },
-          });
-          totalBase64Size += sizeBytes;
-        }
-
-        logger.info("Added image attachment to message", {
-          fileId: attachment.fileId,
-          mimeType: attachment.mimeType,
-          sizeBytes,
-          method: totalBase64Size + sizeBytes > 5 * 1024 * 1024 ? "file_api" : "inline",
-        });
-      } catch (error: any) {
-        logger.error("Failed to process attachment", {
-          fileId: attachment.fileId,
-          error: error.message,
-        });
-        // Continue with other attachments
-      }
-    }
-  }
-
-  return {
-    role: "user",
-    parts,
-  };
-};},
+    },
   );
 
   worker.on("completed", (job, result) => {
@@ -164,7 +186,7 @@ export const startWorker = (): Worker<ExecutionJobData, ExecutionJobResult> => {
 const processJob = async (
   job: Job<ExecutionJobData, ExecutionJobResult>,
 ): Promise<ExecutionJobResult> => {
-  const { executionId, agentId, ownerId, triggerType, payload, triggerId } = job.data;
+  const { executionId, agentId, ownerId, triggerType, payload, triggerId, attachments } = job.data;
 
   // OPTIMIZATION 3: Performance instrumentation
   const perf = createPerformanceTimer();
@@ -172,6 +194,11 @@ const processJob = async (
   const runStartedAtMs = Date.now();
 
   const effectivePayload: Record<string, any> = { ...(payload || {}) };
+
+  // Store attachments on execution record
+  if (attachments && attachments.length > 0) {
+    effectivePayload.attachments = attachments;
+  }
 
   // Handle trigger-based execution
   let trigger = null;
@@ -368,6 +395,12 @@ const processJob = async (
 
   execution.status = "running";
   execution.startedAt = new Date();
+  
+  // Store attachments if provided
+  if (effectivePayload.attachments) {
+    execution.attachments = effectivePayload.attachments;
+  }
+  
   await execution.save();
 
   await ExecutionEventService.log({
@@ -409,10 +442,10 @@ const processJob = async (
   let creditsDeductedTotal = 0;
   const actionsExecuted: Array<{
     type: string;
-    params?: Record<string, unknown>;
-    result?: unknown;
+    params: Record<string, any>;
+    result?: any;
     error?: string;
-    startedAt?: Date;
+    startedAt: Date;
     finishedAt?: Date;
     durationMs?: number;
   }> = [];
@@ -706,11 +739,6 @@ const processJob = async (
           maxOutputTokens: 18000,
           temperature: 1.5, // Balanced creativity (max is 2.0)
         },
-        context: {
-          agentId: agentId,
-          userId: ownerId.toString(),
-          executionId: executionId,
-        },
       });
     } catch (error: any) {
       logger.error("Failed to initialize ADK agent", { 
@@ -728,7 +756,7 @@ const processJob = async (
     const sessionService = new MongoSessionService();
     const runner = new Runner({
       agent: adkAgent,
-      sessionService,
+      sessionService: sessionService as any,
       appName: "axle",
     });
 
@@ -921,7 +949,10 @@ const processJob = async (
       // taskComplete already declared at function scope
       
       // Initialize with user's input
-      let nextMessage: any = { role: "user", parts: [{ text: userMessageForEstimate }] };
+      let nextMessage = await buildUserMessage(
+        userMessageForEstimate,
+        effectivePayload.attachments
+      );
       
       let lastIterationHadTools = false;
       let lastIterationTextLength = 0;
@@ -1633,7 +1664,7 @@ const processJob = async (
 
     return result;
   } catch (error) {
-    logger.error("Execution failed", { error });
+    logger.error("Execution failed", { error: error instanceof Error ? error.message : String(error) });
     execution.status = "failed";
     const err: any = error;
     const errorCode = err?.code;
@@ -1668,7 +1699,7 @@ const processJob = async (
       userId: ownerId,
       type: "execution_failed",
       level: "error",
-      message: error.message,
+      message: error instanceof Error ? error.message : String(error),
     });
 
     SocketService.getInstance().emitToAgent(agentId, "execution:completed", {

@@ -45,6 +45,8 @@ import { createArxivSearchTool } from "../research";
 import { createScheduleSelfTool } from "../scheduler";
 import { createSchedulerDebugTool } from "../debug-scheduler";
 import { createPlatformTools } from "../platform";
+import { createImageTools } from "../image/imageTools";
+import { createImagePostingTools } from "../social/imagePostingTools";
 import {
   createCompleteTaskTool,
   createRememberTool,
@@ -923,6 +925,12 @@ export const createAllUserTools = (userId: string, agentId?: string) => {
 
     // Platform tools
     ...createPlatformTools(userId),
+
+    // Image Analysis Tools (4 tools)
+    ...createImageTools(userId, agentId),
+
+    // Social Media Image Posting Tools (8 tools)
+    ...createImagePostingTools(userId),
   ];
 
   // Add control and memory tools if agentId provided

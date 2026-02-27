@@ -43,6 +43,13 @@ export interface IExecution extends Document {
   name?: string; // AI-generated name for this execution
   // Input from the trigger
   inputPayload: Record<string, any>;
+  // Attachments
+  attachments?: Array<{
+    fileId: string;
+    url: string;
+    mimeType: string;
+    filename?: string;
+  }>;
   // Final output
   outputPayload?: Record<string, any>;
   // AI interaction logging
@@ -126,6 +133,12 @@ const ExecutionSchema = new Schema<IExecution>(
       type: Schema.Types.Mixed,
       default: {}
     },
+    attachments: [{
+      fileId: { type: String, required: true },
+      url: { type: String, required: true },
+      mimeType: { type: String, required: true },
+      filename: { type: String }
+    }],
     outputPayload: {
       type: Schema.Types.Mixed
     },

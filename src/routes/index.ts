@@ -18,6 +18,7 @@ import newsletterRoutes from "./newsletter.routes";
 import approvalsRoutes from "./approvals";
 import feedbackRoutes from "./feedback";
 import templatesRoutes from "./templates";
+import uploadsRoutes from "./uploads";
 import { handleCallback } from "../controllers/oauth";
 import polarWebhooksRoutes from "./polarWebhooks";
 import couponsRoutes from "./coupons";
@@ -54,6 +55,7 @@ router.use("/newsletter", newsletterRoutes);
 router.use("/approvals", approvalsRoutes);
 router.use("/feedback", feedbackRoutes);
 router.use("/templates", templatesRoutes);
+router.use("/uploads", uploadsRoutes);
 
 // OAuth callbacks (public - provider redirects here)
 router.get("/oauth/:provider/callback", handleCallback);

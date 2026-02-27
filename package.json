@@ -16,6 +16,7 @@
   "dependencies": {
     "@ai-sdk/groq": "^3.0.1",
     "@anthropic-ai/sdk": "^0.71.1",
+    "@aws-sdk/client-s3": "^3.999.0",
     "@google/adk": "^0.2.1",
     "@google/adk-devtools": "^0.2.1",
     "@google/generative-ai": "^0.24.1",
@@ -30,6 +31,7 @@
     "@types/cheerio": "^0.22.35",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.10.1",
     "@types/nunjucks": "^3.2.6",
     "@xdevplatform/xdk": "^0.3.0",
@@ -51,6 +53,7 @@
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.20.1",
+    "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.11",
     "nunjucks": "^3.2.4",
