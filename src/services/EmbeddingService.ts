@@ -5,16 +5,15 @@ import { logger } from "./logger";
 // ============================================
 // EMBEDDING SERVICE
 // ============================================
-// Simple local embeddings + Pinecone for vector storage
-// Using a basic TF-IDF style approach for now
+// Using Pinecone Inference API for embeddings
 // ============================================
 
 const pinecone = new Pinecone({ apiKey: env.PINECONE_API_KEY });
 
 export class EmbeddingService {
   /**
-   * Generate embedding using a simple local approach
-   * This creates a 3072-dimensional vector from text
+   * Generate embedding using Pinecone Inference API via REST
+   * Uses multilingual-e5-large model (384 dimensions)
    */
   static async embed(text: string): Promise<number[]> {
     try {
@@ -23,29 +22,46 @@ export class EmbeddingService {
         throw new Error('Text content is required for embedding generation');
       }
 
-      // Simple hash-based embedding generation
-      // This creates a deterministic 3072-dimensional vector
-      const dimension = 3072;
-      const embedding = new Array(dimension).fill(0);
+      const cleanText = text.trim();
+
+      // Use Pinecone Inference API via REST
+      const model = "multilingual-e5-large";
       
-      const cleanText = text.trim().toLowerCase();
-      
-      // Use character codes and positions to generate features
-      for (let i = 0; i < cleanText.length; i++) {
-        const charCode = cleanText.charCodeAt(i);
-        const idx = (charCode * (i + 1)) % dimension;
-        embedding[idx] += Math.sin(charCode * 0.1) * Math.cos(i * 0.1);
-      }
-      
-      // Normalize the vector
-      const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
-      if (magnitude > 0) {
-        for (let i = 0; i < dimension; i++) {
-          embedding[i] = embedding[i] / magnitude;
-        }
+      const response = await fetch("https://api.pinecone.io/v1/embed", {
+        method: "POST",
+        headers: {
+          "Api-Key": env.PINECONE_API_KEY,
+          "Content-Type": "application/json",
+          "X-Pinecone-API-Version": "2024-10",
+        },
+        body: JSON.stringify({
+          model,
+          parameters: {
+            input_type: "passage",
+          },
+          inputs: [
+            {
+              text: cleanText,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Pinecone API error: ${response.status} ${errorText}`);
       }
 
-      logger.info("Local embedding generated", { 
+      const result = await response.json();
+
+      if (!result || !result.data || result.data.length === 0) {
+        throw new Error("No embeddings returned from Pinecone");
+      }
+
+      const embedding = result.data[0].values;
+
+      logger.info("Pinecone embedding generated", { 
+        model,
         dimension: embedding.length,
         textLength: cleanText.length
       });
