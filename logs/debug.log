@@ -27871,3 +27871,178 @@
 {"timestamp":"2026-02-27 16:15:37","level":"debug","message":"[KeepAlive] Ping successful"}
 {"timestamp":"2026-02-27 16:29:37","level":"debug","message":"[KeepAlive] Ping successful"}
 {"timestamp":"2026-02-27 16:43:37","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-03-04 08:22:53","level":"info","message":"Polar configuration validation successful","environment":"sandbox","featuresEnabled":["checkout","webhooks","customerPortal","coupons"]}
+{"timestamp":"2026-03-04 08:22:53","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-03-04 08:22:53","level":"info","message":"Polar configuration validation successful","environment":"sandbox","featuresEnabled":["checkout","webhooks","customerPortal","coupons"]}
+{"timestamp":"2026-03-04 08:22:53","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-03-04 08:22:53","level":"info","message":"Polar client configured for sandbox environment","environment":"sandbox","warning":"Ensure this is intended for your deployment environment"}
+{"timestamp":"2026-03-04 08:22:53","level":"info","message":"Polar client initialized successfully","environment":"sandbox","organizationId":"heyaxle","apiUrl":"https://sandbox-api.polar.sh/v1","featuresEnabled":["checkout","webhooks","customerPortal","coupons"]}
+{"timestamp":"2026-03-04 08:22:56","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-03-04 08:22:56","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-03-04 08:22:56","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-03-04 08:22:58","level":"info","message":"Warming up singleton clients..."}
+{"timestamp":"2026-03-04 08:22:58","level":"info","message":"[Clients] Gemini client initialized"}
+{"timestamp":"2026-03-04 08:22:58","level":"info","message":"[Clients] Pinecone client initialized"}
+{"timestamp":"2026-03-04 08:23:01","level":"info","message":"[Clients] Pinecone connection warmed up"}
+{"timestamp":"2026-03-04 08:23:01","level":"info","message":"[Clients] All clients warmed up successfully"}
+{"timestamp":"2026-03-04 08:23:01","level":"info","message":"Clients warmed up successfully"}
+{"timestamp":"2026-03-04 08:23:01","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-03-04 08:23:01","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-03-04 08:23:01","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-03-04 08:23:01","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-03-04 08:23:02","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-03-04 08:23:02","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-03-04 08:23:02","level":"info","message":"Worker started"}
+{"timestamp":"2026-03-04 08:23:02","level":"info","message":"Worker started"}
+{"timestamp":"2026-03-04 08:23:02","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-03-04 08:23:02","level":"info","message":"Clearing 1 existing repeatable jobs"}
+{"timestamp":"2026-03-04 08:23:03","level":"info","message":"Found 22 enabled schedule triggers"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 6956ffde2d3ad10a603a6694 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 696638dbcc1c79ce30f40c66 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 69663bc6cc1c79ce30f40de0 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 6966482acc1c79ce30f41012 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 6969269d2e6a51b8eb1b8ebc has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 6969371d5c123aa314430157 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 6969377b5c123aa3144301d7 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 696939bc5c123aa314430288 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 69693a105c123aa31443033e has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 69693b915c123aa3144304df has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 69693d745c123aa31443076b has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 69693fd55c123aa31443091b has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 69695e0b73b9e979a431779a has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 696963bc18dc4761d2e9e3bf has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 6969ea0223a1970bf307a244 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 696a06330e253de7c71d98ac has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 696bfbd94253a1969f910205 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 6977c100ffa5e9cf02a29194 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 698b49677d89cacb939b0855 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 699b9bc8cc93729dfb16022f has no cron expression"}
+{"timestamp":"2026-03-04 08:23:03","level":"warn","message":"Schedule trigger 699ca7e465e29764b9ee3d39 has no cron expression"}
+{"timestamp":"2026-03-04 08:23:04","level":"info","message":"Scheduled trigger 699e20eb1fadcc148714b9ce","cron":"*/2 * * * *","timezone":"UTC","nextRun":"2026-03-04T07:24:00.000Z","agentId":"699e1d81f6f6c8ad3467ee2d"}
+{"timestamp":"2026-03-04 08:23:04","level":"info","message":"Scheduler initialized: 1 triggers scheduled"}
+{"timestamp":"2026-03-04 08:23:04","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-03-04 08:23:04","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-03-04 08:23:04","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-03-04 08:23:04","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-03-04 08:23:04","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-03-04 08:31:49","level":"error","message":"Checkout creation failed","error":"API error occurred: Status 401\nBody: {\"error\": \"invalid_token\", \"error_description\": \"The access token provided is expired, revoked, malformed, or invalid for other reasons.\"}"}
+{"timestamp":"2026-03-04 08:33:54","level":"error","message":"Checkout creation failed","error":"API error occurred: Status 401\nBody: {\"error\": \"invalid_token\", \"error_description\": \"The access token provided is expired, revoked, malformed, or invalid for other reasons.\"}"}
+{"timestamp":"2026-03-04 08:34:08","level":"error","message":"Checkout creation failed","error":"API error occurred: Status 401\nBody: {\"error\": \"invalid_token\", \"error_description\": \"The access token provided is expired, revoked, malformed, or invalid for other reasons.\"}"}
+{"timestamp":"2026-03-04 08:36:06","level":"info","message":"Received SIGINT, shutting down..."}
+{"timestamp":"2026-03-04 08:36:16","level":"info","message":"Polar configuration validation successful","environment":"sandbox","featuresEnabled":["checkout","webhooks","customerPortal","coupons"]}
+{"timestamp":"2026-03-04 08:36:16","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-03-04 08:36:16","level":"info","message":"Polar configuration validation successful","environment":"sandbox","featuresEnabled":["checkout","webhooks","customerPortal","coupons"]}
+{"timestamp":"2026-03-04 08:36:16","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-03-04 08:36:16","level":"info","message":"Polar client configured for sandbox environment","environment":"sandbox","warning":"Ensure this is intended for your deployment environment"}
+{"timestamp":"2026-03-04 08:36:16","level":"info","message":"Polar client initialized successfully","environment":"sandbox","organizationId":"heyaxle","apiUrl":"https://sandbox-api.polar.sh/v1","featuresEnabled":["checkout","webhooks","customerPortal","coupons"]}
+{"timestamp":"2026-03-04 08:36:18","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-03-04 08:36:18","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-03-04 08:36:19","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-03-04 08:36:26","level":"info","message":"Warming up singleton clients..."}
+{"timestamp":"2026-03-04 08:36:27","level":"info","message":"[Clients] Gemini client initialized"}
+{"timestamp":"2026-03-04 08:36:27","level":"info","message":"[Clients] Pinecone client initialized"}
+{"timestamp":"2026-03-04 08:36:29","level":"info","message":"[Clients] Pinecone connection warmed up"}
+{"timestamp":"2026-03-04 08:36:29","level":"info","message":"[Clients] All clients warmed up successfully"}
+{"timestamp":"2026-03-04 08:36:29","level":"info","message":"Clients warmed up successfully"}
+{"timestamp":"2026-03-04 08:36:29","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-03-04 08:36:29","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-03-04 08:36:29","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-03-04 08:36:29","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-03-04 08:36:30","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-03-04 08:36:30","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-03-04 08:36:30","level":"info","message":"Worker started"}
+{"timestamp":"2026-03-04 08:36:30","level":"info","message":"Worker started"}
+{"timestamp":"2026-03-04 08:36:30","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-03-04 08:36:30","level":"info","message":"Clearing 1 existing repeatable jobs"}
+{"timestamp":"2026-03-04 08:36:32","level":"info","message":"Found 22 enabled schedule triggers"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 6956ffde2d3ad10a603a6694 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 696638dbcc1c79ce30f40c66 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 69663bc6cc1c79ce30f40de0 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 6966482acc1c79ce30f41012 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 6969269d2e6a51b8eb1b8ebc has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 6969371d5c123aa314430157 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 6969377b5c123aa3144301d7 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 696939bc5c123aa314430288 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 69693a105c123aa31443033e has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 69693b915c123aa3144304df has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 69693d745c123aa31443076b has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 69693fd55c123aa31443091b has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 69695e0b73b9e979a431779a has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 696963bc18dc4761d2e9e3bf has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 6969ea0223a1970bf307a244 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 696a06330e253de7c71d98ac has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 696bfbd94253a1969f910205 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 6977c100ffa5e9cf02a29194 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 698b49677d89cacb939b0855 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 699b9bc8cc93729dfb16022f has no cron expression"}
+{"timestamp":"2026-03-04 08:36:32","level":"warn","message":"Schedule trigger 699ca7e465e29764b9ee3d39 has no cron expression"}
+{"timestamp":"2026-03-04 08:36:33","level":"info","message":"Scheduled trigger 699e20eb1fadcc148714b9ce","cron":"*/2 * * * *","timezone":"UTC","nextRun":"2026-03-04T07:38:00.000Z","agentId":"699e1d81f6f6c8ad3467ee2d"}
+{"timestamp":"2026-03-04 08:36:33","level":"info","message":"Scheduler initialized: 1 triggers scheduled"}
+{"timestamp":"2026-03-04 08:36:33","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-03-04 08:36:33","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-03-04 08:36:33","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-03-04 08:36:33","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-03-04 08:36:33","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-03-04 08:37:31","level":"error","message":"Checkout creation failed","error":"API error occurred: Status 401\nBody: {\"error\": \"invalid_token\", \"error_description\": \"The access token provided is expired, revoked, malformed, or invalid for other reasons.\"}"}
+{"timestamp":"2026-03-04 08:39:18","level":"error","message":"Checkout creation failed","error":"API error occurred: Status 401\nBody: {\"error\": \"invalid_token\", \"error_description\": \"The access token provided is expired, revoked, malformed, or invalid for other reasons.\"}"}
+{"timestamp":"2026-03-04 08:48:16","level":"error","message":"Checkout creation failed","error":"Unable to make request: TypeError: fetch failed"}
+{"timestamp":"2026-03-04 08:48:41","level":"error","message":"Checkout creation failed","error":"API error occurred: Status 401\nBody: {\"error\": \"invalid_token\", \"error_description\": \"The access token provided is expired, revoked, malformed, or invalid for other reasons.\"}"}
+{"timestamp":"2026-03-04 08:50:33","level":"debug","message":"[KeepAlive] Ping successful"}
+{"timestamp":"2026-03-04 08:57:05","level":"info","message":"Received SIGTERM, shutting down..."}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration validation failed","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"disabledFeatures":["checkout"]}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration warning Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM"}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration warning Affected billing features will be disabled until configuration is complete"}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar configuration warning Running in Polar sandbox mode - ensure this is intended for your environment"}
+{"timestamp":"2026-03-04 08:57:18","level":"warn","message":"Polar client initialization skipped due to configuration issues","missingVariables":["POLAR_PRICE_ID_PRO","POLAR_PRICE_ID_PREMIUM","POLAR_PRICE_ID_CUSTOM"],"warnings":["Missing required Polar environment variables: POLAR_PRICE_ID_PRO, POLAR_PRICE_ID_PREMIUM, POLAR_PRICE_ID_CUSTOM","Affected billing features will be disabled until configuration is complete","Running in Polar sandbox mode - ensure this is intended for your environment"]}
+{"timestamp":"2026-03-04 08:57:21","level":"info","message":"[CacheService] Connected to Redis"}
+{"timestamp":"2026-03-04 08:57:21","level":"info","message":"[Redis] Connected successfully"}
+{"timestamp":"2026-03-04 08:57:21","level":"info","message":"[Redis] Client is ready"}
+{"timestamp":"2026-03-04 08:57:27","level":"info","message":"Warming up singleton clients..."}
+{"timestamp":"2026-03-04 08:57:27","level":"info","message":"[Clients] Gemini client initialized"}
+{"timestamp":"2026-03-04 08:57:27","level":"info","message":"[Clients] Pinecone client initialized"}
+{"timestamp":"2026-03-04 08:57:30","level":"info","message":"[Clients] Pinecone connection warmed up"}
+{"timestamp":"2026-03-04 08:57:30","level":"info","message":"[Clients] All clients warmed up successfully"}
+{"timestamp":"2026-03-04 08:57:30","level":"info","message":"Clients warmed up successfully"}
+{"timestamp":"2026-03-04 08:57:30","level":"info","message":"Socket.io initialized"}
+{"timestamp":"2026-03-04 08:57:30","level":"info","message":"[development] Axle API listening on 0.0.0.0:7000"}
+{"timestamp":"2026-03-04 08:57:30","level":"info","message":"API vv1: /api/v1/"}
+{"timestamp":"2026-03-04 08:57:30","level":"info","message":"Health: http://localhost:7000/health/live"}
+{"timestamp":"2026-03-04 08:57:31","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-03-04 08:57:31","level":"info","message":"Queue scheduler initialized"}
+{"timestamp":"2026-03-04 08:57:31","level":"info","message":"Worker started"}
+{"timestamp":"2026-03-04 08:57:31","level":"info","message":"Worker started"}
+{"timestamp":"2026-03-04 08:57:31","level":"info","message":"Initializing scheduler..."}
+{"timestamp":"2026-03-04 08:57:34","level":"info","message":"Clearing 1 existing repeatable jobs"}
+{"timestamp":"2026-03-04 08:57:35","level":"info","message":"Found 22 enabled schedule triggers"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 6956ffde2d3ad10a603a6694 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 696638dbcc1c79ce30f40c66 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 69663bc6cc1c79ce30f40de0 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 6966482acc1c79ce30f41012 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 6969269d2e6a51b8eb1b8ebc has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 6969371d5c123aa314430157 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 6969377b5c123aa3144301d7 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 696939bc5c123aa314430288 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 69693a105c123aa31443033e has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 69693b915c123aa3144304df has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 69693d745c123aa31443076b has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 69693fd55c123aa31443091b has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 69695e0b73b9e979a431779a has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 696963bc18dc4761d2e9e3bf has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 6969ea0223a1970bf307a244 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 696a06330e253de7c71d98ac has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 696bfbd94253a1969f910205 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 6977c100ffa5e9cf02a29194 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 698b49677d89cacb939b0855 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 699b9bc8cc93729dfb16022f has no cron expression"}
+{"timestamp":"2026-03-04 08:57:35","level":"warn","message":"Schedule trigger 699ca7e465e29764b9ee3d39 has no cron expression"}
+{"timestamp":"2026-03-04 08:57:36","level":"info","message":"Scheduled trigger 699e20eb1fadcc148714b9ce","cron":"*/2 * * * *","timezone":"UTC","nextRun":"2026-03-04T07:58:00.000Z","agentId":"699e1d81f6f6c8ad3467ee2d"}
+{"timestamp":"2026-03-04 08:57:36","level":"info","message":"Scheduler initialized: 1 triggers scheduled"}
+{"timestamp":"2026-03-04 08:57:36","level":"info","message":"Initializing Scheduler Worker..."}
+{"timestamp":"2026-03-04 08:57:36","level":"info","message":"Scheduler Worker started"}
+{"timestamp":"2026-03-04 08:57:36","level":"info","message":"Scheduler initialized"}
+{"timestamp":"2026-03-04 08:57:36","level":"info","message":"[KeepAlive] Starting keep-alive pings to http://localhost:7000/health/live"}
+{"timestamp":"2026-03-04 08:57:36","level":"debug","message":"[KeepAlive] Ping successful"}

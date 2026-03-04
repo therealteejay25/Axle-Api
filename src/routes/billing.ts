@@ -6,7 +6,6 @@ import { User, PLAN_LIMITS } from "../models/User";
 import { CreditTransaction } from "../models/CreditTransaction";
 import { logger } from "../services/logger";
 import * as PolarService from "../services/PolarService";
-import { handleCheckoutSucceeded, createCheckoutSession } from "../services/subscription";
 import { getAllCreditPackages, getCreditPackage } from "../config/creditPackages";
 import { CreditManagerService } from "../services/CreditManagerService";
 
@@ -22,22 +21,15 @@ const router = Router();
  */
 router.post("/checkout", authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { plan, successUrl, discountCode } = req.body;
+    const { plan } = req.body;
 
     if (!["pro", "premium", "custom"].includes(plan)) {
       return res.status(400).json({ error: "Invalid plan. Supported plans: pro, premium, custom" });
     }
 
-    const defaultUrl = `${env.FRONTEND_URL || "http://localhost:3000"}/app/billing`;
-    const resolvedSuccessUrl = successUrl || `${defaultUrl}?checkout=success`;
-    const cancelUrl = `${defaultUrl}?checkout=cancel`;
-
-    const checkoutUrl = await createCheckoutSession(
+    const checkoutUrl = await PolarService.createCheckoutSession(
       req.user!.id,
-      plan as "pro" | "premium" | "custom",
-      resolvedSuccessUrl,
-      cancelUrl,
-      discountCode
+      plan
     );
 
     res.json({ url: checkoutUrl });
@@ -83,19 +75,6 @@ router.post("/webhook", async (req: Request, res: Response) => {
 
   try {
     switch (event.type) {
-      // checkout.updated with status "succeeded" is the PRIMARY plan upgrade trigger
-      case "checkout.updated":
-        if (event.data?.status === "succeeded") {
-          logger.info("Checkout succeeded — upgrading plan", {
-            checkoutId: event.data?.id,
-            metadata: event.data?.metadata,
-          });
-          await handleCheckoutSucceeded(event.data);
-        } else {
-          logger.info("checkout.updated skipped (not succeeded)", { status: event.data?.status });
-        }
-        break;
-
       case "subscription.created":
         await handleSubscriptionCreated(event.data);
         break;

@@ -63,9 +63,9 @@ class PolarConfigManager {
       accessToken: process.env.POLAR_ACCESS_TOKEN || '',
       organizationId: process.env.POLAR_ORGANIZATION_ID || '',
       priceIds: {
-        pro: process.env.POLAR_PRO_PRODUCT_ID || '',
-        premium: process.env.POLAR_PREMIUM_PRODUCT_ID || '',
-        custom: process.env.POLAR_CUSTOM_PRODUCT_ID || ''
+        pro: process.env.POLAR_PRICE_ID_PRO || '',
+        premium: process.env.POLAR_PRICE_ID_PREMIUM || '',
+        custom: process.env.POLAR_PRICE_ID_CUSTOM || ''
       },
       webhookSecret: process.env.POLAR_WEBHOOK_SECRET || '',
       serverEnvironment: this.determineServerEnvironment(),
@@ -102,15 +102,15 @@ class PolarConfigManager {
     }
 
     if (!this.config.priceIds?.pro) {
-      missingVariables.push('POLAR_PRO_PRODUCT_ID');
+      missingVariables.push('POLAR_PRICE_ID_PRO');
     }
 
     if (!this.config.priceIds?.premium) {
-      missingVariables.push('POLAR_PREMIUM_PRODUCT_ID');
+      missingVariables.push('POLAR_PRICE_ID_PREMIUM');
     }
 
     if (!this.config.priceIds?.custom) {
-      missingVariables.push('POLAR_CUSTOM_PRODUCT_ID');
+      missingVariables.push('POLAR_PRICE_ID_CUSTOM');
     }
 
     if (!this.config.webhookSecret) {
