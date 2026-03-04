@@ -63,9 +63,9 @@ class PolarConfigManager {
       accessToken: process.env.POLAR_ACCESS_TOKEN || '',
       organizationId: process.env.POLAR_ORGANIZATION_ID || '',
       priceIds: {
-        pro: process.env.POLAR_PRICE_ID_PRO || '',
-        premium: process.env.POLAR_PRICE_ID_PREMIUM || '',
-        custom: process.env.POLAR_PRICE_ID_CUSTOM || ''
+        pro: process.env.POLAR_PRO_PRODUCT_ID || '',
+        premium: process.env.POLAR_PREMIUM_PRODUCT_ID || '',
+        custom: process.env.POLAR_CUSTOM_PRODUCT_ID || ''
       },
       webhookSecret: process.env.POLAR_WEBHOOK_SECRET || '',
       serverEnvironment: this.determineServerEnvironment(),
@@ -102,15 +102,15 @@ class PolarConfigManager {
     }
 
     if (!this.config.priceIds?.pro) {
-      missingVariables.push('POLAR_PRICE_ID_PRO');
+      missingVariables.push('POLAR_PRO_PRODUCT_ID');
     }
 
     if (!this.config.priceIds?.premium) {
-      missingVariables.push('POLAR_PRICE_ID_PREMIUM');
+      missingVariables.push('POLAR_PREMIUM_PRODUCT_ID');
     }
 
     if (!this.config.priceIds?.custom) {
-      missingVariables.push('POLAR_PRICE_ID_CUSTOM');
+      missingVariables.push('POLAR_CUSTOM_PRODUCT_ID');
     }
 
     if (!this.config.webhookSecret) {
@@ -254,9 +254,9 @@ class PolarConfigManager {
     if (this.config.apiUrl) {
       return this.config.apiUrl;
     }
-    
+
     // Default URLs based on environment
-    return this.config.serverEnvironment === 'production' 
+    return this.config.serverEnvironment === 'production'
       ? 'https://api.polar.sh/v1'
       : 'https://sandbox-api.polar.sh/v1';
   }
@@ -266,7 +266,7 @@ class PolarConfigManager {
    */
   public validateEnvironmentConsistency(): { isConsistent: boolean; issues: string[] } {
     const issues: string[] = [];
-    
+
     // Check for mixed environment indicators
     if (this.config.serverEnvironment === 'production') {
       if (this.config.accessToken?.includes('sandbox') || this.config.accessToken?.includes('test')) {
