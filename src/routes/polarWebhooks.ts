@@ -3,7 +3,8 @@ import { validateEvent } from "@polar-sh/sdk/webhooks";
 import {
     handleCheckoutComplete,
     handleSubscriptionUpdated,
-    handleSubscriptionDeleted
+    handleSubscriptionDeleted,
+    handleCheckoutSucceeded,
 } from "../services/subscription";
 import { logger } from "../services/logger";
 import { polarConfigManager } from "../services/PolarConfigManager";
@@ -60,17 +61,45 @@ router.post("/", async (req: Request, res: Response) => {
         return res.status(400).json({ error: "Invalid payload" });
     }
 
-    logger.info("Received Polar Webhook", { 
+    logger.info("Received Polar Webhook", {
         type: event.type,
         environment: config.serverEnvironment,
         eventId: event.id || 'unknown'
     });
 
+    // Log the full payload at debug level for diagnostic purposes
+    logger.debug("Polar webhook payload", {
+        type: event.type,
+        data: JSON.stringify(event.data)
+    });
+
     try {
         switch (event.type) {
+            // ─── Checkout ───────────────────────────────────────────────
+            // checkout.updated with status "succeeded" is the most reliable
+            // trigger for plan upgrades because it carries the checkout
+            // metadata (userId, plan) that was attached at checkout creation.
+            case "checkout.updated":
+                if (event.data?.status === "succeeded") {
+                    logger.info("Checkout succeeded, activating subscription", {
+                        checkoutId: event.data?.id,
+                        metadata: event.data?.metadata
+                    });
+                    await handleCheckoutSucceeded(event.data);
+                } else {
+                    logger.info("checkout.updated received but status is not succeeded, skipping", {
+                        status: event.data?.status,
+                        checkoutId: event.data?.id
+                    });
+                }
+                break;
+
+            // ─── Subscription ────────────────────────────────────────────
+            // subscription.created / subscription.active are processed here
+            // as a backup path. The handler will try metadata first, then
+            // fall back to customer ID / email lookup.
             case "subscription.created":
             case "subscription.active":
-                // Pass event.data as the payload
                 await handleCheckoutComplete(event.data);
                 break;
 
@@ -84,17 +113,18 @@ router.post("/", async (req: Request, res: Response) => {
                 break;
 
             default:
-                logger.info("Unhandled Polar event", { 
+                logger.info("Unhandled Polar event", {
                     type: event.type,
-                    environment: config.serverEnvironment 
+                    environment: config.serverEnvironment
                 });
         }
 
         res.json({ received: true });
 
     } catch (err: any) {
-        logger.error("Webhook handler error", { 
+        logger.error("Webhook handler error", {
             error: err.message,
+            stack: err.stack,
             eventType: event.type,
             environment: config.serverEnvironment,
             eventId: event.id || 'unknown'

@@ -19,7 +19,8 @@ const polar = new Polar({
  */
 export const createCheckoutSession = async (
   userId: string,
-  plan: "pro" | "premium" | "custom"
+  plan: "pro" | "premium" | "custom",
+  successUrl?: string
 ): Promise<string> => {
   const user = await User.findById(userId);
   if (!user) throw new Error("User not found");
@@ -34,16 +35,23 @@ export const createCheckoutSession = async (
   const productId = productIdMap[plan];
   if (!productId) throw new Error(`No product ID configured for plan: ${plan}`);
 
+  // Default success URL points to billing page with checkout=success flag
+  // so the FE can detect the return and refresh the plan state
+  const resolvedSuccessUrl =
+    successUrl ||
+    `${env.FRONTEND_URL || "http://localhost:3000"}/app/billing?checkout=success`;
+
   const checkout = await polar.checkouts.create({
     products: [productId],
     customerEmail: user.email,
+    successUrl: resolvedSuccessUrl,
     metadata: {
       userId: user._id.toString(),
       plan,
     },
   });
 
-  logger.info("Checkout session created", { userId, plan, checkoutId: checkout.id });
+  logger.info("Checkout session created", { userId, plan, checkoutId: checkout.id, successUrl: resolvedSuccessUrl });
 
   return checkout.url;
 };
@@ -124,7 +132,7 @@ export const getCustomerByUserId = async (userId: string) => {
  * Cancel subscription
  */
 export const cancelSubscription = async (subscriptionId: string): Promise<void> => {
-  await polar.subscriptions.cancel({
+  await polar.subscriptions.revoke({
     id: subscriptionId,
   });
 

@@ -66,10 +66,111 @@ export const createCheckoutSession = async (
 };
 
 /**
- * Handle successful checkout
+ * Handle 'checkout.updated' event (status === 'succeeded').
+ * This is the PRIMARY path for plan upgrades. The checkout payload reliably
+ * carries the metadata (userId, plan) that was attached at checkout creation.
+ */
+export const handleCheckoutSucceeded = async (checkoutData: any): Promise<void> => {
+  logger.info("handleCheckoutSucceeded called", {
+    checkoutId: checkoutData?.id,
+    status: checkoutData?.status,
+    metadata: checkoutData?.metadata,
+    customerId: checkoutData?.customer_id,
+    customerEmail: checkoutData?.customer_email,
+  });
+
+  const metadata = checkoutData?.metadata || {};
+  const userId: string | undefined = metadata.userId;
+  const plan: PlanType | undefined = metadata.plan as PlanType | undefined;
+
+  const customerId = checkoutData?.customer_id;
+  const customerEmail = checkoutData?.customer_email;
+
+  // Find the user
+  let user = null;
+  if (userId) {
+    user = await User.findById(userId);
+    if (!user) {
+      logger.warn("User not found by metadata.userId, trying fallbacks", { userId });
+    }
+  }
+  if (!user && customerId) {
+    user = await User.findOne({ polarCustomerId: customerId });
+  }
+  if (!user && customerEmail) {
+    user = await User.findOne({ email: customerEmail });
+  }
+
+  if (!user) {
+    logger.error("handleCheckoutSucceeded: user not found", {
+      userId,
+      customerId,
+      customerEmail,
+      checkoutId: checkoutData?.id,
+    });
+    return;
+  }
+
+  // Persist customer ID
+  if (customerId && !user.polarCustomerId) {
+    user.polarCustomerId = customerId;
+  }
+
+  // Determine plan — from metadata first, then price ID reverse-lookup
+  let resolvedPlan = plan;
+  if (!resolvedPlan) {
+    const priceId = checkoutData?.product_price_id || checkoutData?.price_id;
+    if (priceId) {
+      const entry = Object.entries(PLAN_TO_PRICE).find(([_, pid]) => pid === priceId);
+      if (entry) {
+        resolvedPlan = entry[0] as PlanType;
+      }
+    }
+  }
+
+  if (!resolvedPlan) {
+    logger.error("handleCheckoutSucceeded: could not resolve plan", {
+      metadata,
+      checkoutId: checkoutData?.id,
+    });
+    return;
+  }
+
+  user.plan = resolvedPlan;
+  user.credits = PLAN_LIMITS[resolvedPlan].monthlyCredits;
+
+  // subscription_id may be on the checkout payload in some Polar versions
+  const subscriptionId = checkoutData?.subscription_id || checkoutData?.id;
+  if (subscriptionId && subscriptionId !== checkoutData?.id) {
+    // Only set if it looks like a real subscription ID (not the checkout ID)
+    user.polarSubscriptionId = subscriptionId;
+  }
+
+  user.subscriptionStatus = "active";
+
+  await user.save();
+
+  logger.info("Plan upgraded via checkout.updated", {
+    userId: user._id,
+    plan: resolvedPlan,
+    checkoutId: checkoutData?.id,
+  });
+};
+
+/**
+ * Handle successful checkout (via subscription.created / subscription.active events).
+ * NOTE: Subscription events do NOT carry checkout metadata. We look up the user
+ * by customerId or email. Plan detection relies on price ID reverse-lookup.
  */
 export const handleCheckoutComplete = async (payload: any): Promise<void> => {
-
+  logger.info("handleCheckoutComplete called", {
+    subscriptionId: payload?.id,
+    status: payload?.status,
+    customerId: payload?.customer_id,
+    customerEmail: payload?.customer_email,
+    priceId: payload?.price_id,
+    metadata: payload?.metadata,
+  });
 
   let userId: string | undefined;
   let plan: PlanType | undefined;
@@ -78,7 +179,7 @@ export const handleCheckoutComplete = async (payload: any): Promise<void> => {
   const customerId = payload.customer_id || payload.customer?.id;
   const customerEmail = payload.customer_email || payload.customer?.email;
 
-  // Also try metadata if available (e.g. from checkout)
+  // Also try metadata if available (some Polar versions forward it)
   if (payload.metadata) {
     userId = payload.metadata.userId;
     plan = payload.metadata.plan as PlanType;
@@ -88,22 +189,27 @@ export const handleCheckoutComplete = async (payload: any): Promise<void> => {
 
   if (userId) {
     user = await User.findById(userId);
-  } else if (customerId) {
-    user = await User.findOne({ polarUserId: customerId });
   }
-
+  if (!user && customerId) {
+    user = await User.findOne({ polarCustomerId: customerId });
+  }
   if (!user && customerEmail) {
     user = await User.findOne({ email: customerEmail });
   }
 
   if (!user) {
-    logger.error("User not found for Polar event", { payload });
+    logger.error("handleCheckoutComplete: user not found", {
+      userId,
+      customerId,
+      customerEmail,
+      subscriptionId: payload?.id,
+    });
     return;
   }
 
   // Save Polar Customer ID if not set
-  if (customerId && !user.polarUserId) {
-    user.polarUserId = customerId;
+  if (customerId && !user.polarCustomerId) {
+    user.polarCustomerId = customerId;
   }
 
   const subscriptionId = payload.id;
@@ -111,7 +217,6 @@ export const handleCheckoutComplete = async (payload: any): Promise<void> => {
 
   // Determine plan from price ID if not in metadata
   if (!plan && payload.price_id) {
-    // Reverse lookup plan
     const entry = Object.entries(PLAN_TO_PRICE).find(([_, priceId]) => priceId === payload.price_id);
     if (entry) {
       plan = entry[0] as PlanType;
@@ -119,12 +224,15 @@ export const handleCheckoutComplete = async (payload: any): Promise<void> => {
   }
 
   if (!plan) {
-    // Fallback or keep existing
-    logger.warn("Could not determine plan from Polar event", { subscriptionId });
+    logger.warn("handleCheckoutComplete: could not determine plan — keeping existing plan", {
+      subscriptionId,
+      availablePlanToPriceKeys: Object.keys(PLAN_TO_PRICE),
+      payloadPriceId: payload?.price_id,
+    });
     // Don't update plan if we can't determine it, just status
   } else {
     user.plan = plan;
-    user.credits = PLAN_LIMITS[plan].monthlyCredits; // Reset/Set credits on new subscription
+    user.credits = PLAN_LIMITS[plan].monthlyCredits;
   }
 
   user.polarSubscriptionId = subscriptionId;
@@ -182,13 +290,13 @@ export const createPortalSession = async (
   }
 
   const user = await User.findById(userId);
-  if (!user || !user.polarUserId) {
+  if (!user || !user.polarCustomerId) {
     throw new Error("No Polar customer found");
   }
 
   // Polar usually has a standard customer portal URL or generates one via API
   const session = await polar.customerSessions.create({
-    customerId: user.polarUserId
+    customerId: user.polarCustomerId
   });
 
   return session.customerPortalUrl; // Check SDK response structure
@@ -229,6 +337,7 @@ export const getSubscriptionDetails = async (userId: string) => {
 
 export default {
   createCheckoutSession,
+  handleCheckoutSucceeded,
   handleCheckoutComplete,
   handleSubscriptionUpdated,
   handleSubscriptionDeleted,
